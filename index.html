@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Campo</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: #334155;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --r-sm: 6px;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: sans-serif;
+    margin: 0;
+    padding: 16px;
+  }
+  .shell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button:hover { opacity: 0.9; }
+  input, select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px;
+    border-radius: var(--r-sm);
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<h1>Painel de Operações</h1>
+
+<!-- SISTEMA 6: IA LUMINÁRIA -->
+<div class="shell" id="iaShell">
+  <h3>Sistema 6: IA Luminária</h3>
+  <div style="margin-bottom: 8px;">
+    <label>Threshold:</label>
+    <input type="number" id="iaLuminanceThreshold" value="55" style="width: 70px;">
+    <label>Intervalo (ms):</label>
+    <input type="number" id="iaInterval" value="600" style="width: 70px;">
+  </div>
+  <video id="iaVid" autoplay playsinline style="width:100%; max-width:320px; border-radius:var(--r-sm); background:#000; display:block; margin-bottom:8px;"></video>
+  <canvas id="iaCanvas" style="display:none;"></canvas>
+  <p style="font-size:12px;">Luminância Atual: <span id="iaLumValue">0</span></p>
+  <p style="font-size:12px;" id="iaCount">0 ocorrências</p>
+  <div style="display:flex; gap:8px; margin-bottom:8px;">
+    <button onclick="iaStart()">Ligar Câmera IA</button>
+    <button onclick="iaExportPdf()">Exportar PDF</button>
+  </div>
+  <div id="iaList" style="display:flex; flex-direction:column; gap:6px; max-height:150px; overflow-y:auto;">
+    <p style="font-size:11px;color:var(--muted);">Nenhuma ocorrência registrada ainda.</p>
+  </div>
+</div>
+
+<!-- SISTEMA 7: RELATÓRIO POR VOZ -->
+<div class="shell" id="vozShell">
+  <h3>Sistema 7: Relatório por Voz</h3>
+  <video id="vozVid" autoplay playsinline style="width:100%; max-width:320px; border-radius:var(--r-sm); background:#000; display:block; margin-bottom:8px;"></video>
+  <canvas id="vozCanvas" style="display:none;"></canvas>
+  <p style="font-size:12px;">Status: <span id="vozStatus">Inativo</span></p>
+  <p style="font-size:12px;" id="vozCount">0 blocos</p>
+  <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+    <button onclick="vozStart()">Ligar Câmera/Áudio</button>
+    <button onclick="vozStartListening()">Ouvir</button>
+    <button onclick="vozStopListening()" style="background:#ef4444;">Parar</button>
+  </div>
+  <div id="vozTimeline" style="display:flex; flex-direction:column; gap:6px; max-height:150px; overflow-y:auto;">
+    <p style="font-size:11px;color:var(--muted);">Nenhum bloco de voz criado ainda.</p>
+  </div>
+</div>
+
+<script>
+/* VARIÁVEIS GLOBAIS */
+let apoioInit = false;
+let rtInit = false;
+
+let iaStream = null;
+let iaTimer = null;
+let iaOccurences = [];
+let iaLat = 0.0, iaLon = 0.0;
+
+let vozStream = null;
+let vozRecognition = null;
+let vozListening = false;
+let vozBlocks = [];
+let vozLat = 0.0, vozLon = 0.0;
+
+/* FUNÇÕES UTILITÁRIAS */
+function nowBR() {
+  const d = new Date();
+  return d.toLocaleString('pt-BR');
+}
+
+function showToast(msg, type = 'ok') {
+  console.log(`[Toast - ${type}]: ${msg}`);
+}
+
+function vibrate(pattern) {
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+  }
+}
+
+/* SISTEMA 6: IA LUMINÁRIA */
+function iaStart(){
+  const shell = document.getElementById('iaShell');
+  const vid = document.getElementById('iaVid');
+  shell.style.display = 'block';
+  navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: false})
+    .then(st => {
+      iaStream = st;
+      vid.srcObject = st;
+      vid.play();
+      iaStartProcessing();
+      showToast('Câmera IA ativada com sucesso');
+    })
+    .catch(err => {
+      showToast('Erro ao acessar câmera: ' + err.message, 'err');
+    });
+}
+
+function iaStartProcessing(){
+  const vid = document.getElementById('iaVid');
+  const canvas = document.getElementById('iaCanvas');
+  const ctx = canvas.getContext('2d');
+  const threshold = parseInt(document.getElementById('iaLuminanceThreshold').value) || 55;
+  const interval = parseInt(document.getElementById('iaInterval').value) || 600;
+
+  if (iaTimer) clearInterval(iaTimer);
+
+  iaTimer = setInterval(() => {
+    if (vid.paused || vid.ended) return;
+    canvas.width = vid.videoWidth || 320;
+    canvas.height = vid.videoHeight || 240;
+    if (!canvas.width || !canvas.height) return;
+
+    const scanH = Math.floor(canvas.height * 0.4);
+    ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+    const imgData = ctx.getImageData(0, 0, canvas.width, scanH);
+    let totalLum = 0, count = 0;
+
+    for (let i = 0; i < imgData.data.length; i += 16) {
+      const r = imgData.data[i];
+      const g = imgData.data[i+1];
+      const b = imgData.data[i+2];
+      const lum = r * 0.299 + g * 0.587 + b * 0.114;
+      totalLum += lum;
+      count++;
+    }
+
+    const avgLum = Math.round(totalLum / (count || 1));
+    document.getElementById('iaLumValue').textContent = avgLum;
+
+    if (avgLum < threshold) {
+      iaTriggerDetection(canvas, avgLum);
+    }
+  }, interval);
+}
+
+function iaTriggerDetection(canvas, lum){
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+  const timeStr = nowBR();
+  
+  if (iaOccurences.length > 0) {
+    const last = iaOccurences[iaOccurences.length - 1];
+    if (Date.now() - last.ts < 5000) return;
+  }
+
+  iaOccurences.push({
+    ts: Date.now(),
+    time: timeStr,
+    lum: lum,
+    img: dataUrl,
+    lat: iaLat,
+    lon: iaLon
+  });
+
+  document.getElementById('iaCount').textContent = `${iaOccurences.length} ocorrências`;
+  updateIaList();
+  vibrate([200, 100, 200]);
+  showToast('Luminária apagada detectada!', 'err');
+}
+
+function updateIaList(){
+  const container = document.getElementById('iaList');
+  if (iaOccurences.length === 0) {
+    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhuma ocorrência registrada ainda.</p>';
+    return;
+  }
+  container.innerHTML = iaOccurences.map((occ, idx) => `
+    <div style="display:flex;gap:10px;align-items:center;background:var(--bg);padding:8px;border-radius:var(--r-sm);border:1px solid var(--border);">
+      <img src="${occ.img}" style="width:50px;height:40px;object-fit:cover;border-radius:4px;" />
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:11px;font-weight:900;color:#f87171;">Ocorrência #${idx+1} — Luminância: ${occ.lum}</p>
+        <p style="font-size:10px;color:var(--muted);">${occ.time} · Lat/Lon: ${occ.lat}, ${occ.lon}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function iaExportPdf(){
+  if (iaOccurences.length === 0) {
+    showToast('Nenhum dado para exportar', 'err');
+    return;
+  }
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Relatório de Luminárias Apagadas (IA)', 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Data/Hora: ${nowBR()}`, 14, 28);
+    doc.text(`Total de ocorrências: ${iaOccurences.length}`, 14, 34);
+
+    let y = 45;
+    iaOccurences.forEach((occ, i) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(`#${i+1} - Horário: ${occ.time} - Luminância: ${occ.lum}`, 14, y);
+      doc.text(`GPS: ${occ.lat}, ${occ.lon}`, 14, y + 6);
+      try {
+        doc.addImage(occ.img, 'JPEG', 14, y + 10, 40, 30);
+      } catch (e) {}
+      y += 45;
+    });
+
+    doc.save('relatorio_luminarias_apagadas.pdf');
+    showToast('PDF gerado com sucesso!');
+  } catch (e) {
+    showToast('Erro ao gerar PDF: ' + e.message, 'err');
+  }
+}
+
+/* SISTEMA 7: RELATÓRIO POR VOZ */
+function vozStart(){
+  const shell = document.getElementById('vozShell');
+  const vid = document.getElementById('vozVid');
+  shell.style.display = 'block';
+  navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: true})
+    .then(st => {
+      vozStream = st;
+      vid.srcObject = st;
+      vid.play();
+      showToast('Câmera e microfone ativados');
+    })
+    .catch(err => {
+      showToast('Erro de permissão: ' + err.message, 'err');
+    });
+}
+
+function vozStartListening(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('Seu navegador não suporta reconhecimento de voz', 'err');
+    return;
+  }
+  if (vozListening) return;
+
+  vozRecognition = new SpeechRecognition();
+  vozRecognition.lang = 'pt-BR';
+  vozRecognition.continuous = true;
+  vozRecognition.interimResults = true;
+
+  vozRecognition.onstart = () => {
+    vozListening = true;
+    document.getElementById('vozStatus').textContent = 'Ouvindo ativamente...';
+    showToast('Reconhecimento de voz iniciado');
+  };
+
+  vozRecognition.onresult = (event) => {
+    const transcript = Array.from(event.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
+
+    const lower = transcript.toLowerCase();
+    const keywords = ['anotar', 'marcar', 'problema', 'luminaria apagada', 'ok'];
+    
+    const matched = keywords.some(kw => lower.includes(kw));
+    if (matched && event.results[event.results.length - 1].isFinal) {
+      vozCreateBlock(transcript);
+    }
+  };
+
+  vozRecognition.onerror = (e) => {
+    document.getElementById('vozStatus').textContent = 'Erro: ' + e.error;
+  };
+
+  vozRecognition.onend = () => {
+    vozListening = false;
+    document.getElementById('vozStatus').textContent = 'Inativo';
+  };
+
+  vozRecognition.start();
+}
+
+function vozStopListening(){
+  if (vozRecognition) {
+    vozRecognition.stop();
+    vozListening = false;
+    document.getElementById('vozStatus').textContent = 'Parado pelo usuário';
+    showToast('Reconhecimento de voz pausado');
+  }
+}
+
+function vozCreateBlock(text){
+  const vid = document.getElementById('vozVid');
+  const canvas = document.getElementById('vozCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  canvas.width = vid.videoWidth || 320;
+  canvas.height = vid.videoHeight || 240;
+  try {
+    ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+  } catch (e) {}
+
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  const block = {
+    time: nowBR(),
+    text: text,
+    img: dataUrl,
+    lat: vozLat,
+    lon: vozLon
+  };
+
+  vozBlocks.push(block);
+  document.getElementById('vozCount').textContent = `${vozBlocks.length} blocos`;
+  updateVozTimeline();
+  vibrate(300);
+  showToast('Bloco de voz registrado!');
+}
+
+function updateVozTimeline(){
+  const container = document.getElementById('vozTimeline');
+  if (vozBlocks.length === 0) {
+    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum bloco de voz criado ainda.</p>';
+    return;
+  }
+  container.innerHTML = vozBlocks.map((b, i) => `
+    <div style="display:flex;gap:10px;align-items:center;background:var(--bg);padding:10px;border-radius:var(--r-sm);border:1px solid var(--border);">
+      <img src="${b.img}" style="width:60px;height:45px;object-fit:cover;border-radius:4px;" />
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:11px;font-weight:900;color:var(--accent);">Bloco #${i+1} — ${b.time}</p>
+        <p style="font-size:11px;color:#fff;margin-top:2px;">“${b.text}”</p>
+        <p style="font-size:9px;color:var(--muted);margin-top:2px;">GPS: ${b.lat}, ${b.lon}</p>
+      </div>
+    </div>
+  `).join('');
+}
+</script>  
+</body>  
+</html>
