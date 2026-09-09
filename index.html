@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Campo</title>
+<title>Super Aplicativo de Campo</title>
 <style>
   :root {
     --bg: #0f172a;
@@ -12,136 +12,353 @@
     --text: #f8fafc;
     --muted: #94a3b8;
     --accent: #3b82f6;
-    --r-sm: 6px;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --r-sm: 8px;
+    --r-md: 12px;
   }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: sans-serif;
-    margin: 0;
-    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 80px;
   }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: var(--r-md);
+    margin-bottom: 12px;
+  }
+  header h1 { font-size: 16px; font-weight: 800; color: var(--accent); }
+  .gps-badge {
+    font-size: 11px;
+    background: var(--bg);
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .nav-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .nav-tabs button {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-tabs button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .view-panel { display: none; }
+  .view-panel.active { display: block; }
   .shell {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    padding: 12px;
-    margin-bottom: 16px;
+    border-radius: var(--r-md);
+    padding: 14px;
+    margin-bottom: 12px;
   }
-  button {
+  .shell h3 { font-size: 14px; margin-bottom: 10px; font-weight: 700; }
+  button.action-btn {
     background: var(--accent);
     color: #fff;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: var(--r-sm);
     cursor: pointer;
     font-weight: bold;
+    font-size: 12px;
   }
-  button:hover { opacity: 0.9; }
-  input, select {
+  button.action-btn:hover { opacity: 0.9; }
+  button.danger-btn { background: var(--danger); }
+  button.success-btn { background: var(--success); }
+  input, select, textarea {
     background: var(--bg);
     color: var(--text);
     border: 1px solid var(--border);
-    padding: 6px;
+    padding: 8px;
     border-radius: var(--r-sm);
+    font-size: 12px;
+    width: 100%;
   }
+  .input-group { margin-bottom: 10px; }
+  .input-group label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+  video, canvas { display: none; }
+  .preview-cam {
+    width: 100%;
+    max-height: 200px;
+    background: #000;
+    border-radius: var(--r-sm);
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+  .list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+  .item-card {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: var(--bg);
+    padding: 8px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+  }
+  .item-card img { width: 50px; height: 40px; object-fit: cover; border-radius: 4px; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-info p { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toast {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #334155;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 999;
+    transition: opacity 0.3s;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<h1>Painel de Operações</h1>
+<header>
+  <h1>Super App de Campo</h1>
+  <div class="gps-badge" id="globalGps">GPS: Buscando...</div>
+</header>
 
-<!-- SISTEMA 6: IA LUMINÁRIA -->
-<div class="shell" id="iaShell">
-  <h3>Sistema 6: IA Luminária</h3>
-  <div style="margin-bottom: 8px;">
-    <label>Threshold:</label>
-    <input type="number" id="iaLuminanceThreshold" value="55" style="width: 70px;">
-    <label>Intervalo (ms):</label>
-    <input type="number" id="iaInterval" value="600" style="width: 70px;">
-  </div>
-  <video id="iaVid" autoplay playsinline style="width:100%; max-width:320px; border-radius:var(--r-sm); background:#000; display:block; margin-bottom:8px;"></video>
-  <canvas id="iaCanvas" style="display:none;"></canvas>
-  <p style="font-size:12px;">Luminância Atual: <span id="iaLumValue">0</span></p>
-  <p style="font-size:12px;" id="iaCount">0 ocorrências</p>
-  <div style="display:flex; gap:8px; margin-bottom:8px;">
-    <button onclick="iaStart()">Ligar Câmera IA</button>
-    <button onclick="iaExportPdf()">Exportar PDF</button>
-  </div>
-  <div id="iaList" style="display:flex; flex-direction:column; gap:6px; max-height:150px; overflow-y:auto;">
-    <p style="font-size:11px;color:var(--muted);">Nenhuma ocorrência registrada ainda.</p>
+<div class="nav-tabs">
+  <button id="tab1Btn" class="active" onclick="switchTab(1)">1. Apoio Logístico</button>
+  <button id="tab2Btn" onclick="switchTab(2)">2. IA Luminárias</button>
+  <button id="tab3Btn" onclick="switchTab(3)">3. Relatório Voz</button>
+</div>
+
+<!-- SISTEMA 1: APOIO LOGÍSTICO / MAPAS & DADOS -->
+<div id="view1" class="view-panel active">
+  <div class="shell">
+    <h3>Apoio Logístico & Rotas</h3>
+    <div class="input-group">
+      <label>Destino / Setor de Inspeção:</label>
+      <input type="text" id="apoioDestino" placeholder="Ex: Setor Norte - Av. Principal">
+    </div>
+    <div class="input-group">
+      <label>Observação de Campo:</label>
+      <textarea id="apoioObs" rows="2" placeholder="Notas sobre o trecho..."></textarea>
+    </div>
+    <div class="row" style="margin-bottom: 10px;">
+      <button class="action-btn" onclick="apoioSalvarPonto()">Salvar Ponto de Apoio</button>
+      <button class="action-btn danger-btn" onclick="apoioLimpar()">Limpar</button>
+    </div>
+    <div class="list-container" id="apoioList">
+      <p style="font-size:11px;color:var(--muted);">Nenhum ponto registrado no log.</p>
+    </div>
   </div>
 </div>
 
-<!-- SISTEMA 7: RELATÓRIO POR VOZ -->
-<div class="shell" id="vozShell">
-  <h3>Sistema 7: Relatório por Voz</h3>
-  <video id="vozVid" autoplay playsinline style="width:100%; max-width:320px; border-radius:var(--r-sm); background:#000; display:block; margin-bottom:8px;"></video>
-  <canvas id="vozCanvas" style="display:none;"></canvas>
-  <p style="font-size:12px;">Status: <span id="vozStatus">Inativo</span></p>
-  <p style="font-size:12px;" id="vozCount">0 blocos</p>
-  <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-    <button onclick="vozStart()">Ligar Câmera/Áudio</button>
-    <button onclick="vozStartListening()">Ouvir</button>
-    <button onclick="vozStopListening()" style="background:#ef4444;">Parar</button>
-  </div>
-  <div id="vozTimeline" style="display:flex; flex-direction:column; gap:6px; max-height:150px; overflow-y:auto;">
-    <p style="font-size:11px;color:var(--muted);">Nenhum bloco de voz criado ainda.</p>
+<!-- SISTEMA 2: IA LUMINÁRIA -->
+<div id="view2" class="view-panel">
+  <div class="shell">
+    <h3>Detecção Inteligente de Luminárias</h3>
+    <video id="iaVid" autoplay playsinline class="preview-cam"></video>
+    <canvas id="iaCanvas"></canvas>
+    
+    <div class="row" style="margin-bottom: 10px;">
+      <div class="input-group">
+        <label>Limiar (Threshold):</label>
+        <input type="number" id="iaLuminanceThreshold" value="55">
+      </div>
+      <div class="input-group">
+        <label>Intervalo (ms):</label>
+        <input type="number" id="iaInterval" value="600">
+      </div>
+    </div>
+    
+    <p style="font-size:12px; margin-bottom:8px;">Luminância Atual: <strong id="iaLumValue">0</strong> | <span id="iaCount">0 ocorrências</span></p>
+    
+    <div class="row" style="margin-bottom: 10px;">
+      <button class="action-btn" onclick="iaStartCamera()">Ligar Câmera IA</button>
+      <button class="action-btn success-btn" onclick="iaExportPdf()">Exportar PDF</button>
+    </div>
+
+    <div class="list-container" id="iaList">
+      <p style="font-size:11px;color:var(--muted);">Nenhuma falha de iluminação detectada.</p>
+    </div>
   </div>
 </div>
+
+<!-- SISTEMA 3: RELATÓRIO POR VOZ -->
+<div id="view3" class="view-panel">
+  <div class="shell">
+    <h3>Relatório Integrado por Voz</h3>
+    <video id="vozVid" autoplay playsinline class="preview-cam"></video>
+    <canvas id="vozCanvas"></canvas>
+    
+    <p style="font-size:12px; margin-bottom:6px;">Status do Microfone: <strong id="vozStatus">Inativo</strong></p>
+    <p style="font-size:12px; margin-bottom:10px;" id="vozCount">0 blocos de voz</p>
+    
+    <div class="row" style="margin-bottom: 10px; flex-wrap: wrap;">
+      <button class="action-btn" onclick="vozStartCamera()">Ativar Câmera/Áudio</button>
+      <button class="action-btn success-btn" onclick="vozStartListening()">Ouvir Comando</button>
+      <button class="action-btn danger-btn" onclick="vozStopListening()">Pausar</button>
+    </div>
+
+    <div class="list-container" id="vozTimeline">
+      <p style="font-size:11px;color:var(--muted);">Nenhum relatório por voz gerado.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Aviso do Sistema</div>
 
 <script>
-/* VARIÁVEIS GLOBAIS */
-let apoioInit = false;
-let rtInit = false;
+/* ESTADO GLOBAL UNIFICADO */
+let currentLat = -23.5505; // Padrão inicial simulado
+let currentLon = -46.6333;
+let gpsWatchId = null;
 
-let iaStream = null;
-let iaTimer = null;
-let iaOccurences = [];
-let iaLat = 0.0, iaLon = 0.0;
+let iaStream = null, iaTimer = null, iaOccurences = [];
+let vozStream = null, vozRecognition = null, vozListening = false, vozBlocks = [];
+let apoioData = [];
 
-let vozStream = null;
-let vozRecognition = null;
-let vozListening = false;
-let vozBlocks = [];
-let vozLat = 0.0, vozLon = 0.0;
-
-/* FUNÇÕES UTILITÁRIAS */
-function nowBR() {
-  const d = new Date();
-  return d.toLocaleString('pt-BR');
-}
-
-function showToast(msg, type = 'ok') {
-  console.log(`[Toast - ${type}]: ${msg}`);
-}
-
-function vibrate(pattern) {
-  if (navigator.vibrate) {
-    navigator.vibrate(pattern);
+/* INICIALIZAÇÃO DE GPS GLOBAL */
+function initGlobalGps() {
+  if (navigator.geolocation) {
+    gpsWatchId = navigator.geolocation.watchPosition(
+      pos => {
+        currentLat = pos.coords.latitude.toFixed(6);
+        currentLon = pos.coords.longitude.toFixed(6);
+        document.getElementById('globalGps').textContent = `GPS: ${currentLat}, ${currentLon}`;
+      },
+      err => {
+        document.getElementById('globalGps').textContent = 'GPS: Indisponível';
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+    );
   }
 }
 
-/* SISTEMA 6: IA LUMINÁRIA */
-function iaStart(){
-  const shell = document.getElementById('iaShell');
+/* CONTROLE DE ABAS (SUPER APP) */
+function switchTab(tabIndex) {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`view${i}`).classList.remove('active');
+    document.getElementById(`tab${i}Btn`).classList.remove('active');
+  }
+  document.getElementById(`view${tabIndex}`).classList.add('active');
+  document.getElementById(`tab${tabIndex}Btn`).classList.add('active');
+}
+
+/* UTILITÁRIOS */
+function nowBR() {
+  return new Date().toLocaleString('pt-BR');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function vibrate(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+/* MÓDULO 1: APOIO LOGÍSTICO */
+function apoioSalvarPonto() {
+  const destino = document.getElementById('apoioDestino').value.trim();
+  const obs = document.getElementById('apoioObs').value.trim();
+  
+  if (!destino) {
+    showToast('Informe o destino ou setor');
+    return;
+  }
+
+  apoioData.push({
+    time: nowBR(),
+    destino,
+    obs,
+    lat: currentLat,
+    lon: currentLon
+  });
+
+  document.getElementById('apoioDestino').value = '';
+  document.getElementById('apoioObs').value = '';
+  updateApoioList();
+  showToast('Ponto de apoio salvo com sucesso!');
+}
+
+function apoioLimpar() {
+  apoioData = [];
+  updateApoioList();
+  showToast('Histórico limpo');
+}
+
+function updateApoioList() {
+  const container = document.getElementById('apoioList');
+  if (apoioData.length === 0) {
+    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum ponto registrado no log.</p>';
+    return;
+  }
+  container.innerHTML = apoioData.map((item, idx) => `
+    <div class="item-card">
+      <div class="item-info">
+        <p style="font-weight:900;color:var(--accent);">#${idx+1} — ${item.destino}</p>
+        <p style="color:var(--text);margin-top:2px;">${item.obs || 'Sem observações'}</p>
+        <p style="color:var(--muted);font-size:10px;margin-top:2px;">${item.time} · GPS: ${item.lat}, ${item.lon}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* MÓDULO 2: IA LUMINÁRIA */
+function iaStartCamera() {
   const vid = document.getElementById('iaVid');
-  shell.style.display = 'block';
-  navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: false})
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
     .then(st => {
       iaStream = st;
       vid.srcObject = st;
       vid.play();
       iaStartProcessing();
-      showToast('Câmera IA ativada com sucesso');
+      showToast('Câmera IA ligada');
     })
-    .catch(err => {
-      showToast('Erro ao acessar câmera: ' + err.message, 'err');
-    });
+    .catch(err => showToast('Erro na câmera: ' + err.message));
 }
 
-function iaStartProcessing(){
+function iaStartProcessing() {
   const vid = document.getElementById('iaVid');
   const canvas = document.getElementById('iaCanvas');
   const ctx = canvas.getContext('2d');
@@ -165,8 +382,7 @@ function iaStartProcessing(){
       const r = imgData.data[i];
       const g = imgData.data[i+1];
       const b = imgData.data[i+2];
-      const lum = r * 0.299 + g * 0.587 + b * 0.114;
-      totalLum += lum;
+      totalLum += (r * 0.299 + g * 0.587 + b * 0.114);
       count++;
     }
 
@@ -179,100 +395,88 @@ function iaStartProcessing(){
   }, interval);
 }
 
-function iaTriggerDetection(canvas, lum){
+function iaTriggerDetection(canvas, lum) {
   const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-  const timeStr = nowBR();
-  
-  if (iaOccurences.length > 0) {
-    const last = iaOccurences[iaOccurences.length - 1];
-    if (Date.now() - last.ts < 5000) return;
-  }
+  if (iaOccurences.length > 0 && Date.now() - iaOccurences[iaOccurences.length - 1].ts < 5000) return;
 
   iaOccurences.push({
     ts: Date.now(),
-    time: timeStr,
-    lum: lum,
+    time: nowBR(),
+    lum,
     img: dataUrl,
-    lat: iaLat,
-    lon: iaLon
+    lat: currentLat,
+    lon: currentLon
   });
 
   document.getElementById('iaCount').textContent = `${iaOccurences.length} ocorrências`;
   updateIaList();
   vibrate([200, 100, 200]);
-  showToast('Luminária apagada detectada!', 'err');
+  showToast('Luminária apagada detectada!');
 }
 
-function updateIaList(){
+function updateIaList() {
   const container = document.getElementById('iaList');
   if (iaOccurences.length === 0) {
-    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhuma ocorrência registrada ainda.</p>';
+    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhuma falha de iluminação detectada.</p>';
     return;
   }
   container.innerHTML = iaOccurences.map((occ, idx) => `
-    <div style="display:flex;gap:10px;align-items:center;background:var(--bg);padding:8px;border-radius:var(--r-sm);border:1px solid var(--border);">
-      <img src="${occ.img}" style="width:50px;height:40px;object-fit:cover;border-radius:4px;" />
-      <div style="flex:1;min-width:0;">
-        <p style="font-size:11px;font-weight:900;color:#f87171;">Ocorrência #${idx+1} — Luminância: ${occ.lum}</p>
-        <p style="font-size:10px;color:var(--muted);">${occ.time} · Lat/Lon: ${occ.lat}, ${occ.lon}</p>
+    <div class="item-card">
+      <img src="${occ.img}" />
+      <div class="item-info">
+        <p style="font-weight:900;color:#f87171;">Ocorrência #${idx+1} — Lum: ${occ.lum}</p>
+        <p style="color:var(--muted);font-size:10px;margin-top:2px;">${occ.time} · GPS: ${occ.lat}, ${occ.lon}</p>
       </div>
     </div>
   `).join('');
 }
 
-function iaExportPdf(){
+function iaExportPdf() {
   if (iaOccurences.length === 0) {
-    showToast('Nenhum dado para exportar', 'err');
+    showToast('Nenhum dado para exportar');
     return;
   }
   try {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Relatório de Luminárias Apagadas (IA)', 14, 20);
+    doc.text('Relatório Consolidado - Luminárias IA', 14, 20);
     doc.setFontSize(10);
-    doc.text(`Data/Hora: ${nowBR()}`, 14, 28);
-    doc.text(`Total de ocorrências: ${iaOccurences.length}`, 14, 34);
-
-    let y = 45;
+    doc.text(`Gerado em: ${nowBR()}`, 14, 28);
+    
+    let y = 40;
     iaOccurences.forEach((occ, i) => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.text(`#${i+1} - Horário: ${occ.time} - Luminância: ${occ.lum}`, 14, y);
-      doc.text(`GPS: ${occ.lat}, ${occ.lon}`, 14, y + 6);
-      try {
-        doc.addImage(occ.img, 'JPEG', 14, y + 10, 40, 30);
-      } catch (e) {}
-      y += 45;
+      doc.text(`Localização: ${occ.lat}, ${occ.lon}`, 14, y + 6);
+      try { doc.addImage(occ.img, 'JPEG', 14, y + 10, 35, 25); } catch(e){}
+      y += 40;
     });
 
-    doc.save('relatorio_luminarias_apagadas.pdf');
+    doc.save('relatorio_ia_luminarias.pdf');
     showToast('PDF gerado com sucesso!');
   } catch (e) {
-    showToast('Erro ao gerar PDF: ' + e.message, 'err');
+    showToast('Erro ao exportar PDF');
   }
 }
 
-/* SISTEMA 7: RELATÓRIO POR VOZ */
-function vozStart(){
-  const shell = document.getElementById('vozShell');
+/* MÓDULO 3: RELATÓRIO POR VOZ */
+function vozStartCamera() {
   const vid = document.getElementById('vozVid');
-  shell.style.display = 'block';
-  navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: true})
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true })
     .then(st => {
       vozStream = st;
       vid.srcObject = st;
       vid.play();
-      showToast('Câmera e microfone ativados');
+      showToast('Câmera e Microfone prontos');
     })
-    .catch(err => {
-      showToast('Erro de permissão: ' + err.message, 'err');
-    });
+    .catch(err => showToast('Erro de permissão: ' + err.message));
 }
 
-function vozStartListening(){
+function vozStartListening() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    showToast('Seu navegador não suporta reconhecimento de voz', 'err');
+    showToast('Navegador sem suporte a voz');
     return;
   }
   if (vozListening) return;
@@ -284,27 +488,22 @@ function vozStartListening(){
 
   vozRecognition.onstart = () => {
     vozListening = true;
-    document.getElementById('vozStatus').textContent = 'Ouvindo ativamente...';
-    showToast('Reconhecimento de voz iniciado');
+    document.getElementById('vozStatus').textContent = 'Ouvindo...';
+    showToast('Reconhecimento de voz ativo');
   };
 
   vozRecognition.onresult = (event) => {
-    const transcript = Array.from(event.results)
-      .map(result => result[0])
-      .map(result => result.transcript)
-      .join('');
-
+    const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
     const lower = transcript.toLowerCase();
-    const keywords = ['anotar', 'marcar', 'problema', 'luminaria apagada', 'ok'];
-    
-    const matched = keywords.some(kw => lower.includes(kw));
-    if (matched && event.results[event.results.length - 1].isFinal) {
+    const keywords = ['anotar', 'marcar', 'problema', 'ok', 'relatório'];
+
+    if (keywords.some(kw => lower.includes(kw)) && event.results[event.results.length - 1].isFinal) {
       vozCreateBlock(transcript);
     }
   };
 
   vozRecognition.onerror = (e) => {
-    document.getElementById('vozStatus').textContent = 'Erro: ' + e.error;
+    document.getElementById('vozStatus').textContent = 'Erro de áudio';
   };
 
   vozRecognition.onend = () => {
@@ -315,59 +514,60 @@ function vozStartListening(){
   vozRecognition.start();
 }
 
-function vozStopListening(){
+function vozStopListening() {
   if (vozRecognition) {
     vozRecognition.stop();
     vozListening = false;
-    document.getElementById('vozStatus').textContent = 'Parado pelo usuário';
-    showToast('Reconhecimento de voz pausado');
+    document.getElementById('vozStatus').textContent = 'Pausado';
+    showToast('Voz pausada');
   }
 }
 
-function vozCreateBlock(text){
+function vozCreateBlock(text) {
   const vid = document.getElementById('vozVid');
   const canvas = document.getElementById('vozCanvas');
   const ctx = canvas.getContext('2d');
   
   canvas.width = vid.videoWidth || 320;
   canvas.height = vid.videoHeight || 240;
-  try {
-    ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-  } catch (e) {}
+  try { ctx.drawImage(vid, 0, 0, canvas.width, canvas.height); } catch(e){}
 
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-  const block = {
+  vozBlocks.push({
     time: nowBR(),
-    text: text,
-    img: dataUrl,
-    lat: vozLat,
-    lon: vozLon
-  };
+    text,
+    img: canvas.toDataURL('image/jpeg', 0.8),
+    lat: currentLat,
+    lon: currentLon
+  });
 
-  vozBlocks.push(block);
-  document.getElementById('vozCount').textContent = `${vozBlocks.length} blocos`;
+  document.getElementById('vozCount').textContent = `${vozBlocks.length} blocos de voz`;
   updateVozTimeline();
   vibrate(300);
   showToast('Bloco de voz registrado!');
 }
 
-function updateVozTimeline(){
+function updateVozTimeline() {
   const container = document.getElementById('vozTimeline');
   if (vozBlocks.length === 0) {
-    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum bloco de voz criado ainda.</p>';
+    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum relatório por voz gerado.</p>';
     return;
   }
   container.innerHTML = vozBlocks.map((b, i) => `
-    <div style="display:flex;gap:10px;align-items:center;background:var(--bg);padding:10px;border-radius:var(--r-sm);border:1px solid var(--border);">
-      <img src="${b.img}" style="width:60px;height:45px;object-fit:cover;border-radius:4px;" />
-      <div style="flex:1;min-width:0;">
-        <p style="font-size:11px;font-weight:900;color:var(--accent);">Bloco #${i+1} — ${b.time}</p>
-        <p style="font-size:11px;color:#fff;margin-top:2px;">“${b.text}”</p>
-        <p style="font-size:9px;color:var(--muted);margin-top:2px;">GPS: ${b.lat}, ${b.lon}</p>
+    <div class="item-card">
+      <img src="${b.img}" />
+      <div class="item-info">
+        <p style="font-weight:900;color:var(--accent);">Bloco #${i+1} — ${b.time}</p>
+        <p style="color:#fff;margin-top:2px;">“${b.text}”</p>
+        <p style="color:var(--muted);font-size:10px;margin-top:2px;">GPS: ${b.lat}, ${b.lon}</p>
       </div>
     </div>
   `).join('');
 }
-</script>  
-</body>  
+
+// Inicializa monitoramento GPS ao carregar
+window.onload = () => {
+  initGlobalGps();
+};
+</script>
+</body>
 </html>
