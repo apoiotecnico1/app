@@ -3,17 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Super Aplicativo de Campo</title>
+<title>Super App de Campo - SNV Integrado</title>
 <style>
   :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
+    --bg: #0b0f19;
+    --surface: #131c2e;
+    --surface-card: #1e293b;
     --border: #334155;
     --text: #f8fafc;
     --muted: #94a3b8;
     --accent: #3b82f6;
+    --accent-hover: #2563eb;
     --danger: #ef4444;
     --success: #22c55e;
+    --warning: #f59e0b;
     --r-sm: 8px;
     --r-md: 12px;
   }
@@ -22,54 +25,111 @@
     background: var(--bg);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: 12px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* SPLASH SCREEN */
+  #splashScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    transition: opacity 0.5s ease;
+  }
+  #splashScreen h1 { font-size: 26px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+  #splashScreen p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* HOME SELETOR DE SISTEMAS */
+  #homeScreen {
+    display: none;
+    flex: 1;
     max-width: 600px;
+    width: 100%;
     margin: 0 auto;
+    padding: 16px;
+  }
+  .home-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .home-header h2 { font-size: 16px; font-weight: 800; }
+  .grid-systems {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .system-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .system-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .system-card h3 { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+  .system-card p { font-size: 11px; color: var(--muted); }
+
+  /* APP WORKSPACE */
+  #appWorkspace {
+    display: none;
+    flex: 1;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px;
     padding-bottom: 80px;
   }
-  header {
+  .app-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: var(--r-md);
     margin-bottom: 12px;
   }
-  header h1 { font-size: 16px; font-weight: 800; color: var(--accent); }
-  .gps-badge {
-    font-size: 11px;
-    background: var(--bg);
-    padding: 4px 8px;
-    border-radius: var(--r-sm);
-    border: 1px solid var(--border);
-    color: var(--muted);
-  }
-  .nav-tabs {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-  .nav-tabs button {
-    background: var(--surface);
-    color: var(--muted);
-    border: 1px solid var(--border);
-    padding: 10px 4px;
+  .app-topbar h3 { font-size: 13px; font-weight: 800; }
+  .back-btn {
+    background: var(--border);
+    color: var(--text);
+    border: none;
+    padding: 6px 10px;
     font-size: 11px;
     font-weight: 700;
     border-radius: var(--r-sm);
     cursor: pointer;
-    transition: all 0.2s;
   }
-  .nav-tabs button.active {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-  .view-panel { display: none; }
-  .view-panel.active { display: block; }
+
+  .panel-view { display: none; }
+  .panel-view.active { display: block; }
+
   .shell {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -77,7 +137,8 @@
     padding: 14px;
     margin-bottom: 12px;
   }
-  .shell h3 { font-size: 14px; margin-bottom: 10px; font-weight: 700; }
+  .shell h4 { font-size: 13px; margin-bottom: 10px; font-weight: 700; color: var(--accent); }
+
   button.action-btn {
     background: var(--accent);
     color: #fff;
@@ -87,10 +148,13 @@
     cursor: pointer;
     font-weight: bold;
     font-size: 12px;
+    width: 100%;
+    text-align: center;
   }
-  button.action-btn:hover { opacity: 0.9; }
+  button.action-btn:hover { background: var(--accent-hover); }
   button.danger-btn { background: var(--danger); }
   button.success-btn { background: var(--success); }
+
   input, select, textarea {
     background: var(--bg);
     color: var(--text);
@@ -104,6 +168,7 @@
   .input-group label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
   .row { display: flex; gap: 8px; }
   .row > * { flex: 1; }
+
   video, canvas { display: none; }
   .preview-cam {
     width: 100%;
@@ -114,11 +179,12 @@
     margin-bottom: 10px;
     border: 1px solid var(--border);
   }
+
   .list-container {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 220px;
+    max-height: 240px;
     overflow-y: auto;
     margin-top: 10px;
   }
@@ -126,29 +192,31 @@
     display: flex;
     gap: 10px;
     align-items: center;
-    background: var(--bg);
-    padding: 8px;
+    background: var(--surface-card);
+    padding: 10px;
     border-radius: var(--r-sm);
     border: 1px solid var(--border);
   }
-  .item-card img { width: 50px; height: 40px; object-fit: cover; border-radius: 4px; }
+  .item-card img { width: 55px; height: 45px; object-fit: cover; border-radius: 4px; }
   .item-info { flex: 1; min-width: 0; }
   .item-info p { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
   .toast {
     position: fixed;
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    background: #334155;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
     color: #fff;
     padding: 8px 16px;
     border-radius: var(--r-sm);
     font-size: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 999;
-    transition: opacity 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 9999;
     opacity: 0;
     pointer-events: none;
+    transition: opacity 0.3s;
   }
   .toast.show { opacity: 1; }
 </style>
@@ -156,134 +224,168 @@
 </head>
 <body>
 
-<header>
+<!-- SPLASH SCREEN -->
+<div id="splashScreen">
   <h1>Super App de Campo</h1>
-  <div class="gps-badge" id="globalGps">GPS: Buscando...</div>
-</header>
-
-<div class="nav-tabs">
-  <button id="tab1Btn" class="active" onclick="switchTab(1)">1. Apoio Logístico</button>
-  <button id="tab2Btn" onclick="switchTab(2)">2. IA Luminárias</button>
-  <button id="tab3Btn" onclick="switchTab(3)">3. Relatório Voz</button>
+  <p>Carregando bases SNV, IDs e Módulos de Operação...</p>
+  <div class="spinner"></div>
 </div>
 
-<!-- SISTEMA 1: APOIO LOGÍSTICO / MAPAS & DADOS -->
-<div id="view1" class="view-panel active">
-  <div class="shell">
-    <h3>Apoio Logístico & Rotas</h3>
-    <div class="input-group">
-      <label>Destino / Setor de Inspeção:</label>
-      <input type="text" id="apoioDestino" placeholder="Ex: Setor Norte - Av. Principal">
+<!-- HOME - SELETOR DE SISTEMAS -->
+<div id="homeScreen">
+  <div class="home-header">
+    <h2>Painel Principal</h2>
+    <div id="homeGps" style="font-size: 11px; color: var(--muted);">GPS: Localizando...</div>
+  </div>
+  <div class="grid-systems">
+    <div class="system-card" onclick="openSystem(1)">
+      <h3>1. Apoio & Logística</h3>
+      <p>Gestão de trechos e rotas com IDs e SNVs</p>
     </div>
-    <div class="input-group">
-      <label>Observação de Campo:</label>
-      <textarea id="apoioObs" rows="2" placeholder="Notas sobre o trecho..."></textarea>
+    <div class="system-card" onclick="openSystem(2)">
+      <h3>2. IA Luminárias</h3>
+      <p>Varredura automática e métrica de luminância</p>
     </div>
-    <div class="row" style="margin-bottom: 10px;">
-      <button class="action-btn" onclick="apoioSalvarPonto()">Salvar Ponto de Apoio</button>
-      <button class="action-btn danger-btn" onclick="apoioLimpar()">Limpar</button>
+    <div class="system-card" onclick="openSystem(3)">
+      <h3>3. Relatório por Voz</h3>
+      <p>Comandos falados com registro fotográfico</p>
     </div>
-    <div class="list-container" id="apoioList">
-      <p style="font-size:11px;color:var(--muted);">Nenhum ponto registrado no log.</p>
+    <div class="system-card" onclick="openSystem(4)">
+      <h3>4. Relatório Fotográfico</h3>
+      <p>Galeria consolidada com exportação em PDF</p>
     </div>
   </div>
 </div>
 
-<!-- SISTEMA 2: IA LUMINÁRIA -->
-<div id="view2" class="view-panel">
-  <div class="shell">
-    <h3>Detecção Inteligente de Luminárias</h3>
-    <video id="iaVid" autoplay playsinline class="preview-cam"></video>
-    <canvas id="iaCanvas"></canvas>
-    
-    <div class="row" style="margin-bottom: 10px;">
-      <div class="input-group">
-        <label>Limiar (Threshold):</label>
-        <input type="number" id="iaLuminanceThreshold" value="55">
+<!-- WORKSPACE DOS SISTEMAS -->
+<div id="appWorkspace">
+  <div class="app-topbar">
+    <h3 id="workspaceTitle">Módulo Ativo</h3>
+    <button class="back-btn" onclick="returnToHome()">← Voltar ao Menu</button>
+  </div>
+
+  <!-- SISTEMA 1: APOIO & LOGÍSTICA COM SNV E IDS -->
+  <div id="sys1" class="panel-view">
+    <div class="shell">
+      <h4>Cadastro de Ponto / ID e SNV</h4>
+      <div class="row">
+        <div class="input-group">
+          <label>ID do Equip./Ponto:</label>
+          <input type="text" id="apoioId" placeholder="Ex: ID-4029">
+        </div>
+        <div class="input-group">
+          <label>Código SNV:</label>
+          <input type="text" id="apoioSnv" placeholder="Ex: 116SP0100">
+        </div>
       </div>
       <div class="input-group">
-        <label>Intervalo (ms):</label>
-        <input type="number" id="iaInterval" value="600">
+        <label>Setor / Descrição:</label>
+        <input type="text" id="apoioDesc" placeholder="Ex: Km 42 - Trecho Norte">
+      </div>
+      <button class="action-btn" onclick="salvarApoio()">Registrar no Log</button>
+      <div class="list-container" id="apoioList">
+        <p style="font-size:11px;color:var(--muted);">Nenhum ID/SNV registrado.</p>
       </div>
     </div>
-    
-    <p style="font-size:12px; margin-bottom:8px;">Luminância Atual: <strong id="iaLumValue">0</strong> | <span id="iaCount">0 ocorrências</span></p>
-    
-    <div class="row" style="margin-bottom: 10px;">
-      <button class="action-btn" onclick="iaStartCamera()">Ligar Câmera IA</button>
-      <button class="action-btn success-btn" onclick="iaExportPdf()">Exportar PDF</button>
-    </div>
+  </div>
 
-    <div class="list-container" id="iaList">
-      <p style="font-size:11px;color:var(--muted);">Nenhuma falha de iluminação detectada.</p>
+  <!-- SISTEMA 2: IA LUMINÁRIAS -->
+  <div id="sys2" class="panel-view">
+    <div class="shell">
+      <h4>Análise de Luminárias por IA</h4>
+      <video id="iaVid" autoplay playsinline class="preview-cam"></video>
+      <canvas id="iaCanvas"></canvas>
+      <div class="row" style="margin-bottom:8px;">
+        <div class="input-group">
+          <label>Threshold:</label>
+          <input type="number" id="iaThreshold" value="55">
+        </div>
+        <div class="input-group">
+          <label>Intervalo (ms):</label>
+          <input type="number" id="iaInterval" value="600">
+        </div>
+      </div>
+      <p style="font-size:12px; margin-bottom:8px;">Luminância: <strong id="iaLumVal">0</strong> | <span id="iaCount">0 falhas</span></p>
+      <div class="row" style="margin-bottom:8px;">
+        <button class="action-btn" onclick="iaStart()">Ligar Câmera IA</button>
+        <button class="action-btn success-btn" onclick="exportPdfGeneral()">Exportar PDF</button>
+      </div>
+      <div class="list-container" id="iaList">
+        <p style="font-size:11px;color:var(--muted);">Nenhuma falha de iluminação detectada.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SISTEMA 3: RELATÓRIO POR VOZ -->
+  <div id="sys3" class="panel-view">
+    <div class="shell">
+      <h4>Ditado Operacional por Voz</h4>
+      <video id="vozVid" autoplay playsinline class="preview-cam"></video>
+      <canvas id="vozCanvas"></canvas>
+      <p style="font-size:12px; margin-bottom:6px;">Status: <strong id="vozStatus">Inativo</strong></p>
+      <div class="row" style="margin-bottom:8px; flex-wrap:wrap;">
+        <button class="action-btn" onclick="vozStartCamera()">Ativar Câmera</button>
+        <button class="action-btn success-btn" onclick="vozListen()">Ouvir</button>
+        <button class="action-btn danger-btn" onclick="vozStop()">Pausar</button>
+      </div>
+      <div class="list-container" id="vozList">
+        <p style="font-size:11px;color:var(--muted);">Nenhum bloco de voz registrado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SISTEMA 4: RELATÓRIO FOTOGRÁFICO GERAL -->
+  <div id="sys4" class="panel-view">
+    <div class="shell">
+      <h4>Relatório Fotográfico Consolidado</h4>
+      <video id="fotoVid" autoplay playsinline class="preview-cam"></video>
+      <canvas id="fotoCanvas"></canvas>
+      <div class="row" style="margin-bottom:8px;">
+        <div class="input-group">
+          <label>ID / SNV Associado:</label>
+          <input type="text" id="fotoRef" placeholder="Ex: ID-88 / SNV-04">
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:8px;">
+        <button class="action-btn" onclick="fotoCamStart()">Ligar Câmera Foto</button>
+        <button class="action-btn success-btn" onclick="capturarFoto()">Capturar Foto</button>
+      </div>
+      <button class="action-btn" onclick="exportPdfGeneral()" style="background:var(--warning); color:#000; font-weight:900; margin-bottom:8px;">Exportar Relatório Consolidado (PDF)</button>
+      <div class="list-container" id="fotoList">
+        <p style="font-size:11px;color:var(--muted);">Nenhuma foto capturada.</p>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- SISTEMA 3: RELATÓRIO POR VOZ -->
-<div id="view3" class="view-panel">
-  <div class="shell">
-    <h3>Relatório Integrado por Voz</h3>
-    <video id="vozVid" autoplay playsinline class="preview-cam"></video>
-    <canvas id="vozCanvas"></canvas>
-    
-    <p style="font-size:12px; margin-bottom:6px;">Status do Microfone: <strong id="vozStatus">Inativo</strong></p>
-    <p style="font-size:12px; margin-bottom:10px;" id="vozCount">0 blocos de voz</p>
-    
-    <div class="row" style="margin-bottom: 10px; flex-wrap: wrap;">
-      <button class="action-btn" onclick="vozStartCamera()">Ativar Câmera/Áudio</button>
-      <button class="action-btn success-btn" onclick="vozStartListening()">Ouvir Comando</button>
-      <button class="action-btn danger-btn" onclick="vozStopListening()">Pausar</button>
-    </div>
-
-    <div class="list-container" id="vozTimeline">
-      <p style="font-size:11px;color:var(--muted);">Nenhum relatório por voz gerado.</p>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast">Aviso do Sistema</div>
+<div id="toast" class="toast">Aviso</div>
 
 <script>
-/* ESTADO GLOBAL UNIFICADO */
-let currentLat = -23.5505; // Padrão inicial simulado
-let currentLon = -46.6333;
-let gpsWatchId = null;
+let currentLat = -23.5505, currentLon = -46.6333;
+let globalData = { apoio: [], ia: [], voz: [], fotos: [] };
 
-let iaStream = null, iaTimer = null, iaOccurences = [];
-let vozStream = null, vozRecognition = null, vozListening = false, vozBlocks = [];
-let apoioData = [];
+// Inicialização do Splash
+window.onload = () => {
+  initGps();
+  setTimeout(() => {
+    document.getElementById('splashScreen').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('splashScreen').style.display = 'none';
+      document.getElementById('homeScreen').style.display = 'block';
+    }, 500);
+  }, 1800);
+};
 
-/* INICIALIZAÇÃO DE GPS GLOBAL */
-function initGlobalGps() {
+function initGps() {
   if (navigator.geolocation) {
-    gpsWatchId = navigator.geolocation.watchPosition(
-      pos => {
-        currentLat = pos.coords.latitude.toFixed(6);
-        currentLon = pos.coords.longitude.toFixed(6);
-        document.getElementById('globalGps').textContent = `GPS: ${currentLat}, ${currentLon}`;
-      },
-      err => {
-        document.getElementById('globalGps').textContent = 'GPS: Indisponível';
-      },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
-    );
+    navigator.geolocation.watchPosition(pos => {
+      currentLat = pos.coords.latitude.toFixed(6);
+      currentLon = pos.coords.longitude.toFixed(6);
+      document.getElementById('homeGps').textContent = `GPS: ${currentLat}, ${currentLon}`;
+    }, () => {
+      document.getElementById('homeGps').textContent = 'GPS: Indisponível';
+    }, { enableHighAccuracy: true });
   }
-}
-
-/* CONTROLE DE ABAS (SUPER APP) */
-function switchTab(tabIndex) {
-  for (let i = 1; i <= 3; i++) {
-    document.getElementById(`view${i}`).classList.remove('active');
-    document.getElementById(`tab${i}Btn`).classList.remove('active');
-  }
-  document.getElementById(`view${tabIndex}`).classList.add('active');
-  document.getElementById(`tab${tabIndex}Btn`).classList.add('active');
-}
-
-/* UTILITÁRIOS */
-function nowBR() {
-  return new Date().toLocaleString('pt-BR');
 }
 
 function showToast(msg) {
@@ -293,281 +395,247 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function vibrate(pattern) {
-  if (navigator.vibrate) navigator.vibrate(pattern);
+function vibrate(pat) { if (navigator.vibrate) navigator.vibrate(pat); }
+function nowBR() { return new Date().toLocaleString('pt-BR'); }
+
+function openSystem(sysId) {
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('appWorkspace').style.display = 'block';
+  
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`sys${i}`).classList.remove('active');
+  }
+  document.getElementById(`sys${sysId}`).classList.add('active');
+
+  const titles = [
+    '', 
+    '1. Apoio & Logística (ID/SNV)', 
+    '2. IA Luminárias', 
+    '3. Relatório por Voz', 
+    '4. Relatório Fotográfico'
+  ];
+  document.getElementById('workspaceTitle').textContent = titles[sysId];
 }
 
-/* MÓDULO 1: APOIO LOGÍSTICO */
-function apoioSalvarPonto() {
-  const destino = document.getElementById('apoioDestino').value.trim();
-  const obs = document.getElementById('apoioObs').value.trim();
-  
-  if (!destino) {
-    showToast('Informe o destino ou setor');
+function returnToHome() {
+  stopAllStreams();
+  document.getElementById('appWorkspace').style.display = 'none';
+  document.getElementById('homeScreen').style.display = 'block';
+}
+
+function stopAllStreams() {
+  [iaStream, vozStream, fotoStream].forEach(stream => {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+  });
+  if (iaTimer) clearInterval(iaTimer);
+  if (vozRec) vozRec.stop();
+}
+
+/* SISTEMA 1: APOIO LOGÍSTICO */
+function salvarApoio() {
+  const id = document.getElementById('apoioId').value.trim();
+  const snv = document.getElementById('apoioSnv').value.trim();
+  const desc = document.getElementById('apoioDesc').value.trim();
+
+  if (!id && !snv) {
+    showToast('Informe pelo menos o ID ou o SNV');
     return;
   }
 
-  apoioData.push({
-    time: nowBR(),
-    destino,
-    obs,
-    lat: currentLat,
-    lon: currentLon
-  });
-
-  document.getElementById('apoioDestino').value = '';
-  document.getElementById('apoioObs').value = '';
+  globalData.apoio.push({ time: nowBR(), id, snv, desc, lat: currentLat, lon: currentLon });
+  document.getElementById('apoioId').value = '';
+  document.getElementById('apoioSnv').value = '';
+  document.getElementById('apoioDesc').value = '';
   updateApoioList();
-  showToast('Ponto de apoio salvo com sucesso!');
-}
-
-function apoioLimpar() {
-  apoioData = [];
-  updateApoioList();
-  showToast('Histórico limpo');
+  showToast('Ponto registrado com sucesso!');
 }
 
 function updateApoioList() {
-  const container = document.getElementById('apoioList');
-  if (apoioData.length === 0) {
-    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum ponto registrado no log.</p>';
+  const c = document.getElementById('apoioList');
+  if (globalData.apoio.length === 0) {
+    c.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum ID/SNV registrado.</p>';
     return;
   }
-  container.innerHTML = apoioData.map((item, idx) => `
+  c.innerHTML = globalData.apoio.map((item, idx) => `
     <div class="item-card">
       <div class="item-info">
-        <p style="font-weight:900;color:var(--accent);">#${idx+1} — ${item.destino}</p>
-        <p style="color:var(--text);margin-top:2px;">${item.obs || 'Sem observações'}</p>
-        <p style="color:var(--muted);font-size:10px;margin-top:2px;">${item.time} · GPS: ${item.lat}, ${item.lon}</p>
+        <p style="font-weight:900;color:var(--accent);">#${idx+1} — ID: ${item.id || 'N/A'} | SNV: ${item.snv || 'N/A'}</p>
+        <p style="color:var(--text);">${item.desc || 'Sem descrição'}</p>
+        <p style="color:var(--muted);font-size:10px;">${item.time} · GPS: ${item.lat}, ${item.lon}</p>
       </div>
     </div>
   `).join('');
 }
 
-/* MÓDULO 2: IA LUMINÁRIA */
-function iaStartCamera() {
+/* SISTEMA 2: IA LUMINÁRIAS */
+let iaStream = null, iaTimer = null;
+function iaStart() {
   const vid = document.getElementById('iaVid');
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
     .then(st => {
-      iaStream = st;
-      vid.srcObject = st;
-      vid.play();
-      iaStartProcessing();
-      showToast('Câmera IA ligada');
-    })
-    .catch(err => showToast('Erro na câmera: ' + err.message));
+      iaStream = st; vid.srcObject = st; vid.play();
+      iaProc();
+      showToast('Câmera IA Ativa');
+    }).catch(e => showToast('Erro na câmera: ' + e.message));
 }
 
-function iaStartProcessing() {
-  const vid = document.getElementById('iaVid');
-  const canvas = document.getElementById('iaCanvas');
-  const ctx = canvas.getContext('2d');
-  const threshold = parseInt(document.getElementById('iaLuminanceThreshold').value) || 55;
+function iaProc() {
+  const vid = document.getElementById('iaVid'), canvas = document.getElementById('iaCanvas'), ctx = canvas.getContext('2d');
+  const threshold = parseInt(document.getElementById('iaThreshold').value) || 55;
   const interval = parseInt(document.getElementById('iaInterval').value) || 600;
 
   if (iaTimer) clearInterval(iaTimer);
-
   iaTimer = setInterval(() => {
     if (vid.paused || vid.ended) return;
-    canvas.width = vid.videoWidth || 320;
-    canvas.height = vid.videoHeight || 240;
+    canvas.width = vid.videoWidth || 320; canvas.height = vid.videoHeight || 240;
     if (!canvas.width || !canvas.height) return;
 
-    const scanH = Math.floor(canvas.height * 0.4);
     ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-    const imgData = ctx.getImageData(0, 0, canvas.width, scanH);
-    let totalLum = 0, count = 0;
-
+    const imgData = ctx.getImageData(0, 0, canvas.width, Math.floor(canvas.height * 0.4));
+    let total = 0, count = 0;
     for (let i = 0; i < imgData.data.length; i += 16) {
-      const r = imgData.data[i];
-      const g = imgData.data[i+1];
-      const b = imgData.data[i+2];
-      totalLum += (r * 0.299 + g * 0.587 + b * 0.114);
+      total += (imgData.data[i] * 0.299 + imgData.data[i+1] * 0.587 + imgData.data[i+2] * 0.114);
       count++;
     }
+    const avg = Math.round(total / (count || 1));
+    document.getElementById('iaLumVal').textContent = avg;
 
-    const avgLum = Math.round(totalLum / (count || 1));
-    document.getElementById('iaLumValue').textContent = avgLum;
-
-    if (avgLum < threshold) {
-      iaTriggerDetection(canvas, avgLum);
+    if (avg < threshold) {
+      if (globalData.ia.length === 0 || Date.now() - globalData.ia[globalData.ia.length-1].ts > 5000) {
+        globalData.ia.push({ ts: Date.now(), time: nowBR(), lum: avg, img: canvas.toDataURL('image/jpeg', 0.75), lat: currentLat, lon: currentLon });
+        document.getElementById('iaCount').textContent = `${globalData.ia.length} falhas`;
+        updateIaList();
+        vibrate([200, 100, 200]);
+        showToast('Falha detectada!');
+      }
     }
   }, interval);
 }
 
-function iaTriggerDetection(canvas, lum) {
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-  if (iaOccurences.length > 0 && Date.now() - iaOccurences[iaOccurences.length - 1].ts < 5000) return;
-
-  iaOccurences.push({
-    ts: Date.now(),
-    time: nowBR(),
-    lum,
-    img: dataUrl,
-    lat: currentLat,
-    lon: currentLon
-  });
-
-  document.getElementById('iaCount').textContent = `${iaOccurences.length} ocorrências`;
-  updateIaList();
-  vibrate([200, 100, 200]);
-  showToast('Luminária apagada detectada!');
-}
-
 function updateIaList() {
-  const container = document.getElementById('iaList');
-  if (iaOccurences.length === 0) {
-    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhuma falha de iluminação detectada.</p>';
-    return;
-  }
-  container.innerHTML = iaOccurences.map((occ, idx) => `
-    <div class="item-card">
-      <img src="${occ.img}" />
-      <div class="item-info">
-        <p style="font-weight:900;color:#f87171;">Ocorrência #${idx+1} — Lum: ${occ.lum}</p>
-        <p style="color:var(--muted);font-size:10px;margin-top:2px;">${occ.time} · GPS: ${occ.lat}, ${occ.lon}</p>
-      </div>
+  const c = document.getElementById('iaList');
+  if (globalData.ia.length === 0) { c.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhuma falha.</p>'; return; }
+  c.innerHTML = globalData.ia.map((item, idx) => `
+    <div class="item-card"><img src="${item.img}"/>
+      <div class="item-info"><p style="font-weight:900;color:#f87171;">Falha #${idx+1} — Lum: ${item.lum}</p><p style="color:var(--muted);font-size:10px;">${item.time} · GPS: ${item.lat}, ${item.lon}</p></div>
     </div>
   `).join('');
 }
 
-function iaExportPdf() {
-  if (iaOccurences.length === 0) {
-    showToast('Nenhum dado para exportar');
-    return;
-  }
+/* SISTEMA 3: RELATÓRIO POR VOZ */
+let vozStream = null, vozRec = null;
+function vozStartCamera() {
+  const vid = document.getElementById('vozVid');
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true })
+    .then(st => { vozStream = st; vid.srcObject = st; vid.play(); showToast('Câmera e Microfone Ativos'); })
+    .catch(e => showToast('Erro: ' + e.message));
+}
+
+function vozListen() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { showToast('Navegador sem suporte a voz'); return; }
+  vozRec = new SpeechRecognition();
+  vozRec.lang = 'pt-BR'; vozRec.continuous = true; vozRec.interimResults = true;
+  vozRec.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    if (e.results[e.results.length-1].isFinal) {
+      const vid = document.getElementById('vozVid'), canvas = document.getElementById('vozCanvas'), ctx = canvas.getContext('2d');
+      canvas.width = vid.videoWidth || 320; canvas.height = vid.videoHeight || 240;
+      try { ctx.drawImage(vid, 0, 0, canvas.width, canvas.height); } catch(err){}
+      globalData.voz.push({ time: nowBR(), text: transcript, img: canvas.toDataURL('image/jpeg', 0.8), lat: currentLat, lon: currentLon });
+      updateVozList(); vibrate(300); showToast('Registro por voz adicionado!');
+    }
+  };
+  vozRec.start();
+  document.getElementById('vozStatus').textContent = 'Ouvindo...';
+}
+
+function vozStop() { if (vozRec) vozRec.stop(); document.getElementById('vozStatus').textContent = 'Inativo'; }
+
+function updateVozList() {
+  const c = document.getElementById('vozList');
+  if (globalData.voz.length === 0) { c.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum bloco.</p>'; return; }
+  c.innerHTML = globalData.voz.map((item, idx) => `
+    <div class="item-card"><img src="${item.img}"/>
+      <div class="item-info"><p style="font-weight:900;color:var(--accent);">Voz #${idx+1} — ${item.time}</p><p style="color:#fff;">“${item.text}”</p></div>
+    </div>
+  `).join('');
+}
+
+/* SISTEMA 4: RELATÓRIO FOTOGRÁFICO */
+let fotoStream = null;
+function fotoCamStart() {
+  const vid = document.getElementById('fotoVid');
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    .then(st => { fotoStream = st; vid.srcObject = st; vid.play(); showToast('Câmera Fotográfica Ativa'); })
+    .catch(e => showToast('Erro: ' + e.message));
+}
+
+function capturarFoto() {
+  const vid = document.getElementById('fotoVid'), canvas = document.getElementById('fotoCanvas'), ctx = canvas.getContext('2d');
+  const ref = document.getElementById('fotoRef').value.trim() || 'Geral';
+  canvas.width = vid.videoWidth || 320; canvas.height = vid.videoHeight || 240;
+  try { ctx.drawImage(vid, 0, 0, canvas.width, canvas.height); } catch(e){}
+  
+  globalData.fotos.push({ time: nowBR(), ref, img: canvas.toDataURL('image/jpeg', 0.8), lat: currentLat, lon: currentLon });
+  document.getElementById('fotoRef').value = '';
+  updateFotoList(); vibrate(200); showToast('Foto capturada!');
+}
+
+function updateFotoList() {
+  const c = document.getElementById('fotoList');
+  if (globalData.fotos.length === 0) { c.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhuma foto.</p>'; return; }
+  c.innerHTML = globalData.fotos.map((item, idx) => `
+    <div class="item-card"><img src="${item.img}"/>
+      <div class="item-info"><p style="font-weight:900;color:var(--accent);">Foto #${idx+1} — Ref: ${item.ref}</p><p style="color:var(--muted);font-size:10px;">${item.time} · GPS: ${item.lat}, ${item.lon}</p></div>
+    </div>
+  `).join('');
+}
+
+/* EXPORTAÇÃO PDF CONSOLIDADA */
+function exportPdfGeneral() {
   try {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Relatório Consolidado - Luminárias IA', 14, 20);
+    doc.text('Relatório Consolidado de Campo', 14, 20);
     doc.setFontSize(10);
-    doc.text(`Gerado em: ${nowBR()}`, 14, 28);
+    doc.text(`Data/Hora: ${nowBR()}`, 14, 28);
+
+    let y = 38;
     
-    let y = 40;
-    iaOccurences.forEach((occ, i) => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.text(`#${i+1} - Horário: ${occ.time} - Luminância: ${occ.lum}`, 14, y);
-      doc.text(`Localização: ${occ.lat}, ${occ.lon}`, 14, y + 6);
-      try { doc.addImage(occ.img, 'JPEG', 14, y + 10, 35, 25); } catch(e){}
-      y += 40;
-    });
-
-    doc.save('relatorio_ia_luminarias.pdf');
-    showToast('PDF gerado com sucesso!');
-  } catch (e) {
-    showToast('Erro ao exportar PDF');
-  }
-}
-
-/* MÓDULO 3: RELATÓRIO POR VOZ */
-function vozStartCamera() {
-  const vid = document.getElementById('vozVid');
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true })
-    .then(st => {
-      vozStream = st;
-      vid.srcObject = st;
-      vid.play();
-      showToast('Câmera e Microfone prontos');
-    })
-    .catch(err => showToast('Erro de permissão: ' + err.message));
-}
-
-function vozStartListening() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    showToast('Navegador sem suporte a voz');
-    return;
-  }
-  if (vozListening) return;
-
-  vozRecognition = new SpeechRecognition();
-  vozRecognition.lang = 'pt-BR';
-  vozRecognition.continuous = true;
-  vozRecognition.interimResults = true;
-
-  vozRecognition.onstart = () => {
-    vozListening = true;
-    document.getElementById('vozStatus').textContent = 'Ouvindo...';
-    showToast('Reconhecimento de voz ativo');
-  };
-
-  vozRecognition.onresult = (event) => {
-    const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
-    const lower = transcript.toLowerCase();
-    const keywords = ['anotar', 'marcar', 'problema', 'ok', 'relatório'];
-
-    if (keywords.some(kw => lower.includes(kw)) && event.results[event.results.length - 1].isFinal) {
-      vozCreateBlock(transcript);
+    // Seção Apoio / SNV
+    if (globalData.apoio.length > 0) {
+      doc.setFontSize(12); doc.text('Registros de Apoio (IDs e SNVs):', 14, y); y += 6;
+      doc.setFontSize(10);
+      globalData.apoio.forEach((item, i) => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(`[${i+1}] ID: ${item.id || '-'} | SNV: ${item.snv || '-'} | Desc: ${item.desc} (${item.time})`, 14, y);
+        y += 6;
+      });
+      y += 6;
     }
-  };
 
-  vozRecognition.onerror = (e) => {
-    document.getElementById('vozStatus').textContent = 'Erro de áudio';
-  };
+    // Seção Fotos & Voz & IA
+    const todasFotos = [...globalData.fotos, ...globalData.ia.map(i=>({ref:'IA Falha Lum: '+i.lum, ...i})), ...globalData.voz.map(v=>({ref:'Voz: '+v.text, ...v}))];
+    if (todasFotos.length > 0) {
+      if (y > 250) { doc.addPage(); y = 20; }
+      doc.setFontSize(12); doc.text('Registro Fotográfico e Ocorrências:', 14, y); y += 8;
+      todasFotos.forEach((item, i) => {
+        if (y > 240) { doc.addPage(); y = 20; }
+        doc.text(`Registro #${i+1} - Ref: ${item.ref || 'N/A'} (${item.time})`, 14, y);
+        doc.text(`GPS: ${item.lat}, ${item.lon}`, 14, y + 5);
+        try { doc.addImage(item.img, 'JPEG', 14, y + 8, 35, 25); } catch(e){}
+        y += 38;
+      });
+    }
 
-  vozRecognition.onend = () => {
-    vozListening = false;
-    document.getElementById('vozStatus').textContent = 'Inativo';
-  };
-
-  vozRecognition.start();
-}
-
-function vozStopListening() {
-  if (vozRecognition) {
-    vozRecognition.stop();
-    vozListening = false;
-    document.getElementById('vozStatus').textContent = 'Pausado';
-    showToast('Voz pausada');
+    doc.save('relatorio_consolidado_super_app.pdf');
+    showToast('PDF Consolidado gerado com sucesso!');
+  } catch (e) {
+    showToast('Erro ao exportar PDF: ' + e.message);
   }
 }
-
-function vozCreateBlock(text) {
-  const vid = document.getElementById('vozVid');
-  const canvas = document.getElementById('vozCanvas');
-  const ctx = canvas.getContext('2d');
-  
-  canvas.width = vid.videoWidth || 320;
-  canvas.height = vid.videoHeight || 240;
-  try { ctx.drawImage(vid, 0, 0, canvas.width, canvas.height); } catch(e){}
-
-  vozBlocks.push({
-    time: nowBR(),
-    text,
-    img: canvas.toDataURL('image/jpeg', 0.8),
-    lat: currentLat,
-    lon: currentLon
-  });
-
-  document.getElementById('vozCount').textContent = `${vozBlocks.length} blocos de voz`;
-  updateVozTimeline();
-  vibrate(300);
-  showToast('Bloco de voz registrado!');
-}
-
-function updateVozTimeline() {
-  const container = document.getElementById('vozTimeline');
-  if (vozBlocks.length === 0) {
-    container.innerHTML = '<p style="font-size:11px;color:var(--muted);">Nenhum relatório por voz gerado.</p>';
-    return;
-  }
-  container.innerHTML = vozBlocks.map((b, i) => `
-    <div class="item-card">
-      <img src="${b.img}" />
-      <div class="item-info">
-        <p style="font-weight:900;color:var(--accent);">Bloco #${i+1} — ${b.time}</p>
-        <p style="color:#fff;margin-top:2px;">“${b.text}”</p>
-        <p style="color:var(--muted);font-size:10px;margin-top:2px;">GPS: ${b.lat}, ${b.lon}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Inicializa monitoramento GPS ao carregar
-window.onload = () => {
-  initGlobalGps();
-};
 </script>
 </body>
 </html>
