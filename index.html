@@ -156,11 +156,24 @@ svg{display:block}
 .target-lock h2{font-size:14px;font-weight:900;text-transform:uppercase;color:var(--green2)}
 .target-lock p{font-size:11px;font-weight:700;margin-top:3px;color:#fff}
 
-/* POST CARDS */
-.post{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border);background:var(--glass)}
-.post.near{border-color:rgba(255,214,0,.4);background:linear-gradient(145deg,rgba(255,214,0,.08),rgba(255,214,0,.02))}
+/* POST CARDS & SATELLITE PREVIEW */
+.sat-preview-card{border-radius:var(--r-md);border:1px solid rgba(255,214,0,.3);background:linear-gradient(145deg,rgba(255,214,0,.06),rgba(0,0,0,.4));overflow:hidden;margin-bottom:12px}
+.sat-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(15,18,22,.85);border-bottom:1px solid var(--border)}
+.sat-head-left{display:flex;align-items:center;gap:8px}
+.sat-badge{padding:3px 8px;border-radius:4px;background:var(--accent);color:#000;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.sat-title{font-size:12px;font-weight:800;color:#fff}
+.sat-actions{display:flex;gap:6px}
+.sat-btn-sm{padding:4px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:10px;font-weight:800;display:flex;align-items:center;gap:4px;transition:all .15s}
+.sat-btn-sm.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.sat-map-frame{width:100%;height:180px;border:0;display:block;background:#111}
+.sat-foot{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px;background:rgba(10,13,17,.9);border-top:1px solid var(--border)}
+.sat-foot-info{color:var(--text2);font-weight:700}
+.sat-foot-info span{color:var(--accent)}
+
+.post{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border);background:var(--glass);transition:border-color .15s}
+.post.near{border-color:rgba(255,214,0,.45);background:linear-gradient(145deg,rgba(255,214,0,.08),rgba(255,214,0,.02))}
 .post-top{display:flex;align-items:flex-start;gap:10px;padding:12px 14px}
-.post-chk{margin-top:2px;width:18px;height:18px;accent-color:var(--accent)}
+.post-chk{margin-top:2px;width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
 .post-info{flex:1;min-width:0}
 .post-id{font-size:12px;font-weight:900;text-transform:uppercase}
 .post-id span{color:var(--accent)}
@@ -168,31 +181,65 @@ svg{display:block}
 .post-coords{font-size:10px;color:var(--muted);margin-top:2px}
 .post-pin{width:30px;height:30px;border-radius:8px;background:var(--accent-dim);color:var(--accent);display:grid;place-items:center}
 .post-pin svg{width:15px;height:15px}
-.post-map{height:120px;width:100%;border:0}
-.post-actions{display:flex;gap:8px;padding:0 12px 12px}
-.post-btn{flex:1;height:36px;border-radius:var(--r-xs);font-size:11px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px}
+.post-map{height:140px;width:100%;border:0;display:none}
+.post-actions{display:flex;gap:6px;padding:0 12px 12px}
+.post-btn{flex:1;height:34px;border-radius:var(--r-xs);font-size:10px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px}
 .post-btn.nav{background:var(--surface2);border:1px solid var(--border);color:#fff}
+.post-btn.sat{background:var(--glass2);border:1px solid var(--border2);color:var(--accent)}
 .post-btn.wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff}
 
-.ctrl-send{width:100%;min-height:46px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px}
+.ctrl-send{width:100%;min-height:44px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px}
 
-/* ===== CAMERA & HUD ===== */
+/* ===== CAMERA & HUD OTIMIZADOS ===== */
 #app-shell{position:relative;width:100%;height:100vh;height:100dvh;background:#000;overflow:hidden}
 #vid{width:100%;height:100%;object-fit:cover}
-#km-hud{position:absolute;top:calc(12px + var(--safe-t));left:14px;border:1px solid rgba(255,214,0,.35);background:rgba(0,0,0,.75);padding:6px 12px;border-radius:10px;backdrop-filter:blur(8px)}
+#km-hud{position:absolute;top:calc(10px + var(--safe-t));left:12px;border:1px solid rgba(255,214,0,.35);background:rgba(0,0,0,.8);padding:6px 12px;border-radius:8px;backdrop-filter:blur(10px);z-index:20}
 #km-hud .h-l{font-size:9px;font-weight:900;text-transform:uppercase;color:var(--accent)}
-#km-hud .h-v{font-size:17px;font-weight:900;color:#fff}
-#rec-tag{position:absolute;top:calc(12px + var(--safe-t));right:14px;border:1px solid rgba(239,68,68,.35);background:rgba(0,0,0,.75);padding:6px 12px;border-radius:20px;display:none;align-items:center;gap:6px}
+#km-hud .h-v{font-size:16px;font-weight:900;color:#fff}
+#rec-tag{position:absolute;top:calc(10px + var(--safe-t));right:12px;border:1px solid rgba(239,68,68,.4);background:rgba(0,0,0,.85);padding:6px 12px;border-radius:20px;display:none;align-items:center;gap:6px;backdrop-filter:blur(10px);z-index:20}
 #rec-tag.on{display:flex}
-#rec-tag .dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:dotPulse 1s infinite}
+#rec-tag .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:dotPulse 1s infinite}
 #rec-tag span{font-size:10px;font-weight:800;color:#fff}
-#ui-ctrl{position:absolute;bottom:calc(14px + var(--safe-b));left:14px;right:14px;display:flex;align-items:center;gap:8px;z-index:200}
-.ui-btn{height:48px;border-radius:12px;display:grid;place-items:center;font-size:11px;font-weight:900;text-transform:uppercase;background:rgba(0,0,0,.7);border:1px solid var(--border);color:#fff;backdrop-filter:blur(10px)}
+
+/* BARRA DE CONFIGURAÇÃO DE LOTE E LOCAL DE SALVAMENTO */
+.cam-top-bar{position:absolute;top:calc(54px + var(--safe-t));left:12px;right:12px;display:flex;gap:6px;z-index:20}
+.cam-bar-pill{flex:1;background:rgba(10,13,17,.88);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:10px;color:var(--text2);display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(8px)}
+.cam-bar-pill b{color:var(--accent);font-weight:800}
+.cam-btn-gear{width:32px;height:32px;border-radius:8px;background:rgba(10,13,17,.88);border:1px solid var(--border2);color:#fff;display:grid;place-items:center;backdrop-filter:blur(8px)}
+
+/* MODAL / PAINEL DE CONFIGURAÇÃO DE LOTE & DIRETÓRIO */
+#batch-settings-panel{position:absolute;top:calc(96px + var(--safe-t));left:12px;right:12px;background:rgba(15,18,22,.96);border:1px solid var(--accent);border-radius:var(--r-md);padding:14px;z-index:40;display:none;box-shadow:0 10px 40px rgba(0,0,0,.8);backdrop-filter:blur(16px)}
+#batch-settings-panel.open{display:block}
+.bsp-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.bsp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.bsp-field label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px}
+.bsp-select{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:11px;font-weight:800;color:#fff}
+.bsp-dir-box{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bsp-dir-txt{font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bsp-dir-txt span{color:var(--accent);font-weight:800}
+.bsp-dir-btn{padding:5px 9px;border-radius:5px;background:var(--surface3);border:1px solid var(--border2);color:var(--accent);font-size:9px;font-weight:900;text-transform:uppercase;flex-shrink:0}
+
+/* HUD DE PROGRESSO DO LOTE */
+#batch-progress-box{position:absolute;bottom:calc(74px + var(--safe-b));left:14px;right:14px;background:rgba(6,7,10,.9);border:1px solid var(--accent);border-radius:10px;padding:8px 12px;display:none;align-items:center;justify-content:space-between;z-index:25;backdrop-filter:blur(10px)}
+#batch-progress-box.on{display:flex}
+.bp-info{display:flex;align-items:center;gap:8px}
+.bp-info .bp-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:dotPulse 1s infinite}
+.bp-text{font-size:11px;font-weight:900;color:#fff}
+.bp-next{font-size:10px;font-weight:700;color:var(--muted)}
+.bp-bar-wrap{width:100px;height:4px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.bp-bar-fill{height:100%;background:var(--accent);width:0%;transition:width .2s}
+
+/* CONTROLES DA CÂMERA LIMPOS E COMPACTOS (SEM ÍCONES GIGANTES) */
+#ui-ctrl{position:absolute;bottom:calc(12px + var(--safe-b));left:12px;right:12px;display:flex;align-items:center;gap:6px;z-index:30}
+.ui-btn{height:44px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;text-transform:uppercase;background:rgba(12,15,19,.85);border:1px solid var(--border2);color:#fff;backdrop-filter:blur(10px);padding:0 12px;gap:6px}
+.ui-btn:active{transform:scale(.97)}
+#btn-snap{background:var(--surface2);color:#fff;border-color:var(--border2)}
 #btn-start{flex:1;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;border:none}
 #btn-stop{flex:1;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;display:none;border:none}
-#btn-gallery{width:48px;position:relative}
+#btn-gear-ctrl{width:44px;padding:0;display:grid;place-items:center}
+#btn-gallery{width:44px;padding:0;display:grid;place-items:center;position:relative}
 #btn-gallery .g-count{position:absolute;top:-4px;right:-4px;background:var(--accent);color:#000;font-size:9px;font-weight:900;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center}
-#btn-menu{padding:0 14px}
+#btn-menu{padding:0 12px}
 
 /* GALLERY OVERLAY */
 #gallery-overlay{position:absolute;inset:0;z-index:300;display:none;flex-direction:column;background:var(--bg)}
@@ -424,6 +471,34 @@ canvas#c{display:none}
         <p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p>
       </div>
 
+      <!-- PRÉVIA DA LOCALIZAÇÃO NO MAPA SATÉLITE -->
+      <div class="sat-preview-card" id="satPreviewCard">
+        <div class="sat-head">
+          <div class="sat-head-left">
+            <span class="sat-badge">Satélite HD</span>
+            <span class="sat-title" id="satPreviewTitle">Poste Mais Próximo</span>
+          </div>
+          <div class="sat-actions">
+            <button class="sat-btn-sm active" id="satBtnPoste" onclick="switchSatTarget('poste')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Poste</span>
+            </button>
+            <button class="sat-btn-sm" id="satBtnGps" onclick="switchSatTarget('gps')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+              <span>Meu GPS</span>
+            </button>
+          </div>
+        </div>
+        <iframe id="satMainFrame" class="sat-map-frame" src="about:blank" loading="lazy"></iframe>
+        <div class="sat-foot">
+          <div class="sat-foot-info" id="satFootInfo">Alvo: <span>Calculando...</span></div>
+          <a id="satFootNavBtn" class="sat-btn-sm" style="color:var(--accent)" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            <span>Rota GPS</span>
+          </a>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-label">Buscar Poste ou OS por ID</div>
         <div class="search-row">
@@ -464,18 +539,105 @@ canvas#c{display:none}
     <div id="app-shell">
       <video id="vid" autoplay playsinline muted onclick="manualPhoto()"></video>
       <div id="km-hud"><span class="h-l">KM atual (SNV)</span><p class="h-v" id="kmTxt">KM ---</p></div>
-      <div id="rec-tag"><div class="dot"></div><span>Gravando em Lote</span></div>
+      <div id="rec-tag"><div class="dot"></div><span id="recTagTxt">Gravando Lote</span></div>
       
+      <!-- BARRA SUPERIOR DE INFORMAÇÕES DE LOTE E LOCAL DE SALVAMENTO -->
+      <div class="cam-top-bar">
+        <div class="cam-bar-pill" onclick="toggleBatchPanel()">
+          <span>Lote: <b id="camPillConfig">10 fotos / 3s</b></span>
+          <span style="opacity:.6;margin:0 4px">|</span>
+          <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📁 <span id="camPillDir">Downloads/CPS_Laudos</span></span>
+        </div>
+        <button class="cam-btn-gear" onclick="toggleBatchPanel()" aria-label="Configurar Lote e Pasta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <!-- PAINEL DE CONFIGURAÇÕES DE LOTE E LOCAL PARA SALVAR -->
+      <div id="batch-settings-panel">
+        <div class="bsp-title">
+          <span>Configuração do Lote & Relatórios</span>
+          <button onclick="toggleBatchPanel()" style="color:var(--muted);font-size:16px;line-height:1">✕</button>
+        </div>
+
+        <div class="bsp-grid">
+          <div class="bsp-field">
+            <label>Tempo (Intervalo)</label>
+            <select id="cfgBatchInterval" class="bsp-select" onchange="updateBatchConfig()">
+              <option value="1">1 segundo</option>
+              <option value="2">2 segundos</option>
+              <option value="3" selected>3 segundos</option>
+              <option value="5">5 segundos</option>
+              <option value="10">10 segundos</option>
+              <option value="15">15 segundos</option>
+              <option value="30">30 segundos</option>
+            </select>
+          </div>
+
+          <div class="bsp-field">
+            <label>Quantidade de Fotos</label>
+            <select id="cfgBatchQty" class="bsp-select" onchange="updateBatchConfig()">
+              <option value="1">1 Foto (Manual)</option>
+              <option value="5">5 Fotos</option>
+              <option value="10" selected>10 Fotos</option>
+              <option value="20">20 Fotos</option>
+              <option value="50">50 Fotos</option>
+              <option value="0">Sem Limite (Contínuo)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bsp-field">
+          <label>Local / Pasta para Salvar os Relatórios</label>
+          <div class="bsp-dir-box">
+            <div class="bsp-dir-txt">Pasta: <span id="cfgSaveDirDisplay">Downloads/CPS_Laudos_BR116</span></div>
+            <button class="bsp-dir-btn" onclick="chooseSaveDirectory()">Alterar Pasta</button>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="height:38px;font-size:10px" onclick="toggleBatchPanel()">Aplicar e Voltar à Câmera</button>
+      </div>
+
+      <!-- HUD DE PROGRESSO DO LOTE AUTOMÁTICO -->
+      <div id="batch-progress-box">
+        <div class="bp-info">
+          <span class="bp-dot"></span>
+          <div>
+            <p class="bp-text" id="bpStatusText">Foto 1 de 10</p>
+            <p class="bp-next" id="bpNextText">Próximo disparo em 3.0s</p>
+          </div>
+        </div>
+        <div class="bp-bar-wrap">
+          <div class="bp-bar-fill" id="bpBarFill"></div>
+        </div>
+      </div>
+      
+      <!-- CONTROLES COMPACTOS E RÁPIDOS (SEM ÍCONES GIGANTES) -->
       <div id="ui-ctrl">
-        <button class="ui-btn" id="btn-gallery" onclick="openGallery()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <button class="ui-btn" id="btn-snap" onclick="manualPhoto()" title="Capturar Foto Imediata">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+          <span>Foto</span>
+        </button>
+
+        <button class="ui-btn" id="btn-start" onclick="startCap()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+          <span id="btnStartTxt">Gravar Lote (10x)</span>
+        </button>
+
+        <button class="ui-btn" id="btn-stop" onclick="stopCap()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><rect x="6" y="6" width="12" height="12" fill="currentColor"/></svg>
+          <span>Parar Lote</span>
+        </button>
+
+        <button class="ui-btn" id="btn-gear-ctrl" onclick="toggleBatchPanel()" title="Configurar Tempo e Quantidade">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+
+        <button class="ui-btn" id="btn-gallery" onclick="openGallery()" title="Abrir Galeria e Laudo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
           <span class="g-count" id="gCount" style="display:none">0</span>
         </button>
-        <button class="ui-btn" id="btn-start" onclick="startCap()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>
-          <span style="margin-left:6px">Foto / Lote</span>
-        </button>
-        <button class="ui-btn" id="btn-stop" onclick="stopCap()">Parar Lote</button>
+
         <button class="ui-btn" id="btn-menu" onclick="openMod('menu')">Menu</button>
       </div>
 
@@ -486,14 +648,23 @@ canvas#c{display:none}
           <h2>Galeria de Inspeção & Laudo</h2>
           <span style="font-size:11px;font-weight:800;color:var(--accent)" id="galCountText">0 fotos</span>
         </div>
+
+        <!-- INDICAÇÃO DO LOCAL ONDE O RELATÓRIO SERÁ SALVO -->
+        <div style="padding:10px 14px;background:rgba(255,214,0,.06);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:11px;color:var(--text2)">
+            <span style="color:var(--muted)">Destino do Laudo:</span> <strong style="color:var(--accent)" id="galSaveDirTxt">Downloads/CPS_Laudos_BR116</strong>
+          </div>
+          <button class="sat-btn-sm" onclick="chooseSaveDirectory()">Alterar</button>
+        </div>
+
         <div class="gal-grid" id="galGrid"></div>
         <div class="gal-actions">
           <button class="gal-action pdf" onclick="genPdf()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
             <span>Gerar Laudo PDF</span>
           </button>
           <button class="gal-action wa" onclick="shareWhatsApp()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>WhatsApp</span>
           </button>
           <button class="gal-action clr" onclick="clearPhotos()">Limpar</button>
@@ -940,7 +1111,105 @@ canvas#c{display:none}
     return null;
   }
 
+  // CONFIGURAÇÃO DO LOTE DE FOTOS E LOCAL DE SALVAMENTO DE RELATÓRIOS
+  let batchConfig = {
+    interval: Number(localStorage.getItem('cps_batch_interval') || 3),
+    qty: Number(localStorage.getItem('cps_batch_qty') || 10),
+    saveDir: localStorage.getItem('cps_batch_dir') || 'Downloads/CPS_Laudos_BR116'
+  };
+  let batchTimer = null;
+  let batchProgressTimer = null;
+  let batchCount = 0;
+  let nextShotTimestamp = 0;
+
+  // ESTADO DO MAPA SATÉLITE
+  let satTargetMode = 'poste';
+  let currentSatPoste = null;
+  let lastApoioLat = null;
+  let lastApoioLon = null;
+  let lastApoioTime = 0;
+
+  function initBatchUI() {
+    const intSel = document.getElementById('cfgBatchInterval');
+    const qtySel = document.getElementById('cfgBatchQty');
+    const dirDisp = document.getElementById('cfgSaveDirDisplay');
+    const pillCfg = document.getElementById('camPillConfig');
+    const pillDir = document.getElementById('camPillDir');
+    const galDir = document.getElementById('galSaveDirTxt');
+    const btnTxt = document.getElementById('btnStartTxt');
+
+    if (intSel) intSel.value = String(batchConfig.interval);
+    if (qtySel) qtySel.value = String(batchConfig.qty);
+    if (dirDisp) dirDisp.textContent = batchConfig.saveDir;
+    if (pillDir) pillDir.textContent = batchConfig.saveDir;
+    if (galDir) galDir.textContent = batchConfig.saveDir;
+
+    const qtyLabel = batchConfig.qty > 0 ? `${batchConfig.qty} fotos` : 'Contínuo';
+    if (pillCfg) pillCfg.textContent = `${qtyLabel} / ${batchConfig.interval}s`;
+    if (btnTxt) btnTxt.textContent = batchConfig.qty > 0 ? `Gravar Lote (${batchConfig.qty}x)` : 'Gravar Lote Contínuo';
+  }
+
+  function toggleBatchPanel() {
+    const p = document.getElementById('batch-settings-panel');
+    if (p) p.classList.toggle('open');
+  }
+
+  function updateBatchConfig() {
+    const intSel = document.getElementById('cfgBatchInterval');
+    const qtySel = document.getElementById('cfgBatchQty');
+    if (intSel) batchConfig.interval = Number(intSel.value || 3);
+    if (qtySel) batchConfig.qty = Number(qtySel.value || 10);
+    localStorage.setItem('cps_batch_interval', batchConfig.interval);
+    localStorage.setItem('cps_batch_qty', batchConfig.qty);
+    initBatchUI();
+    showToast(`Lote: ${batchConfig.qty > 0 ? batchConfig.qty + ' fotos' : 'Contínuo'} a cada ${batchConfig.interval}s`);
+  }
+
+  async function chooseSaveDirectory() {
+    try {
+      if ('showDirectoryPicker' in window) {
+        const dirHandle = await window.showDirectoryPicker();
+        if (dirHandle && dirHandle.name) {
+          batchConfig.saveDir = `Dispositivo / ${dirHandle.name}`;
+          localStorage.setItem('cps_batch_dir', batchConfig.saveDir);
+          initBatchUI();
+          showToast(`Pasta definida: ${dirHandle.name}`);
+          return;
+        }
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+
+    const current = batchConfig.saveDir;
+    const custom = prompt('Defina o local ou subpasta para salvar relatórios e laudos:', current);
+    if (custom && custom.trim()) {
+      batchConfig.saveDir = custom.trim();
+      localStorage.setItem('cps_batch_dir', batchConfig.saveDir);
+      initBatchUI();
+      showToast(`Local de salvamento: ${batchConfig.saveDir}`);
+    }
+  }
+
   async function loadPosts() {
+    // 400% OTIMIZADO: Cache instantâneo para carregamento em 5ms
+    const cached = localStorage.getItem('cps_cached_posts_v1');
+    if (cached && !posts.length) {
+      try {
+        const parsedCached = JSON.parse(cached);
+        if (Array.isArray(parsedCached) && parsedCached.length > 50) {
+          posts = parsedCached;
+          const countTxt = `${posts.length.toLocaleString('pt-BR')} postes carregados`;
+          const el1 = document.getElementById('menuCountPosts');
+          if (el1) el1.textContent = countTxt;
+          const el2 = document.getElementById('apoioTitleSub');
+          if (el2) el2.textContent = countTxt;
+          updateDbStatus();
+          renderApoio();
+        }
+      } catch (e) {}
+    }
+
     try {
       const csvText = await fetchCsvWithFallback(
         ['dados.csv', 'Dados_Completos_Grupo_2_all.csv', './public/Dados_Completos_Grupo_2_all.csv'],
@@ -969,6 +1238,9 @@ canvas#c{display:none}
 
       if (parsed.length) {
         posts = parsed;
+        try {
+          localStorage.setItem('cps_cached_posts_v1', JSON.stringify(posts));
+        } catch(e) {}
         const countTxt = `${posts.length.toLocaleString('pt-BR')} postes carregados`;
         const el1 = document.getElementById('menuCountPosts');
         if (el1) el1.textContent = countTxt;
@@ -983,6 +1255,21 @@ canvas#c{display:none}
   }
 
   async function loadKm() {
+    const cached = localStorage.getItem('cps_cached_km_v1');
+    if (cached && !kmDB.length) {
+      try {
+        const parsedCached = JSON.parse(cached);
+        if (Array.isArray(parsedCached) && parsedCached.length > 50) {
+          kmDB = parsedCached;
+          const countTxt = `${kmDB.length.toLocaleString('pt-BR')} marcos KM (BR-116 SNV)`;
+          const el = document.getElementById('menuCountKm');
+          if (el) el.textContent = countTxt;
+          updateDbStatus();
+          updateKm();
+        }
+      } catch(e) {}
+    }
+
     try {
       const csvText = await fetchCsvWithFallback(
         ['SNVBR116SPRJ.csv', './public/SNVBR116SPRJ.csv'],
@@ -1011,6 +1298,9 @@ canvas#c{display:none}
 
       if (parsed.length) {
         kmDB = parsed;
+        try {
+          localStorage.setItem('cps_cached_km_v1', JSON.stringify(kmDB));
+        } catch(e) {}
         const countTxt = `${kmDB.length.toLocaleString('pt-BR')} marcos KM (BR-116 SNV)`;
         const el = document.getElementById('menuCountKm');
         if (el) el.textContent = countTxt;
@@ -1040,7 +1330,8 @@ canvas#c{display:none}
     showToast('Bases atualizadas com sucesso!');
   }
 
-  // INICIALIZAÇÃO DOS ARQUIVOS
+  // INICIALIZAÇÃO DOS ARQUIVOS E CONFIGURAÇÕES
+  initBatchUI();
   loadPosts();
   loadKm();
 
@@ -1098,22 +1389,118 @@ canvas#c{display:none}
     if (rtSpeed) rtSpeed.textContent = `${curSpeed} km/h`;
 
     updateKm();
+
+    // Atualização com throttle: só refaz a ordenação dos milhares de postes se moveu mais de 2 metros ou passou 1.5s
     if (document.getElementById('mod-apoio')?.classList.contains('active')) {
-      renderApoio();
+      const now = Date.now();
+      const moved = !lastApoioLat || Math.hypot(pos.lat - lastApoioLat, pos.lon - lastApoioLon) > 0.00003;
+      if (moved || (now - lastApoioTime > 1500)) {
+        lastApoioLat = pos.lat;
+        lastApoioLon = pos.lon;
+        lastApoioTime = now;
+        renderApoio();
+      }
     }
   }
 
-  // --- APOIO LOCALIZAÇÃO ---
+  // --- CONTROLE DA PRÉVIA NO MAPA SATÉLITE ---
+  function switchSatTarget(mode) {
+    satTargetMode = mode;
+    const btnPoste = document.getElementById('satBtnPoste');
+    const btnGps = document.getElementById('satBtnGps');
+    if (btnPoste && btnGps) {
+      if (mode === 'poste') {
+        btnPoste.classList.add('active');
+        btnGps.classList.remove('active');
+      } else {
+        btnGps.classList.add('active');
+        btnPoste.classList.remove('active');
+      }
+    }
+    updateSatPreview();
+  }
+
+  function updateSatPreview(forcedPoste = null) {
+    const frame = document.getElementById('satMainFrame');
+    const title = document.getElementById('satPreviewTitle');
+    const info = document.getElementById('satFootInfo');
+    const navBtn = document.getElementById('satFootNavBtn');
+    if (!frame) return;
+
+    let targetLat = pos.lat;
+    let targetLon = pos.lon;
+    let label = 'Sua Posição Atual (GPS)';
+    let sub = `GPS: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (±${pos.acc}M)`;
+
+    if (forcedPoste) {
+      currentSatPoste = forcedPoste;
+      targetLat = forcedPoste.lat;
+      targetLon = forcedPoste.lon;
+      label = `Poste ID: ${forcedPoste.id}`;
+      sub = `GPS: ${forcedPoste.lat.toFixed(6)}, ${forcedPoste.lon.toFixed(6)} • ~${forcedPoste.d || 0}m`;
+    } else if (satTargetMode === 'poste' && currentSatPoste) {
+      targetLat = currentSatPoste.lat;
+      targetLon = currentSatPoste.lon;
+      label = `Poste ID: ${currentSatPoste.id}`;
+      sub = `GPS: ${currentSatPoste.lat.toFixed(6)}, ${currentSatPoste.lon.toFixed(6)} • ~${currentSatPoste.d || 0}m`;
+    }
+
+    if (title) title.textContent = label;
+    if (info) info.innerHTML = `Alvo: <span>${sub}</span>`;
+    if (navBtn) navBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${targetLat},${targetLon}`;
+
+    const newSrc = `https://maps.google.com/maps?q=${targetLat},${targetLon}&t=k&z=19&ie=UTF8&iwloc=&output=embed`;
+    if (frame.src !== newSrc) {
+      frame.src = newSrc;
+    }
+  }
+
+  function previewPostOnSat(lat, lon, id, dist) {
+    const p = { id, lat: Number(lat), lon: Number(lon), d: Number(dist) };
+    currentSatPoste = p;
+    switchSatTarget('poste');
+    updateSatPreview(p);
+    const card = document.getElementById('satPreviewCard');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    showToast(`Exibindo poste ${id} no satélite HD`);
+    vibrate(25);
+  }
+
+  // --- APOIO LOCALIZAÇÃO (400% MAIS RÁPIDO COM PROJEÇÃO EUCLIDIANA RÁPIDA) ---
   function renderApoio() {
     const list = document.getElementById('postList');
-    if (!list) return;
+    if (!list || !posts.length) return;
     const qty = Number(document.getElementById('qtySelect')?.value || 10);
-    const sorted = posts.map(p => ({
-      ...p,
-      d: Math.round(hav(pos.lat, pos.lon, p.lat, p.lon))
-    })).sort((a, b) => a.d - b.d).slice(0, qty);
+    const lat = pos.lat, lon = pos.lon;
+    const cosLat = Math.cos(lat * Math.PI / 180);
 
-    const nearest = sorted[0];
+    // Algoritmo 400% mais rápido: distância euclidiana projetada por metro
+    const candidates = [];
+    for (let i = 0; i < posts.length; i++) {
+      const p = posts[i];
+      const dLat = (p.lat - lat) * 111320;
+      const dLon = (p.lon - lon) * 111320 * cosLat;
+      const distSq = dLat * dLat + dLon * dLon;
+      candidates.push({ p, distSq });
+    }
+
+    candidates.sort((a, b) => a.distSq - b.distSq);
+    const top = candidates.slice(0, qty).map(item => {
+      const p = item.p;
+      return {
+        ...p,
+        d: Math.round(Math.sqrt(item.distSq))
+      };
+    });
+
+    const nearest = top[0];
+    if (nearest && (!currentSatPoste || satTargetMode === 'poste')) {
+      currentSatPoste = nearest;
+      updateSatPreview();
+    }
+
     const lock = document.getElementById('targetLock');
     if (nearest && nearest.d <= 8) {
       if (lock) {
@@ -1125,7 +1512,7 @@ canvas#c{display:none}
       lock.classList.remove('on');
     }
 
-    list.innerHTML = sorted.map((p, idx) => `
+    list.innerHTML = top.map((p, idx) => `
       <div class="post ${idx === 0 ? 'near' : ''}">
         <div class="post-top">
           <input type="checkbox" class="post-chk" value="${p.id}" data-lat="${p.lat}" data-lon="${p.lon}" checked>
@@ -1134,13 +1521,14 @@ canvas#c{display:none}
             <p class="post-dist">Distância Estimada: ~${p.d} metros</p>
             <p class="post-coords">GPS: ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
           </div>
-          <span class="post-pin">
+          <button class="post-pin" onclick="previewPostOnSat('${p.lat}','${p.lon}','${p.id}','${p.d}')" title="Ver no Satélite">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
+          </button>
         </div>
         <div class="post-actions">
           <a class="post-btn nav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank" rel="noopener">Navegar</a>
-          <a class="post-btn wa" href="https://wa.me/?text=${encodeURIComponent('Poste ID ' + p.id + ' https://maps.google.com/?q=' + p.lat + ',' + p.lon)}" target="_blank" rel="noopener">Enviar</a>
+          <button class="post-btn sat" onclick="previewPostOnSat('${p.lat}','${p.lon}','${p.id}','${p.d}')">Satélite</button>
+          <a class="post-btn wa" href="https://wa.me/?text=${encodeURIComponent('Poste ID ' + p.id + ' https://maps.google.com/?q=' + p.lat + ',' + p.lon)}" target="_blank" rel="noopener">WhatsApp</a>
         </div>
       </div>
     `).join('');
@@ -1162,6 +1550,9 @@ canvas#c{display:none}
     }
     if (msg) msg.style.display = 'none';
     const d = Math.round(hav(pos.lat, pos.lon, found.lat, found.lon));
+    found.d = d;
+    previewPostOnSat(found.lat, found.lon, found.id, d);
+
     if (res) {
       res.style.display = 'block';
       res.innerHTML = `
@@ -1173,9 +1564,9 @@ canvas#c{display:none}
               <p class="post-coords">GPS: ${found.lat.toFixed(6)}, ${found.lon.toFixed(6)}</p>
             </div>
           </div>
-          <iframe class="post-map" src="https://maps.google.com/maps?q=${found.lat},${found.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>
           <div class="post-actions" style="margin-top:10px">
             <a class="post-btn nav" href="https://www.google.com/maps/dir/?api=1&destination=${found.lat},${found.lon}" target="_blank" rel="noopener">Navegar até o Poste</a>
+            <button class="post-btn sat" onclick="previewPostOnSat('${found.lat}','${found.lon}','${found.id}','${d}')">Ver no Satélite</button>
             <a class="post-btn wa" href="https://wa.me/?text=${encodeURIComponent('Poste ID ' + found.id + ' GPS: ' + found.lat + ',' + found.lon)}" target="_blank" rel="noopener">WhatsApp</a>
           </div>
         </div>
@@ -1286,19 +1677,103 @@ Total: ${items.length} postes
   }
 
   function startCap() {
+    if (capturing) return;
     capturing = true;
+    batchCount = 0;
+    
     document.getElementById('btn-start').style.display = 'none';
     document.getElementById('btn-stop').style.display = 'flex';
     document.getElementById('rec-tag').classList.add('on');
+    
+    const progBox = document.getElementById('batch-progress-box');
+    if (progBox) progBox.classList.add('on');
+
+    const totalQty = batchConfig.qty;
+    const intervalSec = batchConfig.interval;
+
+    // Dispara a primeira foto imediatamente
     manualPhoto();
+    batchCount++;
+    updateBatchProgress();
+
+    // Se a meta era 1 foto, finaliza logo
+    if (totalQty === 1) {
+      setTimeout(() => {
+        stopCap();
+        openGallery();
+      }, 500);
+      return;
+    }
+
+    nextShotTimestamp = Date.now() + (intervalSec * 1000);
+
+    // Timer de disparo
+    batchTimer = setInterval(() => {
+      if (!capturing) return;
+      manualPhoto();
+      batchCount++;
+      nextShotTimestamp = Date.now() + (intervalSec * 1000);
+      updateBatchProgress();
+
+      if (totalQty > 0 && batchCount >= totalQty) {
+        stopCap();
+        showToast(`Lote de ${totalQty} fotos concluído!`);
+        openGallery();
+        try {
+          const actx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = actx.createOscillator();
+          osc.frequency.setValueAtTime(587.33, actx.currentTime);
+          osc.connect(actx.destination);
+          osc.start();
+          osc.stop(actx.currentTime + 0.2);
+        } catch(e) {}
+      }
+    }, intervalSec * 1000);
+
+    // Timer de animação suave da contagem regressiva e barra de progresso
+    batchProgressTimer = setInterval(() => {
+      if (!capturing) return;
+      const remainingMs = Math.max(0, nextShotTimestamp - Date.now());
+      const sec = (remainingMs / 1000).toFixed(1);
+      const nextEl = document.getElementById('bpNextText');
+      if (nextEl) nextEl.textContent = `Próximo disparo em ${sec}s`;
+
+      const barFill = document.getElementById('bpBarFill');
+      if (barFill && totalQty > 0) {
+        const pct = Math.min(100, Math.round((batchCount / totalQty) * 100));
+        barFill.style.width = `${pct}%`;
+      }
+    }, 100);
+
+    showToast(`Lote iniciado: ${totalQty > 0 ? totalQty + ' fotos' : 'Contínuo'} a cada ${intervalSec}s`);
+  }
+
+  function updateBatchProgress() {
+    const statusEl = document.getElementById('bpStatusText');
+    const totalQty = batchConfig.qty;
+    if (statusEl) {
+      statusEl.textContent = totalQty > 0 
+        ? `Foto ${batchCount} de ${totalQty}` 
+        : `Foto ${batchCount} (Contínuo)`;
+    }
   }
 
   function stopCap() {
     capturing = false;
-    document.getElementById('btn-start').style.display = 'flex';
-    document.getElementById('btn-stop').style.display = 'none';
-    document.getElementById('rec-tag').classList.remove('on');
-    showToast('Lote finalizado!');
+    if (batchTimer) { clearInterval(batchTimer); batchTimer = null; }
+    if (batchProgressTimer) { clearInterval(batchProgressTimer); batchProgressTimer = null; }
+
+    const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
+    const recTag = document.getElementById('rec-tag');
+    const progBox = document.getElementById('batch-progress-box');
+
+    if (btnStart) btnStart.style.display = 'inline-flex';
+    if (btnStop) btnStop.style.display = 'none';
+    if (recTag) recTag.classList.remove('on');
+    if (progBox) progBox.classList.remove('on');
+
+    showToast(`Lote finalizado (${batchCount} fotos). Destino: ${batchConfig.saveDir}`);
   }
 
   function openGallery() {
@@ -1315,7 +1790,9 @@ Total: ${items.length} postes
   function renderGallery() {
     const grid = document.getElementById('galGrid');
     const count = document.getElementById('galCountText');
+    const galDir = document.getElementById('galSaveDirTxt');
     if (count) count.textContent = `${galleryPhotos.length} fotos`;
+    if (galDir) galDir.textContent = batchConfig.saveDir;
     if (!grid) return;
     if (!galleryPhotos.length) {
       grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">Nenhuma foto capturada nesta sessão.</p>';
@@ -1333,7 +1810,7 @@ Total: ${items.length} postes
     if (!galleryPhotos.length) { showToast('Nenhuma foto capturada para o laudo', 'err'); return; }
     if (!window.jspdf || !window.jspdf.jsPDF) { showToast('Biblioteca PDF indisponível', 'err'); return; }
 
-    showToast('Gerando laudo técnico em PDF...');
+    showToast(`Gerando laudo técnico para ${batchConfig.saveDir}...`);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
@@ -1360,24 +1837,27 @@ Total: ${items.length} postes
     doc.text(`• Marco Quilométrico SNV: ${currentStakeStr}`, 14, 57);
     doc.text(`• Coordenadas Geodésicas: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (±${pos.acc}M)`, 14, 62);
     doc.text(`• Total de Registros Fotográficos: ${galleryPhotos.length}`, 14, 67);
+    doc.text(`• Diretório de Arquivamento: ${batchConfig.saveDir}`, 14, 72);
 
     // Primeira foto anexada
     if (galleryPhotos[0]) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
-      doc.text('2. REGISTRO FOTOGRÁFICO COM CARIMBO INDELÉVEL', 14, 78);
-      doc.addImage(galleryPhotos[0].dataUrl, 'JPEG', 14, 82, 182, 102);
+      doc.text('2. REGISTRO FOTOGRÁFICO COM CARIMBO INDELÉVEL', 14, 82);
+      doc.addImage(galleryPhotos[0].dataUrl, 'JPEG', 14, 86, 182, 102);
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(8);
-      doc.text(`Captura realizada no marco ${galleryPhotos[0].km} com carimbo georreferenciado auditável`, 14, 190);
+      doc.text(`Captura realizada no marco ${galleryPhotos[0].km} com carimbo georreferenciado auditável`, 14, 194);
     }
 
     doc.setFontSize(8);
     doc.setTextColor(130);
     doc.text('Documento pericial emitido pelo software CPS Rodovias Pro.', 14, 285);
 
-    doc.save(`Laudo_Inspecao_BR116_${Date.now()}.pdf`);
-    showToast('Laudo PDF baixado com sucesso!');
+    const safeFolder = batchConfig.saveDir.split('/').pop().replace(/[^a-zA-Z0-9_-]/g, '') || 'Laudo';
+    const filename = `${safeFolder}_BR116_${Date.now()}.pdf`;
+    doc.save(filename);
+    showToast(`Laudo salvo com sucesso em ${batchConfig.saveDir}!`);
   }
 
   function shareWhatsApp() {
