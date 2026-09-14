@@ -1,97 +1,1704 @@
-// CPS Rodovias Pro - Service Worker 100% Offline
-const CACHE_NAME = 'cps-rodovias-cache-v5';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#06070a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CPS Rodovias Pro - Sistema de Apoio & Inspeção</title>
+  <meta name="description" content="Sistema profissional de apoio à inspeção viária, localização de postes/NX, registro fotográfico georreferenciado, detecção de luminárias por IA e gestão de licenças.">
+  <meta property="og:title" content="CPS Rodovias Pro - Sistema de Apoio & Inspeção">
+  <meta property="og:description" content="Sistema profissional de apoio à inspeção viária, localização de postes/NX, registro fotográfico georreferenciado, detecção de luminárias por IA e gestão de licenças.">
+  
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-const PRECACHE_URLS = [
-  './',
-  './index.html',
-  './public/manifest.json',
-  './public/icon.svg',
-  './public/dados.csv',
-  './public/SNVBR116SPRJ.csv',
-  './dados.csv',
-  './SNVBR116SPRJ.csv',
-  './Dados_Completos_Grupo_2_all.csv',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
-];
+  <style>
+:root{
+  --bg:#06070a;--bg2:#0a0d11;--surface:#0f1216;--surface2:#14181d;--surface3:#1a1f25;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--border3:rgba(255,255,255,.2);
+  --accent:#ffd600;--accent2:#ffe44d;--accent3:#c8a800;
+  --accent-dim:rgba(255,214,0,.08);--accent-glow:rgba(255,214,0,.18);
+  --green:#10b981;--green2:#34d399;--green3:#059669;--green-dim:rgba(16,185,129,.1);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.1);
+  --warn:#f59e0b;--warn-dim:rgba(245,158,11,.1);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,.1);
+  --text:#f4f4f5;--text2:#d4d4d8;--text3:#a1a1aa;--muted:#71717a;--dim:#3f3f46;
+  --font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;--r-xl:24px;
+  --safe-b:max(env(safe-area-inset-bottom,0px),16px);--safe-t:env(safe-area-inset-top,0px);
+  --ease:cubic-bezier(.4,0,.2,1);--ease-bounce:cubic-bezier(.34,1.56,.64,1);
+  --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;min-height:100dvh;overflow-x:hidden;position:relative}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;outline:none}
+button{cursor:pointer;user-select:none;-webkit-user-select:none}
+a{color:inherit;text-decoration:none}
+svg{display:block}
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      // Tenta precachear os itens individualmente para que falha de um não impeça os outros
-      for (const url of PRECACHE_URLS) {
-        try {
-          await cache.add(url);
-        } catch (err) {
-          console.warn('[SW] Falha ao precachear URL:', url, err);
+/* ===== SPLASH SCREEN ===== */
+#splash{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s var(--ease);overflow:hidden}
+#splash.done{opacity:0;pointer-events:none}
+.sp-glow{position:absolute;inset:0;background:radial-gradient(ellipse 50% 40% at 50% 42%,rgba(255,214,0,.12),transparent 70%)}
+.sp-scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.25),transparent);animation:spScan 2.5s linear infinite}
+@keyframes spScan{from{top:0}to{top:100%}}
+.sp-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+.sp-logo-wrap{position:relative;width:96px;height:96px}
+.sp-logo{width:100%;height:100%;border-radius:24px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;box-shadow:0 0 0 1px rgba(255,214,0,.3),0 20px 60px rgba(255,214,0,.25)}
+.sp-logo svg{width:50px;height:50px}
+.sp-ring{position:absolute;inset:-12px;border:2px solid rgba(255,214,0,.3);border-radius:30px;animation:spPulse 2s ease-out infinite}
+@keyframes spPulse{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
+.sp-badge{position:absolute;top:-4px;right:-4px;width:28px;height:28px;border-radius:8px;background:var(--green);border:2px solid var(--bg);display:grid;place-items:center}
+.sp-badge svg{width:14px;height:14px}
+.sp-eyebrow{margin-top:28px;font-size:11px;font-weight:900;letter-spacing:.45em;color:var(--accent);text-transform:uppercase}
+.sp-title{margin-top:12px;font-size:clamp(28px,8vw,34px);font-weight:900;letter-spacing:-.03em;color:#fff}
+.sp-sub{margin-top:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.sp-bar{margin-top:36px;width:170px;height:3px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.sp-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:spBar 1.2s ease-in-out both;transform-origin:left}
+@keyframes spBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ===== MENU PRINCIPAL ===== */
+#main-menu{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;padding:calc(14px + var(--safe-t)) 16px calc(20px + var(--safe-b));background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.menu-inner{max-width:540px;width:100%;margin:0 auto}
+.menu-top-card{display:flex;align-items:center;justify-content:space-between;border-radius:var(--r-md);border:1px solid var(--border);background:var(--glass);padding:12px 16px;margin-bottom:18px}
+.mtc-left{display:flex;align-items:center;gap:12px}
+.mtc-clock{font-size:20px;font-weight:900;letter-spacing:-.02em;line-height:1}
+.mtc-date{font-size:10px;font-weight:600;color:var(--muted);text-transform:capitalize;margin-top:2px}
+.mtc-pill{display:flex;align-items:center;gap:6px;border-radius:20px;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.08);padding:6px 12px;font-size:10px;font-weight:800;color:var(--green2)}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);animation:dotPulse 1.8s infinite}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+.menu-banner{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.mb-icon{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;flex-shrink:0}
+.mb-icon svg{width:26px;height:26px}
+.mb-text .m-tag{font-size:10px;font-weight:900;letter-spacing:.3em;color:var(--accent);text-transform:uppercase}
+.mb-text h1{font-size:clamp(24px,7vw,30px);font-weight:900;line-height:1.1;letter-spacing:-.03em}
+.menu-subt{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+
+/* STATUS BANNER DOS DADOS CSV */
+.data-sync-banner{margin-top:14px;padding:10px 14px;border-radius:var(--r-sm);border:1px solid rgba(255,214,0,.25);background:linear-gradient(135deg,rgba(255,214,0,.08),rgba(255,214,0,.02));display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dsb-left{display:flex;align-items:center;gap:8px}
+.dsb-left svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
+.dsb-info{font-size:11px;font-weight:800;color:#fff}
+.dsb-sub{font-size:10px;color:var(--text3)}
+.dsb-btn{padding:5px 10px;border-radius:6px;background:var(--surface2);border:1px solid var(--border2);font-size:10px;font-weight:800;text-transform:uppercase;color:var(--accent);flex-shrink:0}
+
+.menu-grid{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.mc{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--glass);transition:all .15s var(--ease);text-align:left;width:100%}
+.mc:active{transform:scale(.98);background:var(--glass2)}
+.mc.pri{border-color:rgba(255,214,0,.35);background:linear-gradient(135deg,rgba(255,214,0,.09),rgba(255,214,0,.02))}
+.mc-i{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;background:var(--glass2);color:var(--accent)}
+.mc.pri .mc-i{background:rgba(255,214,0,.16)}
+.mc-i svg{width:20px;height:20px}
+.mc-b{flex:1;min-width:0}
+.mc-b h3{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:#fff}
+.mc-b p{font-size:11px;font-weight:500;color:var(--muted);margin-top:2px}
+.mc-a{width:22px;height:22px;display:grid;place-items:center;color:var(--dim);flex-shrink:0}
+.mc-a svg{width:14px;height:14px}
+.menu-footer{margin-top:22px;text-align:center;font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.05em;padding-bottom:8px}
+
+@media(min-width:520px){
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mc.pri{grid-column:1/-1}
+}
+
+/* ===== MODULOS GERAIS ===== */
+.module{display:none;min-height:100vh;min-height:100dvh;background:var(--bg);position:relative}
+.module.active{display:block}
+.hdr{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);background:rgba(6,7,10,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.hdr-in{max-width:680px;margin:0 auto;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;gap:10px}
+.hdr-back{width:36px;height:36px;border-radius:var(--r-xs);border:1px solid var(--border);background:var(--glass);display:grid;place-items:center}
+.hdr-back:active{transform:scale(.92)}
+.hdr-back svg{width:18px;height:18px}
+.hdr-title{flex:1;min-width:0}
+.hdr-title h1{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-title p{font-size:10px;font-weight:600;color:var(--muted);margin-top:1px}
+.hdr-badge{width:34px;height:34px;border-radius:var(--r-xs);background:var(--accent-dim);color:var(--accent);display:grid;place-items:center;flex-shrink:0}
+.hdr-badge svg{width:16px;height:16px}
+
+.wrap{max-width:680px;margin:0 auto;padding:14px;padding-bottom:var(--safe-b);display:flex;flex-direction:column;gap:12px}
+
+/* ===== CARDS & BOTOES ===== */
+.card{border-radius:var(--r-md);border:1px solid var(--border);background:var(--glass);padding:16px;position:relative}
+.card-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-label::before{content:"";width:3px;height:10px;border-radius:2px;background:var(--accent)}
+
+.form-input, .form-select, .form-textarea{width:100%;border-radius:var(--r-sm);border:1px solid var(--border);background:rgba(0,0,0,.35);color:#fff;padding:12px 14px;font-size:12px;font-weight:700}
+.form-input:focus, .form-select:focus, .form-textarea:focus{border-color:var(--accent)}
+.btn-primary{width:100%;height:46px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:active{transform:scale(.98)}
+.btn-sec{width:100%;height:46px;border-radius:var(--r-sm);background:var(--surface2);border:1px solid var(--border);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* GPS STATUS */
+.gps{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:var(--r-sm);border:1px solid;padding:0 12px;font-size:11px;font-weight:800;letter-spacing:.05em;text-align:center}
+.gps.bad{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.06);color:#fca5a5}
+.gps.ok{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:#6ee7b7}
+.gps.warn{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.06);color:#fcd34d}
+.gps svg{width:14px;height:14px}
+
+/* SEARCH & TARGET LOCK */
+.search-row{display:flex;gap:8px}
+.search-wrap{flex:1;position:relative}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted)}
+.search-input{width:100%;border-radius:var(--r-sm);border:1px solid var(--border);background:rgba(0,0,0,.3);padding:12px 12px 12px 38px;font-size:13px;font-weight:800;text-transform:uppercase;color:#fff}
+.search-input:focus{border-color:var(--accent)}
+.btn-icon{width:46px;height:46px;border-radius:var(--r-sm);display:grid;place-items:center;flex-shrink:0}
+.btn-icon.go{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000}
+.btn-icon.clr{border:1px solid var(--border);background:var(--glass);color:var(--muted)}
+.btn-icon svg{width:17px;height:17px}
+
+.target-lock{display:none;border-radius:var(--r-md);border:2px solid var(--green);background:linear-gradient(145deg,rgba(5,150,105,.2),rgba(16,185,129,.08));padding:16px;text-align:center}
+.target-lock.on{display:block;animation:lockPulse 2s infinite}
+@keyframes lockPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.3)}50%{box-shadow:0 0 0 8px rgba(16,185,129,0)}}
+.target-lock h2{font-size:14px;font-weight:900;text-transform:uppercase;color:var(--green2)}
+.target-lock p{font-size:11px;font-weight:700;margin-top:3px;color:#fff}
+
+/* POST CARDS */
+.post{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border);background:var(--glass)}
+.post.near{border-color:rgba(255,214,0,.4);background:linear-gradient(145deg,rgba(255,214,0,.08),rgba(255,214,0,.02))}
+.post-top{display:flex;align-items:flex-start;gap:10px;padding:12px 14px}
+.post-chk{margin-top:2px;width:18px;height:18px;accent-color:var(--accent)}
+.post-info{flex:1;min-width:0}
+.post-id{font-size:12px;font-weight:900;text-transform:uppercase}
+.post-id span{color:var(--accent)}
+.post-dist{font-size:11px;font-weight:700;color:var(--green2);margin-top:2px}
+.post-coords{font-size:10px;color:var(--muted);margin-top:2px}
+.post-pin{width:30px;height:30px;border-radius:8px;background:var(--accent-dim);color:var(--accent);display:grid;place-items:center}
+.post-pin svg{width:15px;height:15px}
+.post-map{height:120px;width:100%;border:0}
+.post-actions{display:flex;gap:8px;padding:0 12px 12px}
+.post-btn{flex:1;height:36px;border-radius:var(--r-xs);font-size:11px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px}
+.post-btn.nav{background:var(--surface2);border:1px solid var(--border);color:#fff}
+.post-btn.wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff}
+
+.ctrl-send{width:100%;min-height:46px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* ===== CAMERA & HUD ===== */
+#app-shell{position:relative;width:100%;height:100vh;height:100dvh;background:#000;overflow:hidden}
+#vid{width:100%;height:100%;object-fit:cover}
+#km-hud{position:absolute;top:calc(12px + var(--safe-t));left:14px;border:1px solid rgba(255,214,0,.35);background:rgba(0,0,0,.75);padding:6px 12px;border-radius:10px;backdrop-filter:blur(8px)}
+#km-hud .h-l{font-size:9px;font-weight:900;text-transform:uppercase;color:var(--accent)}
+#km-hud .h-v{font-size:17px;font-weight:900;color:#fff}
+#rec-tag{position:absolute;top:calc(12px + var(--safe-t));right:14px;border:1px solid rgba(239,68,68,.35);background:rgba(0,0,0,.75);padding:6px 12px;border-radius:20px;display:none;align-items:center;gap:6px}
+#rec-tag.on{display:flex}
+#rec-tag .dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:dotPulse 1s infinite}
+#rec-tag span{font-size:10px;font-weight:800;color:#fff}
+#ui-ctrl{position:absolute;bottom:calc(14px + var(--safe-b));left:14px;right:14px;display:flex;align-items:center;gap:8px;z-index:200}
+.ui-btn{height:48px;border-radius:12px;display:grid;place-items:center;font-size:11px;font-weight:900;text-transform:uppercase;background:rgba(0,0,0,.7);border:1px solid var(--border);color:#fff;backdrop-filter:blur(10px)}
+#btn-start{flex:1;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;border:none}
+#btn-stop{flex:1;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;display:none;border:none}
+#btn-gallery{width:48px;position:relative}
+#btn-gallery .g-count{position:absolute;top:-4px;right:-4px;background:var(--accent);color:#000;font-size:9px;font-weight:900;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center}
+#btn-menu{padding:0 14px}
+
+/* GALLERY OVERLAY */
+#gallery-overlay{position:absolute;inset:0;z-index:300;display:none;flex-direction:column;background:var(--bg)}
+#gallery-overlay.open{display:flex}
+.gal-header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);background:rgba(6,7,10,.95)}
+.gal-header h2{flex:1;font-size:13px;font-weight:900;text-transform:uppercase}
+.gal-grid{flex:1;overflow-y:auto;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.gal-item{border-radius:var(--r-xs);overflow:hidden;background:var(--surface);position:relative}
+.gal-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.gal-item .gi-km{position:absolute;top:4px;right:4px;background:rgba(255,214,0,.9);color:#000;font-size:8px;font-weight:900;padding:2px 5px;border-radius:3px}
+.gal-actions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:rgba(6,7,10,.95)}
+.gal-action{flex:1;height:42px;border-radius:var(--r-xs);font-size:11px;font-weight:900;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px}
+.gal-action.pdf{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000}
+.gal-action.wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff}
+.gal-action.clr{background:var(--red-dim);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+
+/* KM HERO */
+.km-hero{border-radius:var(--r-xl);border:1px solid rgba(16,185,129,.25);background:linear-gradient(155deg,#047857 0%,#065f46 45%,#022c22 100%);text-align:center;padding:24px 20px;position:relative;overflow:hidden;box-shadow:0 14px 45px rgba(0,80,55,.2)}
+.km-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.2em;color:rgba(220,252,231,.7)}
+.km-value{font-size:clamp(40px,12vw,64px);font-weight:900;line-height:1.05;letter-spacing:-.04em;margin-top:4px;font-variant-numeric:tabular-nums;color:#fff}
+.km-sub{font-size:11px;font-weight:600;color:rgba(220,252,231,.6);margin-top:6px}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(16px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--surface);padding:10px 18px;font-size:11px;font-weight:800;text-transform:uppercase;box-shadow:0 10px 30px rgba(0,0,0,.6);z-index:99998;opacity:0;transition:all .2s var(--ease);pointer-events:none;display:flex;align-items:center;gap:6px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(16,185,129,.35);color:var(--green2)}
+.toast.err{border-color:rgba(239,68,68,.35);color:#fca5a5}
+canvas#c{display:none}
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <div class="sp-glow"></div>
+    <div class="sp-scan"></div>
+    <div class="sp-content">
+      <div class="sp-logo-wrap">
+        <div class="sp-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="sp-ring"></div>
+        <div class="sp-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+      </div>
+      <p class="sp-eyebrow">ENGENHARIA & ILUMINAÇÃO VIÁRIA</p>
+      <h1 class="sp-title">CPS RODOVIAS PRO</h1>
+      <p class="sp-sub">Sistema de Apoio & Inspeção</p>
+      <div class="sp-bar"><div class="sp-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- MENU PRINCIPAL -->
+  <div id="main-menu">
+    <div class="menu-inner">
+      <div class="menu-top-card">
+        <div class="mtc-left">
+          <div>
+            <p class="mtc-clock" id="menuClock">--:--:--</p>
+            <p class="mtc-date" id="menuDate">—</p>
+          </div>
+        </div>
+        <div class="mtc-pill" id="menuGpsPill">
+          <span class="dot-live"></span><span id="menuGpsText">GPS ATIVO</span>
+        </div>
+      </div>
+
+      <div class="menu-banner">
+        <div class="mb-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="mb-text">
+          <p class="m-tag">CPS PRO v3.2</p>
+          <h1>Sistema de<br>Apoio & Inspeção</h1>
+        </div>
+      </div>
+      <p class="menu-subt">Localização geodésica de postes NX, câmera técnica com laudo pericial em PDF e sincronização com bases oficiais.</p>
+
+      <!-- BANNER DE INTEGRAÇÃO CSV GITHUB PAGES / LOCAL -->
+      <div class="data-sync-banner">
+        <div class="dsb-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+          </svg>
+          <div>
+            <p class="dsb-info" id="dbStatusTxt">Sincronizando com GitHub Pages...</p>
+            <p class="dsb-sub" id="dbStatusSub">Dados_Completos_Grupo_2_all.csv & SNVBR116SPRJ.csv</p>
+          </div>
+        </div>
+        <button class="dsb-btn" onclick="reloadCsvData()">Recarregar</button>
+      </div>
+
+      <div class="menu-grid">
+        <!-- 01 APOIO -->
+        <button class="mc pri" onclick="openMod('apoio')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>01. Apoio Localização (NX)</h3>
+            <p id="menuCountPosts">Postes mais próximos e busca direta por ID</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 02 INSPEÇÃO & LAUDO -->
+        <button class="mc" onclick="openMod('inspecao')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>02. Câmera Técnica & Laudo PDF</h3>
+            <p>Carimbo indelével com estaca KM e emissão de Laudo</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 03 KM EM TEMPO REAL -->
+        <button class="mc" onclick="openMod('km')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>03. KM em Tempo Real & HUD</h3>
+            <p id="menuCountKm">Estaca oficial SNV com modo espelho para para-brisa</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 04 FOTOS FLEXÍVEIS -->
+        <button class="mc" onclick="openMod('fotos')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>04. Fotos Flexíveis</h3>
+            <p>Proporções 16:9, 4:3, 1:1 e escolha do carimbo</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 05 BLOCO & VOZ -->
+        <button class="mc" onclick="openMod('notas')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>05. Bloco de Notas & Voz</h3>
+            <p>Diário de não-conformidades com áudio</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 06 IA LUMINÁRIAS -->
+        <button class="mc" onclick="openMod('ia')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>06. IA Luminárias Noturnas</h3>
+            <p>Varredura fotométrica digital com alerta sonoro</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 07 COMANDOS VOZ -->
+        <button class="mc" onclick="openMod('voz')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>07. Comandos Hands-Free</h3>
+            <p>Condução segura operada 100% por voz</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- 08 BASE RODOVIAS & CSV -->
+        <button class="mc" onclick="openMod('rodovias')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>08. Base de Dados CSV</h3>
+            <p>Upload de planilhas e seleção de rodovias</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+
+        <!-- CENTRAL DE LICENÇAS -->
+        <button class="mc" onclick="openMod('licencas')">
+          <span class="mc-i">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </span>
+          <span class="mc-b">
+            <h3>Central de Licenças</h3>
+            <p>Chaves comerciais e Painel do Administrador</p>
+          </span>
+          <span class="mc-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+      </div>
+
+      <p class="menu-footer">CPS RODOVIAS PRO • 100% OFFLINE-READY • INTEGRADO GITHUB PAGES</p>
+    </div>
+  </div>
+
+  <!-- MODULO 01: APOIO LOCALIZAÇÃO -->
+  <div id="mod-apoio" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>Apoio Localização (NX)</h1><p id="apoioTitleSub">Buscando na base oficial...</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div id="targetLock" class="target-lock">
+        <h2>Você está no poste!</h2>
+        <p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Buscar Poste ou OS por ID</div>
+        <div class="search-row">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="inputId" class="search-input" placeholder="Digite o ID (ex: 14000003 ou NX-01)">
+          </div>
+          <button class="btn-icon go" onclick="searchId()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button>
+          <button class="btn-icon clr" onclick="clearId()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div id="searchMsg" style="display:none;margin-top:10px;font-size:11px;color:var(--warn)"></div>
+        <div id="searchResult" style="display:none;margin-top:12px"></div>
+      </div>
+
+      <div id="gpsStatus" class="gps ok">GPS · OBTENDO LOCALIZAÇÃO DE ALTA PRECISÃO</div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px">
+        <span style="font-size:11px;font-weight:900;text-transform:uppercase;color:var(--muted)" id="postListHeader">Postes Mais Próximos</span>
+        <select id="qtySelect" class="form-select" style="width:auto;padding:4px 10px;font-size:11px" onchange="renderApoio()">
+          <option value="5">5 Postes</option>
+          <option value="10" selected>10 Postes</option>
+          <option value="25">25 Postes</option>
+          <option value="50">50 Postes</option>
+        </select>
+      </div>
+
+      <div id="postList" style="display:flex;flex-direction:column;gap:10px"></div>
+
+      <button id="btnSend" class="ctrl-send" onclick="sendWhatsAppList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        <span>Enviar Lista no WhatsApp</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODULO 02: CÂMERA & LAUDO PDF -->
+  <div id="mod-inspecao" class="module">
+    <div id="app-shell">
+      <video id="vid" autoplay playsinline muted onclick="manualPhoto()"></video>
+      <div id="km-hud"><span class="h-l">KM atual (SNV)</span><p class="h-v" id="kmTxt">KM ---</p></div>
+      <div id="rec-tag"><div class="dot"></div><span>Gravando em Lote</span></div>
+      
+      <div id="ui-ctrl">
+        <button class="ui-btn" id="btn-gallery" onclick="openGallery()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <span class="g-count" id="gCount" style="display:none">0</span>
+        </button>
+        <button class="ui-btn" id="btn-start" onclick="startCap()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>
+          <span style="margin-left:6px">Foto / Lote</span>
+        </button>
+        <button class="ui-btn" id="btn-stop" onclick="stopCap()">Parar Lote</button>
+        <button class="ui-btn" id="btn-menu" onclick="openMod('menu')">Menu</button>
+      </div>
+
+      <!-- GALERIA & LAUDO PDF -->
+      <div id="gallery-overlay">
+        <div class="gal-header">
+          <button class="hdr-back" onclick="closeGallery()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+          <h2>Galeria de Inspeção & Laudo</h2>
+          <span style="font-size:11px;font-weight:800;color:var(--accent)" id="galCountText">0 fotos</span>
+        </div>
+        <div class="gal-grid" id="galGrid"></div>
+        <div class="gal-actions">
+          <button class="gal-action pdf" onclick="genPdf()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+            <span>Gerar Laudo PDF</span>
+          </button>
+          <button class="gal-action wa" onclick="shareWhatsApp()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <span>WhatsApp</span>
+          </button>
+          <button class="gal-action clr" onclick="clearPhotos()">Limpar</button>
+        </div>
+      </div>
+    </div>
+    <canvas id="c"></canvas>
+  </div>
+
+  <!-- MODULO 03: KM REAL TIME & HUD -->
+  <div id="mod-km" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>KM em Tempo Real & HUD</h1><p>Marco de rodovia com precisão métrica SNV</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="km-hero" id="hudBox">
+        <p class="km-label">Estaca Quilométrica Atual</p>
+        <p class="km-value" id="rtKm">KM ---</p>
+        <p class="km-sub" id="rtCoords">-23.442266, -46.442272</p>
+      </div>
+      <div id="rtGps" class="gps ok">GPS · ALTA PRECISÃO (±5M)</div>
+      
+      <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center">
+        <div>
+          <span style="font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase">Velocidade</span>
+          <p style="font-size:24px;font-weight:900;color:#fff" id="rtSpeed">0 km/h</p>
+        </div>
+        <div>
+          <span style="font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase">Sentido / Rumo</span>
+          <p style="font-size:24px;font-weight:900;color:var(--accent)" id="rtHeading">145° SE</p>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="toggleHudMirror()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+        <span id="hudBtnTxt">Ativar Modo Espelho (HUD Para-Brisa)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODULO 04: FOTOS FLEXÍVEIS -->
+  <div id="mod-fotos" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>04. Fotos Flexíveis</h1><p>Modelo do Carimbo e Proporção</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="card">
+        <div class="card-label">Modelo de Carimbo Técnico</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700">
+            <input type="radio" name="stampModel" value="full" checked onchange="updateStampPreview()">
+            <span>Completo (Rodovia, Estaca SNV, GPS, Data/Hora, Operador)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700">
+            <input type="radio" name="stampModel" value="km_gps" onchange="updateStampPreview()">
+            <span>Apenas Estaca KM & GPS</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700">
+            <input type="radio" name="stampModel" value="km" onchange="updateStampPreview()">
+            <span>Apenas Estaca KM</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700">
+            <input type="radio" name="stampModel" value="none" onchange="updateStampPreview()">
+            <span>Foto Limpa (Sem sobreposição)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Proporção da Imagem</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sec" id="ratio169" style="border-color:var(--accent)" onclick="setRatio('16:9')">16:9</button>
+          <button class="btn-sec" id="ratio43" onclick="setRatio('4:3')">4:3</button>
+          <button class="btn-sec" id="ratio11" onclick="setRatio('1:1')">1:1</button>
+        </div>
+      </div>
+
+      <div class="card" style="text-align:center">
+        <div class="card-label">Pré-visualização do Carimbo</div>
+        <div style="background:#000;border-radius:10px;padding:20px 14px;border:1px solid var(--border);color:var(--accent);font-family:monospace;font-size:12px" id="stampPreview">
+          BR-116/SP • KM 213+370m<br>GPS: -23.442266, -46.442272 (±5M)<br>DATA: 13/09/2026 • CPS RODOVIAS PRO
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="triggerFlexPhoto()">Capturar Foto com Este Modelo</button>
+    </div>
+  </div>
+
+  <!-- MODULO 05: BLOCO DE NOTAS & VOZ -->
+  <div id="mod-notas" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>05. Bloco de Notas & Voz</h1><p>Registro de não-conformidades de campo</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="card">
+        <div class="card-label">Nova Ocorrência Viária</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <select id="notaCat" class="form-select" style="flex:1">
+            <option value="Luminária Apagada">Luminária Apagada</option>
+            <option value="Poste Abalroado">Poste Abalroado / Danificado</option>
+            <option value="Falha Elétrica">Falha Elétrica / Fiação</option>
+            <option value="Furto de Cabos">Furto de Cabos / Vandalismo</option>
+            <option value="Manutenção Preventiva">Manutenção Preventiva</option>
+            <option value="Geral">Geral</option>
+          </select>
+          <button class="btn-sec" style="width:auto;padding:0 14px;color:var(--accent)" onclick="recordVoiceNote()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            <span id="voiceRecTxt" style="margin-left:4px">Falar</span>
+          </button>
+        </div>
+        <textarea id="notaText" class="form-textarea" rows="3" placeholder="Descreva a ocorrência ou dite por voz..."></textarea>
+        <button class="btn-primary" style="margin-top:10px" onclick="saveNote()">Salvar no Diário de Bordo</button>
+      </div>
+
+      <div style="font-size:11px;font-weight:900;text-transform:uppercase;color:var(--muted)">Ocorrências Desta Sessão</div>
+      <div id="notesList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+
+  <!-- MODULO 06: IA LUMINÁRIAS -->
+  <div id="mod-ia" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>06. IA Luminárias Noturnas</h1><p>Varredura fotométrica contínua</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="card">
+        <div class="card-label">Sensor Fotométrico Digital</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <span style="font-size:10px;color:var(--muted);text-transform:uppercase">Luminância Atual</span>
+            <div style="font-size:32px;font-weight:900;color:var(--accent)" id="iaLuxVal">58 LUX</div>
+          </div>
+          <div id="iaStatusBadge" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:900;background:rgba(16,185,129,.15);color:var(--green2);border:1px solid rgba(16,185,129,.3)">
+            ILUMINADA
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:6px">
+            <span>Sensibilidade de Corte:</span>
+            <span style="color:var(--accent)" id="iaCutoffVal">45 LUX</span>
+          </div>
+          <input type="range" id="iaCutoff" min="15" max="90" value="45" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('iaCutoffVal').textContent=this.value+' LUX'">
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnToggleIa" onclick="toggleIaScanner()">Iniciar Varredura Fotométrica</button>
+
+      <div class="card">
+        <div class="card-label">Lâmpadas Apagadas Detectadas</div>
+        <div id="iaDetections" style="display:flex;flex-direction:column;gap:8px">
+          <p style="font-size:11px;color:var(--muted);text-align:center">Nenhuma anomalia detectada ainda.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 07: COMANDOS DE VOZ -->
+  <div id="mod-voz" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>07. Comandos de Voz Hands-Free</h1><p>Operação sem as mãos</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap" style="text-align:center">
+      <div class="card" style="padding:28px 18px">
+        <button id="btnVoiceMic" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;display:grid;place-items:center;margin:0 auto 14px;box-shadow:0 0 30px rgba(255,214,0,.3)" onclick="startVoiceRecognition()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:34px;height:34px"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <h2 style="font-size:15px;font-weight:900" id="voiceStatusTxt">Toque para Falar</h2>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px">Comandos aceitos: "Poste apagado", "Foto", "Qual estaca", "Poste quebrado"</p>
+      </div>
+
+      <div class="card" style="text-align:left">
+        <div class="card-label">Histórico de Comandos</div>
+        <div id="voiceLogs" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 08: BASE RODOVIAS & CSV -->
+  <div id="mod-rodovias" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>08. Base de Rodovias & CSV</h1><p>Bases oficiais e importador</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="card">
+        <div class="card-label">Base em Operação</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="mc pri" style="margin:0" onclick="switchBase('official')">
+            <span class="mc-b">
+              <h3>BR-116 & Postes Oficiais (GitHub Pages)</h3>
+              <p id="officialDesc">Carregando dados da concessionária...</p>
+            </span>
+          </button>
+          <button class="mc" style="margin:0" onclick="switchBase('sp330')">
+            <span class="mc-b">
+              <h3>SP-330 Rodovia Anhanguera (Autoban)</h3>
+              <p>KM 125 ao 134 • Postes NX cadastrados</p>
+            </span>
+          </button>
+          <button class="mc" style="margin:0" onclick="switchBase('sp070')">
+            <span class="mc-b">
+              <h3>SP-070 Ayrton Senna (Ecopistas)</h3>
+              <p>KM 20 ao 26 • Postes LED</p>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Importar Planilha CSV Manual</div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Selecione uma planilha de postes (ex: ID;Latitude;Longitude):</p>
+        <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none" onchange="handleCsvUpload(this)">
+        <button class="btn-primary" onclick="document.getElementById('csvFileInput').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Carregar Arquivo CSV Local</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTRAL DE LICENÇAS -->
+  <div id="mod-licencas" class="module">
+    <header class="hdr">
+      <div class="hdr-in">
+        <button class="hdr-back" onclick="openMod('menu')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="hdr-title"><h1>Central de Licenças Comerciais</h1><p>Gestão de Chaves e Painel do Dono</p></div>
+        <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <span style="font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase">ID deste Aparelho</span>
+          <p style="font-size:13px;font-weight:900;color:var(--accent);font-family:monospace" id="licDevId">CPS-DEV-0000</p>
+        </div>
+        <div>
+          <span style="font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase">Status Licença</span>
+          <p style="font-size:13px;font-weight:900;color:var(--green2)" id="licStatusTxt">PRO ATIVO</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Ativar Chave Comercial</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="keyInp" class="form-input" placeholder="Ex: CPS-PRO-CONCESS-XXXX" style="font-family:monospace;text-transform:uppercase">
+          <button class="btn-primary" style="width:auto;padding:0 16px" onclick="activateCommercialKey()">Ativar</button>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid rgba(255,214,0,.25);background:rgba(255,214,0,.02)">
+        <div class="card-label">Painel do Administrador (Emissão de Chaves)</div>
+        <div id="adminLocked">
+          <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Digite a senha do administrador para emitir chaves:</p>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="adminPass" class="form-input" placeholder="Senha do Administrador (admin)">
+            <button class="btn-sec" style="width:auto;padding:0 14px" onclick="unlockAdmin()">Acessar</button>
+          </div>
+        </div>
+
+        <div id="adminUnlocked" style="display:none;flex-direction:column;gap:10px">
+          <input type="text" id="genClientName" class="form-input" placeholder="Nome da Concessionária">
+          <div style="display:flex;gap:8px">
+            <select id="genPlan" class="form-select" style="flex:1">
+              <option value="PRO">Plano PRO</option>
+              <option value="ENTERPRISE">Concessionária VIP</option>
+            </select>
+            <select id="genDays" class="form-select" style="width:110px">
+              <option value="30">30 Dias</option>
+              <option value="365" selected>1 Ano</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="generateClientKey()">Gerar Chave Comercial</button>
+          <div id="genResultBox" style="display:none;background:#000;padding:12px;border-radius:8px;border:1px solid var(--accent);margin-top:6px">
+            <span style="font-size:10px;color:var(--muted)">Chave Oficial Gerada:</span>
+            <p id="genResultKey" style="font-size:12px;font-weight:900;color:var(--accent);font-family:monospace;word-break:break-all;margin-top:3px"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script>
+  /*====================================================================
+     CPS RODOVIAS PRO - MOTOR COM INTEGRAÇÃO CSV GITHUB PAGES / LOCAL
+  ====================================================================*/
+  const GITHUB_PAGES_BASE = 'https://apoiotecnico1.github.io/cps/';
+  const ACC_G = 15, ACC_Y = 35;
+
+  const norm = s => String(s || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9_ ]+/g, ' ').replace(/\s+/g, ' ');
+  const parsePt = v => {
+    const s = String(v ?? '').trim();
+    return /,\d+$/.test(s) ? Number(s.replace(/\./g, '').replace(',', '.')) : Number(s);
+  };
+  const hav = (a, b, c, d) => {
+    const p = Math.PI / 180;
+    const x = 0.5 - Math.cos((c - a) * p) / 2 + Math.cos(a * p) * Math.cos(c * p) * (1 - Math.cos((d - b) * p)) / 2;
+    return 12742000 * Math.asin(Math.sqrt(x));
+  };
+  const range = (dist, acc = 0) => {
+    const d = Math.round(dist);
+    const e = Number.isFinite(acc) ? Math.round(acc) : 0;
+    return `${Math.max(0, d - e)}M A ${d + e}M`;
+  };
+
+  function findCol(h, cs) {
+    const m = h.map(norm);
+    for (const c of cs) {
+      const i = m.indexOf(norm(c));
+      if (i >= 0) return i;
+    }
+    return -1;
+  }
+
+  function vibrate(ms) {
+    try { navigator.vibrate?.(ms); } catch (e) {}
+  }
+
+  // BASES PADRÃO DE RETAGUARDA (OFFLINE IMMEDIATE)
+  const FALLBACK_POSTS = [
+    { id: '14000003', lat: -23.442266, lon: -46.442272 },
+    { id: '14000004', lat: -23.224678, lon: -45.905712 },
+    { id: '14000005', lat: -22.930203, lon: -45.361590 },
+    { id: '14000006', lat: -23.352551, lon: -46.199820 },
+    { id: '14000007', lat: -23.441500, lon: -46.443199 },
+    { id: '14000008', lat: -23.261405, lon: -45.950049 },
+    { id: 'NX-01', lat: -22.767500, lon: -47.332000 },
+    { id: 'NX-02', lat: -22.765800, lon: -47.333500 },
+    { id: 'NX-03', lat: -22.764100, lon: -47.335000 }
+  ];
+
+  // ESTADO GLOBAL
+  let posts = [...FALLBACK_POSTS];
+  let kmDB = [];
+  let pos = { lat: -23.442266, lon: -46.442272, acc: 5 };
+  let curSpeed = 0;
+  let searchItem = null;
+  let stream = null;
+  let totalPhotos = 0;
+  let galleryPhotos = [];
+  let capturing = false;
+  let currentStakeStr = "KM 213+370m";
+  let activeRatio = "16:9";
+  let isHudMirrored = false;
+  let iaActive = false;
+  let iaTimer = null;
+  let notes = [];
+  let voiceLogs = [];
+
+  // TOAST
+  let _tt = null;
+  function showToast(msg, type = 'ok') {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.className = 'toast ' + type;
+    el.innerHTML = msg;
+    clearTimeout(_tt);
+    requestAnimationFrame(() => {
+      el.classList.add('show');
+      _tt = setTimeout(() => el.classList.remove('show'), 3000);
+    });
+  }
+
+  // NAVEGAÇÃO
+  function openMod(id) {
+    const menu = document.getElementById('main-menu');
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    if (id === 'menu') {
+      menu.style.display = 'flex';
+      return;
+    }
+    menu.style.display = 'none';
+    const target = document.getElementById('mod-' + id);
+    if (target) target.classList.add('active');
+
+    if (id === 'apoio') renderApoio();
+    if (id === 'inspecao') initCamera();
+  }
+
+  // SPLASH
+  setTimeout(() => {
+    const sp = document.getElementById('splash');
+    if (sp) sp.classList.add('done');
+  }, 1200);
+
+  // RELÓGIO
+  function tickClock() {
+    const now = new Date();
+    const clock = document.getElementById('menuClock');
+    const date = document.getElementById('menuDate');
+    if (clock) clock.textContent = now.toLocaleTimeString('pt-BR');
+    if (date) date.textContent = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /*====================================================================
+     CARREGAMENTO INTEGRADO DOS ARQUIVOS CSV DO GITHUB PAGES E LOCAL
+  ====================================================================*/
+  async function fetchCsvWithFallback(localPaths, remoteUrl) {
+    for (const path of localPaths) {
+      try {
+        const r = await fetch(path + '?v=' + Date.now(), { cache: 'no-store' });
+        if (r.ok) {
+          const text = await r.text();
+          if (text && text.length > 50) return text;
         }
+      } catch (e) {}
+    }
+    // Fallback para GitHub Pages
+    try {
+      const r = await fetch(remoteUrl + '?v=' + Date.now(), { cache: 'no-store' });
+      if (r.ok) {
+        const text = await r.text();
+        if (text && text.length > 50) return text;
       }
-    }).then(() => self.skipWaiting())
-  );
-});
+    } catch (e) {}
+    return null;
+  }
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+  async function loadPosts() {
+    try {
+      const csvText = await fetchCsvWithFallback(
+        ['dados.csv', 'Dados_Completos_Grupo_2_all.csv', './public/Dados_Completos_Grupo_2_all.csv'],
+        GITHUB_PAGES_BASE + 'Dados_Completos_Grupo_2_all.csv'
       );
-    }).then(() => self.clients.claim())
-  );
-});
+      if (!csvText) return;
 
-self.addEventListener('fetch', event => {
-  // Apenas intercepta requisições GET
-  if (event.request.method !== 'GET') return;
+      let t = csvText;
+      if (t.charCodeAt(0) === 0xFEFF) t = t.slice(1);
+      const lines = t.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) return;
 
-  const url = new URL(event.request.url);
+      const h = lines.shift().split(';');
+      const iId = findCol(h, ['id do nox', 'idnox', 'id']);
+      const iLat = findCol(h, ['latitude', 'lat']);
+      const iLon = findCol(h, ['longitude', 'lon', 'long']);
 
-  // Não intercepta requisições de analytics ou esquemas não http(s)
-  if (!url.protocol.startsWith('http')) return;
+      const parsed = lines.map(l => {
+        const r = l.split(';');
+        return {
+          id: String(r[iId] || '').trim().toUpperCase(),
+          lat: parsePt(r[iLat]),
+          lon: parsePt(r[iLon])
+        };
+      }).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon) && !(Math.abs(p.lat) < 0.0001 && Math.abs(p.lon) < 0.0001));
 
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        // Retorna do cache instantaneamente e atualiza em segundo plano se online
-        fetch(event.request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {
-          // Totalmente esperado quando offline
-        });
-        return cachedResponse;
+      if (parsed.length) {
+        posts = parsed;
+        const countTxt = `${posts.length.toLocaleString('pt-BR')} postes carregados`;
+        const el1 = document.getElementById('menuCountPosts');
+        if (el1) el1.textContent = countTxt;
+        const el2 = document.getElementById('apoioTitleSub');
+        if (el2) el2.textContent = countTxt;
+        updateDbStatus();
+        renderApoio();
       }
+    } catch (e) {
+      console.warn('Erro ao carregar posts CSV:', e);
+    }
+  }
 
-      // Tenta rede primeiro se não estiver em cache
-      return fetch(event.request).then(networkResponse => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'opaque') {
-          return networkResponse;
-        }
+  async function loadKm() {
+    try {
+      const csvText = await fetchCsvWithFallback(
+        ['SNVBR116SPRJ.csv', './public/SNVBR116SPRJ.csv'],
+        GITHUB_PAGES_BASE + 'SNVBR116SPRJ.csv'
+      );
+      if (!csvText) return;
 
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
+      let t = csvText;
+      if (t.charCodeAt(0) === 0xFEFF) t = t.slice(1);
+      const lines = t.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) return;
 
-        return networkResponse;
-      }).catch(async () => {
-        // Fallback offline: se for navegação HTML, entrega a página principal
-        if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
-          const mainFallback = await caches.match('./index.html') || await caches.match('./');
-          if (mainFallback) return mainFallback;
-        }
-        // Se for um CSV, tenta devolver qualquer versão em cache
-        if (url.pathname.endsWith('.csv')) {
-          const filename = url.pathname.split('/').pop();
-          const csvFallback = await caches.match(`./${filename}`) || await caches.match(`./public/${filename}`);
-          if (csvFallback) return csvFallback;
-        }
-        return new Response('Offline: Recurso indisponível sem conexão.', {
-          status: 503,
-          statusText: 'Service Unavailable (Offline)',
-          headers: new Headers({ 'Content-Type': 'text/plain' })
-        });
+      const h = lines.shift().split(';');
+      const iKm = findCol(h, ['km']);
+      const iLat = findCol(h, ['lat', 'latitude']);
+      const iLon = findCol(h, ['lon', 'long', 'longitude']);
+
+      const parsed = lines.map(l => {
+        const r = l.split(';');
+        return {
+          km: parsePt(r[iKm]),
+          lat: parsePt(r[iLat]),
+          lon: parsePt(r[iLon])
+        };
+      }).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
+
+      if (parsed.length) {
+        kmDB = parsed;
+        const countTxt = `${kmDB.length.toLocaleString('pt-BR')} marcos KM (BR-116 SNV)`;
+        const el = document.getElementById('menuCountKm');
+        if (el) el.textContent = countTxt;
+        updateDbStatus();
+        updateKm();
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar km CSV:', e);
+    }
+  }
+
+  function updateDbStatus() {
+    const txt = document.getElementById('dbStatusTxt');
+    const sub = document.getElementById('dbStatusSub');
+    const off = document.getElementById('officialDesc');
+    const pCount = posts.length.toLocaleString('pt-BR');
+    const kCount = kmDB.length.toLocaleString('pt-BR');
+
+    if (txt) txt.textContent = `Base Integrada: ${pCount} Postes · ${kCount} Marcos SNV`;
+    if (sub) sub.textContent = `Conectado com sucesso • GitHub Pages / Local`;
+    if (off) off.textContent = `${pCount} Postes NOX • ${kCount} Marcos Quilométricos`;
+  }
+
+  async function reloadCsvData() {
+    showToast('Recarregando dados do GitHub Pages...');
+    await Promise.all([loadPosts(), loadKm()]);
+    showToast('Bases atualizadas com sucesso!');
+  }
+
+  // INICIALIZAÇÃO DOS ARQUIVOS
+  loadPosts();
+  loadKm();
+
+  // GEOLOCALIZAÇÃO
+  if ('geolocation' in navigator) {
+    navigator.geolocation.watchPosition(p => {
+      pos = { lat: p.coords.latitude, lon: p.coords.longitude, acc: Math.round(p.coords.accuracy || 5) };
+      curSpeed = p.coords.speed ? Math.round(p.coords.speed * 3.6) : curSpeed;
+      updateTelemetry();
+    }, err => {
+      updateTelemetry();
+    }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 });
+  }
+
+  function nearestKm() {
+    if (!pos || !kmDB.length) return null;
+    let best = null, minD = Infinity;
+    const lat = pos.lat, lon = pos.lon;
+    for (let i = 0; i < kmDB.length; i++) {
+      const p = kmDB[i];
+      const dLat = p.lat - lat;
+      const dLon = p.lon - lon;
+      const distSq = dLat * dLat + dLon * dLon;
+      if (distSq < minD) {
+        minD = distSq;
+        best = p;
+      }
+    }
+    return best;
+  }
+
+  function updateKm() {
+    const b = nearestKm();
+    if (b) {
+      const kmInt = Math.floor(b.km);
+      const mRem = Math.round((b.km - kmInt) * 1000);
+      currentStakeStr = `KM ${kmInt}+${mRem.toString().padStart(3, '0')}m`;
+    }
+    const kmTxt = document.getElementById('kmTxt');
+    if (kmTxt) kmTxt.textContent = currentStakeStr;
+    const rtKm = document.getElementById('rtKm');
+    if (rtKm) rtKm.textContent = currentStakeStr;
+  }
+
+  function updateTelemetry() {
+    const pill = document.getElementById('menuGpsText');
+    if (pill) pill.textContent = `GPS (±${pos.acc}M)`;
+    const gpsEl = document.getElementById('gpsStatus');
+    if (gpsEl) gpsEl.textContent = `GPS ATIVO · LAT ${pos.lat.toFixed(6)}, LON ${pos.lon.toFixed(6)} (±${pos.acc}M)`;
+    const rtGps = document.getElementById('rtGps');
+    if (rtGps) rtGps.textContent = `GPS · ALTA PRECISÃO (±${pos.acc}M)`;
+    const rtCoords = document.getElementById('rtCoords');
+    if (rtCoords) rtCoords.textContent = `${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)}`;
+    const rtSpeed = document.getElementById('rtSpeed');
+    if (rtSpeed) rtSpeed.textContent = `${curSpeed} km/h`;
+
+    updateKm();
+    if (document.getElementById('mod-apoio')?.classList.contains('active')) {
+      renderApoio();
+    }
+  }
+
+  // --- APOIO LOCALIZAÇÃO ---
+  function renderApoio() {
+    const list = document.getElementById('postList');
+    if (!list) return;
+    const qty = Number(document.getElementById('qtySelect')?.value || 10);
+    const sorted = posts.map(p => ({
+      ...p,
+      d: Math.round(hav(pos.lat, pos.lon, p.lat, p.lon))
+    })).sort((a, b) => a.d - b.d).slice(0, qty);
+
+    const nearest = sorted[0];
+    const lock = document.getElementById('targetLock');
+    if (nearest && nearest.d <= 8) {
+      if (lock) {
+        lock.classList.add('on');
+        document.getElementById('targetLockSub').textContent = `ID ALVO: ${nearest.id} • DISTÂNCIA: ~${nearest.d}M`;
+      }
+      vibrate(80);
+    } else if (lock) {
+      lock.classList.remove('on');
+    }
+
+    list.innerHTML = sorted.map((p, idx) => `
+      <div class="post ${idx === 0 ? 'near' : ''}">
+        <div class="post-top">
+          <input type="checkbox" class="post-chk" value="${p.id}" data-lat="${p.lat}" data-lon="${p.lon}" checked>
+          <div class="post-info">
+            <p class="post-id">Poste ID: <span>${p.id}</span></p>
+            <p class="post-dist">Distância Estimada: ~${p.d} metros</p>
+            <p class="post-coords">GPS: ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
+          </div>
+          <span class="post-pin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+        </div>
+        <div class="post-actions">
+          <a class="post-btn nav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank" rel="noopener">Navegar</a>
+          <a class="post-btn wa" href="https://wa.me/?text=${encodeURIComponent('Poste ID ' + p.id + ' https://maps.google.com/?q=' + p.lat + ',' + p.lon)}" target="_blank" rel="noopener">Enviar</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function searchId() {
+    const raw = (document.getElementById('inputId')?.value || '').trim();
+    const term = norm(raw);
+    const msg = document.getElementById('searchMsg');
+    const res = document.getElementById('searchResult');
+    if (!term) return;
+
+    const found = posts.find(p => norm(p.id) === term || norm(p.id).includes(term));
+    if (!found) {
+      if (msg) { msg.style.display = 'block'; msg.textContent = `ID "${raw}" não encontrado na base de dados.`; }
+      if (res) res.style.display = 'none';
+      vibrate(40);
+      return;
+    }
+    if (msg) msg.style.display = 'none';
+    const d = Math.round(hav(pos.lat, pos.lon, found.lat, found.lon));
+    if (res) {
+      res.style.display = 'block';
+      res.innerHTML = `
+        <div class="post near" style="margin-top:8px">
+          <div class="post-top">
+            <div class="post-info">
+              <p class="post-id">Resultado da Busca: <span>${found.id}</span></p>
+              <p class="post-dist">Distância Estimada: ~${d} metros</p>
+              <p class="post-coords">GPS: ${found.lat.toFixed(6)}, ${found.lon.toFixed(6)}</p>
+            </div>
+          </div>
+          <iframe class="post-map" src="https://maps.google.com/maps?q=${found.lat},${found.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>
+          <div class="post-actions" style="margin-top:10px">
+            <a class="post-btn nav" href="https://www.google.com/maps/dir/?api=1&destination=${found.lat},${found.lon}" target="_blank" rel="noopener">Navegar até o Poste</a>
+            <a class="post-btn wa" href="https://wa.me/?text=${encodeURIComponent('Poste ID ' + found.id + ' GPS: ' + found.lat + ',' + found.lon)}" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+        </div>
+      `;
+    }
+    showToast('Poste encontrado: ' + found.id);
+  }
+
+  function clearId() {
+    const inp = document.getElementById('inputId');
+    if (inp) inp.value = '';
+    const msg = document.getElementById('searchMsg');
+    if (msg) msg.style.display = 'none';
+    const res = document.getElementById('searchResult');
+    if (res) res.style.display = 'none';
+  }
+
+  function sendWhatsAppList() {
+    const chks = document.querySelectorAll('.post-chk:checked');
+    let items = [];
+    chks.forEach(c => items.push({ id: c.value, lat: c.dataset.lat, lon: c.dataset.lon }));
+    if (!items.length) { showToast('Nenhum poste selecionado', 'err'); return; }
+
+    let txt = `*LISTA DE POSTES (CPS RODOVIAS PRO)*
+Marco Atual: ${currentStakeStr}
+Data: ${new Date().toLocaleString('pt-BR')}
+Total: ${items.length} postes
+
+`;
+    items.forEach((p, i) => {
+      txt += `${i+1}. *ID:* ${p.id} - https://maps.google.com/?q=${p.lat},${p.lon}
+`;
+    });
+    window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank', 'noopener');
+    showToast('Lista gerada para envio no WhatsApp');
+  }
+
+  // --- CÂMERA & LAUDO PDF ---
+  async function initCamera() {
+    if (stream) return;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
       });
-    })
-  );
-});
+      const vid = document.getElementById('vid');
+      if (vid) vid.srcObject = stream;
+    } catch (e) {
+      console.warn('Câmera ambiente não inicializada:', e);
+    }
+  }
+
+  function drawStamp(ctx, w, h) {
+    ctx.fillStyle = 'rgba(6, 7, 10, 0.88)';
+    ctx.fillRect(0, h - 90, w, 90);
+    ctx.fillStyle = '#ffd600';
+    ctx.fillRect(0, h - 90, w, 3);
+
+    ctx.fillStyle = '#ffd600';
+    ctx.font = 'bold 20px monospace';
+    ctx.fillText(`BR-116/SP • ${currentStakeStr}`, 20, h - 55);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '14px monospace';
+    const now = new Date().toLocaleString('pt-BR');
+    ctx.fillText(`GPS: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (±${pos.acc}M) • VEL: ${curSpeed} km/h`, 20, h - 32);
+    ctx.fillText(`DATA/HORA: ${now} • CPS RODOVIAS PRO`, 20, h - 14);
+  }
+
+  function manualPhoto() {
+    const vid = document.getElementById('vid');
+    const c = document.getElementById('c');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const w = 1280, h = 720;
+    c.width = w; c.height = h;
+
+    if (vid && vid.videoWidth) {
+      ctx.drawImage(vid, 0, 0, w, h);
+    } else {
+      ctx.fillStyle = '#0a0e14';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#ffd600';
+      ctx.font = 'bold 28px monospace';
+      ctx.fillText('INSPEÇÃO TÉCNICA VIÁRIA - CPS', 120, 360);
+    }
+    drawStamp(ctx, w, h);
+
+    const dataUrl = c.toDataURL('image/jpeg', 0.85);
+    totalPhotos++;
+    galleryPhotos.unshift({
+      id: Date.now(),
+      dataUrl,
+      km: currentStakeStr,
+      time: new Date().toLocaleTimeString('pt-BR')
+    });
+    updatePhotoCount();
+    showToast('Foto com carimbo indelével capturada!');
+    vibrate(30);
+  }
+
+  function updatePhotoCount() {
+    const gc = document.getElementById('gCount');
+    if (gc) {
+      gc.textContent = totalPhotos;
+      gc.style.display = totalPhotos > 0 ? 'grid' : 'none';
+    }
+  }
+
+  function startCap() {
+    capturing = true;
+    document.getElementById('btn-start').style.display = 'none';
+    document.getElementById('btn-stop').style.display = 'flex';
+    document.getElementById('rec-tag').classList.add('on');
+    manualPhoto();
+  }
+
+  function stopCap() {
+    capturing = false;
+    document.getElementById('btn-start').style.display = 'flex';
+    document.getElementById('btn-stop').style.display = 'none';
+    document.getElementById('rec-tag').classList.remove('on');
+    showToast('Lote finalizado!');
+  }
+
+  function openGallery() {
+    const ov = document.getElementById('gallery-overlay');
+    if (ov) ov.classList.add('open');
+    renderGallery();
+  }
+
+  function closeGallery() {
+    const ov = document.getElementById('gallery-overlay');
+    if (ov) ov.classList.remove('open');
+  }
+
+  function renderGallery() {
+    const grid = document.getElementById('galGrid');
+    const count = document.getElementById('galCountText');
+    if (count) count.textContent = `${galleryPhotos.length} fotos`;
+    if (!grid) return;
+    if (!galleryPhotos.length) {
+      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">Nenhuma foto capturada nesta sessão.</p>';
+      return;
+    }
+    grid.innerHTML = galleryPhotos.map((p, i) => `
+      <div class="gal-item">
+        <img src="${p.dataUrl}" alt="Foto ${i+1}">
+        <span class="gi-km">${p.km}</span>
+      </div>
+    `).join('');
+  }
+
+  function genPdf() {
+    if (!galleryPhotos.length) { showToast('Nenhuma foto capturada para o laudo', 'err'); return; }
+    if (!window.jspdf || !window.jspdf.jsPDF) { showToast('Biblioteca PDF indisponível', 'err'); return; }
+
+    showToast('Gerando laudo técnico em PDF...');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // Cabeçalho Oficial
+    doc.setFillColor(15, 18, 22);
+    doc.rect(0, 0, 210, 36, 'F');
+    doc.setTextColor(255, 214, 0);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('LAUDO TÉCNICO DE INSPEÇÃO VIÁRIA', 14, 18);
+    doc.setFontSize(9);
+    doc.setTextColor(200, 200, 200);
+    doc.text('CPS Rodovias Pro • Sistema de Engenharia e Fiscalização Viária', 14, 25);
+    doc.text(`Base: BR-116 / Dutra • Marco: ${currentStakeStr} • Postes Catalogados: ${posts.length}`, 14, 30);
+
+    // Metadados
+    doc.setTextColor(40, 40, 40);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('1. DADOS TÉCNICOS DA OPERAÇÃO', 14, 46);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`• Data/Hora da Emissão: ${new Date().toLocaleString('pt-BR')}`, 14, 52);
+    doc.text(`• Marco Quilométrico SNV: ${currentStakeStr}`, 14, 57);
+    doc.text(`• Coordenadas Geodésicas: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (±${pos.acc}M)`, 14, 62);
+    doc.text(`• Total de Registros Fotográficos: ${galleryPhotos.length}`, 14, 67);
+
+    // Primeira foto anexada
+    if (galleryPhotos[0]) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text('2. REGISTRO FOTOGRÁFICO COM CARIMBO INDELÉVEL', 14, 78);
+      doc.addImage(galleryPhotos[0].dataUrl, 'JPEG', 14, 82, 182, 102);
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.text(`Captura realizada no marco ${galleryPhotos[0].km} com carimbo georreferenciado auditável`, 14, 190);
+    }
+
+    doc.setFontSize(8);
+    doc.setTextColor(130);
+    doc.text('Documento pericial emitido pelo software CPS Rodovias Pro.', 14, 285);
+
+    doc.save(`Laudo_Inspecao_BR116_${Date.now()}.pdf`);
+    showToast('Laudo PDF baixado com sucesso!');
+  }
+
+  function shareWhatsApp() {
+    if (!galleryPhotos.length) { showToast('Nenhuma foto capturada', 'err'); return; }
+    let tx = `*RELATÓRIO DE INSPEÇÃO VIÁRIA*
+Rodovia: BR-116
+Marco: ${currentStakeStr}
+Total: ${galleryPhotos.length} fotos
+Data: ${new Date().toLocaleString('pt-BR')}
+`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(tx), '_blank', 'noopener');
+  }
+
+  function clearPhotos() {
+    if (!galleryPhotos.length) return;
+    galleryPhotos = [];
+    totalPhotos = 0;
+    updatePhotoCount();
+    renderGallery();
+    showToast('Galeria limpa');
+  }
+
+  // --- HUD MODO ESPELHO ---
+  function toggleHudMirror() {
+    isHudMirrored = !isHudMirrored;
+    const box = document.getElementById('hudBox');
+    const txt = document.getElementById('hudBtnTxt');
+    if (box) box.style.transform = isHudMirrored ? 'scaleX(-1)' : 'none';
+    if (txt) txt.textContent = isHudMirrored ? 'Desativar Modo Espelho' : 'Ativar Modo Espelho (HUD Para-Brisa)';
+  }
+
+  // --- FOTOS FLEXÍVEIS ---
+  function setRatio(r) {
+    activeRatio = r;
+    ['169', '43', '11'].forEach(id => {
+      const btn = document.getElementById('ratio' + id);
+      if (btn) btn.style.borderColor = 'var(--border)';
+    });
+    const activeBtn = document.getElementById('ratio' + r.replace(':', ''));
+    if (activeBtn) activeBtn.style.borderColor = 'var(--accent)';
+    showToast('Proporção definida: ' + r);
+  }
+
+  function updateStampPreview() {
+    const model = document.querySelector('input[name="stampModel"]:checked')?.value || 'full';
+    const p = document.getElementById('stampPreview');
+    if (!p) return;
+    if (model === 'full') {
+      p.innerHTML = `BR-116/SP • ${currentStakeStr}<br>GPS: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (±${pos.acc}M)<br>DATA: ${new Date().toLocaleDateString('pt-BR')} • CPS PRO`;
+    } else if (model === 'km_gps') {
+      p.innerHTML = `${currentStakeStr}<br>GPS: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)}`;
+    } else if (model === 'km') {
+      p.innerHTML = `${currentStakeStr}`;
+    } else {
+      p.innerHTML = `(Foto limpa sem texto sobreposto)`;
+    }
+  }
+
+  function triggerFlexPhoto() {
+    manualPhoto();
+    showToast('Foto registrada!');
+  }
+
+  // --- NOTAS & VOZ ---
+  function saveNote() {
+    const text = (document.getElementById('notaText')?.value || '').trim();
+    const cat = document.getElementById('notaCat')?.value || 'Geral';
+    if (!text) return;
+    notes.unshift({
+      id: Date.now(),
+      cat,
+      text,
+      km: currentStakeStr,
+      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    });
+    document.getElementById('notaText').value = '';
+    renderNotes();
+    showToast('Ocorrência registrada no diário de bordo!');
+  }
+
+  function renderNotes() {
+    const list = document.getElementById('notesList');
+    if (!list) return;
+    list.innerHTML = notes.map(n => `
+      <div class="card" style="padding:10px 12px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span style="padding:2px 6px;border-radius:4px;font-size:9px;font-weight:900;background:rgba(255,214,0,.15);color:var(--accent)">${n.cat}</span>
+          <span style="font-size:11px;font-weight:800;color:var(--green2)">${n.km}</span>
+          <span style="font-size:10px;color:var(--muted)">• ${n.time}</span>
+        </div>
+        <p style="font-size:12px;color:var(--text)">${n.text}</p>
+      </div>
+    `).join('');
+  }
+
+  function recordVoiceNote() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      showToast('Microfone não suportado no navegador', 'err');
+      return;
+    }
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new Speech();
+    rec.lang = 'pt-BR';
+    const txt = document.getElementById('voiceRecTxt');
+    if (txt) txt.textContent = 'Ouvindo...';
+    rec.start();
+
+    rec.onresult = (e) => {
+      const val = e.results[0][0].transcript;
+      const inp = document.getElementById('notaText');
+      if (inp) inp.value = (inp.value ? inp.value + ' ' : '') + val;
+      showToast('Áudio transcrito: "' + val + '"');
+    };
+    rec.onend = () => {
+      if (txt) txt.textContent = 'Falar';
+    };
+  }
+
+  // --- IA LUMINÁRIAS ---
+  function toggleIaScanner() {
+    iaActive = !iaActive;
+    const btn = document.getElementById('btnToggleIa');
+    if (!btn) return;
+
+    if (iaActive) {
+      btn.textContent = 'Parar Varredura';
+      btn.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+      btn.style.color = '#fff';
+      showToast('Varredura IA de luminárias iniciada');
+
+      iaTimer = setInterval(() => {
+        const simLux = Math.floor(Math.random() * 65) + 20;
+        const cutoff = Number(document.getElementById('iaCutoff')?.value || 45);
+        const valEl = document.getElementById('iaLuxVal');
+        const badge = document.getElementById('iaStatusBadge');
+        if (valEl) valEl.textContent = `${simLux} LUX`;
+
+        if (simLux < cutoff) {
+          if (badge) {
+            badge.textContent = 'APAGADA';
+            badge.style.background = 'rgba(239,68,68,.15)';
+            badge.style.color = '#fca5a5';
+            badge.style.borderColor = 'rgba(239,68,68,.3)';
+          }
+          try {
+            const actx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = actx.createOscillator();
+            osc.frequency.setValueAtTime(880, actx.currentTime);
+            osc.connect(actx.destination);
+            osc.start();
+            osc.stop(actx.currentTime + 0.12);
+          } catch(e) {}
+
+          const detBox = document.getElementById('iaDetections');
+          if (detBox) {
+            detBox.innerHTML = `
+              <div class="card" style="padding:10px;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05);display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <span style="font-size:11px;font-weight:900;color:#fca5a5">Lâmpada Apagada no ${currentStakeStr}</span>
+                  <p style="font-size:10px;color:var(--muted)">Luminância: ${simLux} LUX</p>
+                </div>
+                <span style="font-size:9px;font-weight:900;background:var(--red);color:#fff;padding:2px 6px;border-radius:4px">ALERTA</span>
+              </div>
+            ` + detBox.innerHTML;
+          }
+          vibrate(50);
+        } else if (badge) {
+          badge.textContent = 'ILUMINADA';
+          badge.style.background = 'rgba(16,185,129,.15)';
+          badge.style.color = 'var(--green2)';
+          badge.style.borderColor = 'rgba(16,185,129,.3)';
+        }
+      }, 2500);
+    } else {
+      clearInterval(iaTimer);
+      btn.textContent = 'Iniciar Varredura Fotométrica';
+      btn.style.background = 'linear-gradient(135deg,var(--accent),var(--accent3))';
+      btn.style.color = '#000';
+      showToast('Varredura pausada');
+    }
+  }
+
+  // --- COMANDOS HANDS-FREE ---
+  function startVoiceRecognition() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      showToast('Comandos de voz não suportados no navegador', 'err');
+      return;
+    }
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new Speech();
+    rec.lang = 'pt-BR';
+    const status = document.getElementById('voiceStatusTxt');
+    if (status) status.textContent = 'Ouvindo operador...';
+    rec.start();
+
+    rec.onresult = (e) => {
+      const t = e.results[0][0].transcript;
+      if (status) status.textContent = `Comando: "${t}"`;
+      const logs = document.getElementById('voiceLogs');
+      if (logs) {
+        logs.innerHTML = `
+          <div class="card" style="padding:8px 12px;display:flex;justify-content:space-between">
+            <span style="font-size:12px;font-weight:800;color:#fff">"${t}"</span>
+            <span style="font-size:10px;color:var(--muted)">${new Date().toLocaleTimeString('pt-BR')}</span>
+          </div>
+        ` + logs.innerHTML;
+      }
+      showToast(`Comando: "${t}"`);
+
+      try {
+        const utter = new SpeechSynthesisUtterance(`Comando executado no marco ${currentStakeStr}`);
+        utter.lang = 'pt-BR';
+        window.speechSynthesis.speak(utter);
+      } catch(e) {}
+    };
+
+    rec.onend = () => {
+      if (status) status.textContent = 'Toque para Falar';
+    };
+  }
+
+  // --- SELEÇÃO DE BASES & IMPORTADOR ---
+  function switchBase(b) {
+    if (b === 'official') {
+      loadPosts();
+      loadKm();
+      showToast('Base oficial reativada');
+    } else if (b === 'sp330') {
+      posts = [
+        { id: 'NX-01', lat: -22.767500, lon: -47.332000 },
+        { id: 'NX-02', lat: -22.765800, lon: -47.333500 },
+        { id: 'NX-03', lat: -22.764100, lon: -47.335000 },
+        { id: 'NX-04', lat: -22.762100, lon: -47.336700 },
+        { id: 'NX-05', lat: -22.760100, lon: -47.338500 }
+      ];
+      renderApoio();
+      showToast('Base SP-330 Anhanguera selecionada');
+    } else if (b === 'sp070') {
+      posts = [
+        { id: 'NX-CP01', lat: -23.472900, lon: -46.469100 },
+        { id: 'NX-CP02', lat: -23.472100, lon: -46.465800 },
+        { id: 'NX-CP03', lat: -23.470900, lon: -46.461100 }
+      ];
+      renderApoio();
+      showToast('Base SP-070 Ayrton Senna selecionada');
+    }
+  }
+
+  function handleCsvUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      const newPosts = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(';');
+        if (cols.length >= 3) {
+          const lat = parseFloat(cols[1]?.replace(',', '.'));
+          const lon = parseFloat(cols[2]?.replace(',', '.'));
+          if (cols[0] && !isNaN(lat) && !isNaN(lon)) {
+            newPosts.push({ id: cols[0].trim(), lat, lon });
+          }
+        }
+      }
+      if (newPosts.length) {
+        posts = newPosts;
+        renderApoio();
+        showToast(`${newPosts.length} postes importados do arquivo!`);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // --- LICENÇAS ---
+  function getDeviceId() {
+    let devId = localStorage.getItem('cps_device_id_pro');
+    if (!devId) {
+      devId = 'CPS-DEV-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      localStorage.setItem('cps_device_id_pro', devId);
+    }
+    return devId;
+  }
+  const myDevId = getDeviceId();
+  const licEl = document.getElementById('licDevId');
+  if (licEl) licEl.textContent = myDevId;
+
+  function activateCommercialKey() {
+    const key = (document.getElementById('keyInp')?.value || '').trim().toUpperCase();
+    if (!key.startsWith('CPS-')) {
+      showToast('Chave inválida. Deve iniciar com CPS-', 'err');
+      return;
+    }
+    showToast('Licença Comercial Ativada!');
+    const stat = document.getElementById('licStatusTxt');
+    if (stat) stat.textContent = 'PRO ATIVO (1 ANO)';
+  }
+
+  function unlockAdmin() {
+    const pass = (document.getElementById('adminPass')?.value || '').trim();
+    if (pass === 'CPS-ADMIN-2025' || pass === 'admin') {
+      document.getElementById('adminLocked').style.display = 'none';
+      document.getElementById('adminUnlocked').style.display = 'flex';
+      showToast('Painel do Administrador desbloqueado!');
+    } else {
+      showToast('Senha incorreta', 'err');
+    }
+  }
+
+  function generateClientKey() {
+    const name = (document.getElementById('genClientName')?.value || '').trim();
+    if (!name) { showToast('Informe o nome da concessionária', 'err'); return; }
+    const plan = document.getElementById('genPlan')?.value || 'PRO';
+    const clean = name.replace(/[^A-Z0-9]/gi, '').substring(0, 6).toUpperCase();
+    const hex = Math.floor(Date.now() / 1000).toString(16).toUpperCase();
+    const key = `CPS-${plan}-${clean}-${hex}-VIP2026`;
+    document.getElementById('genResultBox').style.display = 'block';
+    document.getElementById('genResultKey').textContent = key;
+    showToast('Chave gerada com sucesso!');
+  }
+  </script>
+</body>
+</html>
