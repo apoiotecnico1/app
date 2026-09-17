@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#06070a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Nox OS — Sistema de Apoio & Inspeção</title>
+<title>Nox OS</title>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -65,7 +65,7 @@ img,video{display:block;max-width:100%}
 @keyframes dotRise{0%{bottom:-4px;opacity:0}15%{opacity:.5}85%{opacity:.5}100%{bottom:105%;opacity:0}}
 .sp-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center}
 .sp-logo-wrap{position:relative;width:104px;height:104px}
-.sp-logo{width:100%;height:100%;border-radius:28px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;box-shadow:0 0 0 1px rgba(255,214,0,.25),0 24px 80px rgba(255,214,0,.22),inset 0 1px 0 rgba(255,255,255,.3);animation:logoIn .7s var(--ease-bounce) .15s both}
+.sp-logo{width:100%;height:100%;border-radius:28px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;box-shadow:0 0 0 1px rgba(255,214,0,.25),0 24px 80px rgba(255,214,0,.22),inset 0 1px 0 rgba(255,255,255,.2);animation:logoIn .7s var(--ease-bounce) both}
 .sp-logo svg{width:56px;height:56px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
 .sp-ring{position:absolute;inset:-14px;border:2px solid rgba(255,214,0,.3);border-radius:32px;animation:ringPulse 2s .5s ease-out infinite}
 .sp-ring2{position:absolute;inset:-28px;border:1px solid rgba(255,214,0,.1);border-radius:38px;animation:ringPulse 2s .9s ease-out infinite}
@@ -100,7 +100,7 @@ img,video{display:block;max-width:100%}
 @keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 .ms-gps-pill span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green2)}
 .menu-brand{display:flex;align-items:center;gap:16px;margin-bottom:6px}
-.menu-logo{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;flex-shrink:0;box-shadow:0 8px 28px rgba(255,214,0,.14),inset 0 1px 0 rgba(255,255,255,.25)}
+.menu-logo{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;flex-shrink:0;box-shadow:0 8px 28px rgba(255,214,0,.14),inset 0 1px 0 rgba(255,255,255,.15)}
 .menu-logo svg{width:28px;height:28px}
 .menu-brand-text .meb{font-size:10px;font-weight:900;letter-spacing:.4em;color:var(--accent);text-transform:uppercase}
 .menu-brand-text .mt{font-size:clamp(30px,9vw,38px);font-weight:900;letter-spacing:-.03em;margin-top:2px;line-height:1.05}
@@ -127,7 +127,7 @@ img,video{display:block;max-width:100%}
 @keyframes modFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== HEADER ===== */
-.hdr{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:rgba(6,7,10,.82);backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);padding:0 16px;padding-top:var(--safe-t)}
+.hdr{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:rgba(6,7,10,.82);backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);padding:0 16px}
 .hdr-in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px;height:58px}
 .hdr-back{width:38px;height:38px;border-radius:var(--r-xs);border:1px solid var(--border);background:var(--glass);display:grid;place-items:center;flex-shrink:0;transition:all .15s var(--ease)}
 .hdr-back:active{transform:scale(.9);background:var(--glass3)}
@@ -142,12 +142,12 @@ img,video{display:block;max-width:100%}
 .wrap{max-width:680px;margin:0 auto;padding:16px;padding-bottom:var(--safe-b);display:flex;flex-direction:column;gap:10px}
 
 /* ===== KM DISPLAY ===== */
-.km-hero{border-radius:var(--r-xl);border:1px solid rgba(16,185,129,.22);background:linear-gradient(155deg,#047857 0%,#065f46 45%,#022c22 100%);text-align:center;padding:clamp(24px,5vw,38px) 24px;position:relative;overflow:hidden;box-shadow:0 16px 50px rgba(0,80,55,.18)}
+.km-hero{border-radius:var(--r-xl);border:1px solid rgba(16,185,129,.22);background:linear-gradient(155deg,#047857 0%,#065f46 45%,#022c22 100%);text-align:center;padding:clamp(24px,5vw,38px) 24px;position:relative;overflow:hidden}
 .km-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(16,185,129,.12),transparent 55%);pointer-events:none}
 .km-hero::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
 .km-hero.compact{padding:18px 20px}
 .km-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.25em;color:rgba(220,252,231,.55);position:relative}
-.km-value{font-size:clamp(44px,13vw,64px);font-weight:900;line-height:1.05;letter-spacing:-.04em;margin-top:6px;font-variant-numeric:tabular-nums;position:relative;background:linear-gradient(180deg,#fff 25%,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.km-value{font-size:clamp(44px,13vw,64px);font-weight:900;line-height:1.05;letter-spacing:-.04em;margin-top:6px;font-variant-numeric:tabular-nums;position:relative;background:linear-gradient(180deg,#fff 10%,#c4ffe6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .km-hero.compact .km-value{font-size:clamp(32px,11vw,44px)}
 .km-sub{font-size:10px;font-weight:600;color:rgba(220,252,231,.4);margin-top:8px;position:relative}
 
@@ -206,14 +206,14 @@ img,video{display:block;max-width:100%}
 .post-map{height:136px;width:100%;border:0;filter:grayscale(12%) contrast(1.04)}
 
 /* ===== CONTROLS ===== */
-.ctrl-send{width:100%;min-height:48px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s var(--ease);box-shadow:0 3px 16px rgba(16,185,129,.12);position:relative;overflow:hidden}
+.ctrl-send{width:100%;min-height:48px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;transition:all .15s var(--ease);box-shadow:0 3px 16px rgba(16,185,129,.12)}
 .ctrl-send::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.08),transparent 50%);pointer-events:none}
 .ctrl-send:disabled{background:linear-gradient(135deg,var(--dimmer),var(--dim));color:var(--dim);cursor:not-allowed;box-shadow:none}
 .ctrl-send:active:not(:disabled){transform:scale(.98)}
 .ctrl-send svg{width:16px;height:16px}
 .ctrl-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px}
 .ctrl-label{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
-.ctrl-select{border-radius:var(--r-xs);border:1px solid var(--border);background:var(--surface);color:#fff;padding:7px 28px 7px 10px;font-size:12px;font-weight:800;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.ctrl-select{border-radius:var(--r-xs);border:1px solid var(--border);background:var(--surface);color:#fff;padding:7px 28px 7px 10px;font-size:12px;font-weight:800;appearance:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 .ctrl-chk{width:18px;height:18px;accent-color:var(--accent)}
 
 /* ===== SKELETON ===== */
@@ -223,14 +223,14 @@ img,video{display:block;max-width:100%}
 /* ===== INSPECTION ===== */
 #mod-inspecao{position:fixed;inset:0;overflow:hidden;background:#000}
 #gate{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);overflow-y:auto}
-.gate-box{max-width:400px;width:100%;border-radius:var(--r-xl);border:1px solid var(--border);background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 100%);padding:36px 24px;text-align:center;box-shadow:var(--shadow-xl);position:relative;overflow:hidden}
+.gate-box{max-width:400px;width:100%;border-radius:var(--r-xl);border:1px solid var(--border);background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 100%);padding:36px 24px;text-align:center;position:relative;overflow:hidden;box-shadow:var(--shadow-xl)}
 .gate-box::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,214,0,.04),transparent 50%);pointer-events:none}
 .gate-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--accent-dim),rgba(255,214,0,.06));border:1px solid rgba(255,214,0,.12);color:var(--accent);display:grid;place-items:center;margin:0 auto}
 .gate-icon svg{width:36px;height:36px}
 .gate-box h1{font-size:22px;font-weight:900;margin-top:24px;letter-spacing:-.01em;position:relative}
 .gate-box>p{font-size:12px;font-weight:500;color:var(--muted);margin-top:12px;line-height:1.6;position:relative}
 .gate-err{margin-top:16px;border-radius:var(--r-sm);background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);padding:12px;font-size:11px;font-weight:700;color:#fca5a5;text-align:left;position:relative}
-.gate-btn{width:100%;min-height:52px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;margin-top:18px;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .15s var(--ease);position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(255,214,0,.12)}
+.gate-btn{width:100%;min-height:52px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;transition:all .15s var(--ease);margin-top:18px}
 .gate-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 50%);pointer-events:none}
 .gate-btn:active{transform:scale(.98)}
 .gate-btn svg{width:18px;height:18px}
@@ -238,17 +238,17 @@ img,video{display:block;max-width:100%}
 .gate-btn.sec::before{display:none}
 #app-shell{position:relative;width:100vw;height:100vh;height:100dvh;visibility:hidden}
 #vid{width:100%;height:100%;object-fit:cover}
-#km-hud{position:absolute;top:calc(18px + var(--safe-t));left:14px;min-width:160px;border-radius:var(--r-md);border:1px solid rgba(255,255,255,.1);background:rgba(4,120,87,.78);padding:10px 18px;text-align:center;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 6px 28px rgba(0,0,0,.5);pointer-events:none;z-index:100}
+#km-hud{position:absolute;top:calc(18px + var(--safe-t));left:14px;min-width:160px;border-radius:var(--r-md);border:1px solid rgba(255,255,255,.1);background:rgba(4,120,87,.78);padding:10px 18px;text-align:left;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-md);z-index:10}
 #km-hud .h-l{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.2em;color:rgba(220,252,231,.55)}
 #km-hud .h-v{font-size:26px;font-weight:900;line-height:1.1;margin-top:2px}
-#rec-tag{position:absolute;top:calc(22px + var(--safe-t));right:14px;display:flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.6);padding:7px 13px;border-radius:22px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:all .25s var(--ease);z-index:100;pointer-events:none}
+#rec-tag{position:absolute;top:calc(22px + var(--safe-t));right:14px;display:flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.6);padding:7px 13px;border-radius:20px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:all .2s var(--ease);z-index:10}
 #rec-tag.on{opacity:1}
 #rec-tag .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;box-shadow:0 0 8px rgba(239,68,68,.5)}
 @keyframes blink{50%{opacity:.1}}
 #rec-tag span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
-#ui-ctrl{position:absolute;inset:0;bottom:0;top:auto;left:0;right:0;z-index:200;display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:0 18px calc(24px + var(--safe-b));background:linear-gradient(to top,rgba(0,0,0,.82),rgba(0,0,0,.35) 55%,transparent);transition:all .25s var(--ease)}
+#ui-ctrl{position:absolute;inset:0;bottom:0;top:auto;left:0;right:0;z-index:200;display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:0 18px calc(24px + var(--safe-b));background:linear-gradient(to top,rgba(0,0,0,.7),transparent);transition:all .25s var(--ease)}
 #ui-ctrl.hide{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(16px)}
-.ui-btn{height:52px;border-radius:var(--r-sm);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s var(--ease);box-shadow:var(--shadow-md)}
+.ui-btn{height:52px;border-radius:var(--r-sm);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s var(--ease);cursor:pointer}
 .ui-btn:active{transform:scale(.94)}
 .ui-btn svg{width:18px;height:18px}
 #btn-gear{width:52px;flex-shrink:0;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--text2)}
@@ -257,7 +257,7 @@ img,video{display:block;max-width:100%}
 #btn-menu{flex-shrink:0;padding:0 16px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:10px;color:var(--text2)}
 
 /* ===== SETTINGS ===== */
-#settings{position:fixed;inset:0 0 0 auto;width:min(88vw,350px);z-index:50;border-left:1px solid var(--border);background:rgba(10,13,17,.96);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4);padding:calc(18px + var(--safe-t)) 24px 40px;transform:translateX(100%);transition:transform .25s var(--ease);overflow-y:auto;box-shadow:-10px 0 50px rgba(0,0,0,.7)}
+#settings{position:fixed;inset:0 0 0 auto;width:min(88vw,350px);z-index:50;border-left:1px solid var(--border);background:rgba(10,13,17,.96);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4);padding:calc(18px + var(--safe-t)) 24px 24px;transform:translateX(110%);transition:all .25s var(--ease)}
 #settings.open{transform:translateX(0)}
 #settings-close{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:900;text-transform:uppercase;color:var(--accent);margin-bottom:28px}
 #settings-close:active{opacity:.5}
@@ -265,12 +265,12 @@ img,video{display:block;max-width:100%}
 #settings h2{font-size:18px;font-weight:900;letter-spacing:-.01em}
 .s-group{margin-top:22px}
 .s-lbl{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:7px}
-.s-inp{width:100%;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:#fff;padding:13px;font-size:13px;font-weight:800;transition:border-color .2s var(--ease);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.s-inp{width:100%;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:#fff;padding:13px;font-size:13px;font-weight:800;transition:border-color .2s var(--ease);appearance:none;-webkit-appearance:none}
 .s-inp:focus{border-color:var(--accent)}
 canvas#c{display:none}
 
 /* ===== TOAST ===== */
-.toast{position:fixed;bottom:calc(18px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(16px);border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--surface);padding:12px 20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;box-shadow:var(--shadow-lg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:99998;opacity:0;transition:all .25s var(--ease);pointer-events:none;display:flex;align-items:center;gap:8px}
+.toast{position:fixed;bottom:calc(18px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(16px);border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--surface);padding:10px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:99999;opacity:0;transition:all .25s var(--ease);pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast svg{width:14px;height:14px;flex-shrink:0}
 .toast.ok{border-color:rgba(16,185,129,.25);color:var(--green2)}
@@ -311,8 +311,8 @@ canvas#c{display:none}
       <span class="sp-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="m9 12 2 2 4-4"/></svg></span>
     </div>
     <p class="sp-eyebrow">Nox OS</p>
-    <h1 class="sp-title">Sistema de Apoio</h1>
-    <p class="sp-sub">Iluminação Viária · Rodovias</p>
+    <h1 class="sp-title">Menu</h1>
+    <p class="sp-sub">Rodovias</p>
     <div class="sp-bar"><div class="sp-bar-fill"></div></div>
   </div>
 </div>
@@ -343,24 +343,24 @@ canvas#c{display:none}
       </div>
       <div class="menu-brand-text">
         <p class="meb">Nox OS</p>
-        <h1 class="mt">Sistema de<br>Apoio</h1>
+        <h1 class="mt">Menu</h1>
       </div>
     </div>
     <p class="menu-sub">Central integrada para operações de campo. Inspeção fotográfica, localização de postes e monitoramento rodoviário em tempo real.</p>
     <div class="menu-grid">
       <button class="mc pri" onclick="openMod('apoio')">
         <span class="mc-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
-        <span class="mc-b"><h3>Apoio localização</h3><p>Postes, mapas e ordens de serviço</p></span>
+        <span class="mc-b"><h3>Localização</h3><p>Postes e mapa</p></span>
         <span class="mc-a"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="mc" onclick="openMod('inspecao')">
         <span class="mc-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg></span>
-        <span class="mc-b"><h3>Inspeção fotográfica</h3><p>Fotos georreferenciadas e relatórios</p></span>
+        <span class="mc-b"><h3>Foto</h3><p>Relatórios</p></span>
         <span class="mc-a"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="mc" onclick="openMod('km')">
         <span class="mc-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
-        <span class="mc-b"><h3>KM em tempo real</h3><p>Posição quilométrica instantânea</p></span>
+        <span class="mc-b"><h3>KM</h3><p>Posição</p></span>
         <span class="mc-a"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
@@ -372,13 +372,13 @@ canvas#c{display:none}
 <div id="mod-apoio" class="module">
   <header class="hdr"><div class="hdr-in">
     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-    <div class="hdr-title"><h1>Apoio localização</h1><p>Postes e ordens de serviço</p></div>
+    <div class="hdr-title"><h1>Localização</h1><p>Postes</p></div>
     <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
   </div></header>
   <div class="wrap">
     <div id="targetLock" class="target-lock"><h2>📍 Você está no poste!</h2><p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p></div>
     <div class="card card-accent">
-      <p class="card-label">Localizar ordem de serviço</p>
+      <p class="card-label">Buscar</p>
       <div class="search-row">
         <div class="search-wrap">
           <input class="search-input" id="inputId" placeholder="EX: NOX-1042" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')searchId()">
@@ -390,12 +390,12 @@ canvas#c{display:none}
       <div id="searchMsg" class="search-msg" style="display:none"></div>
       <div id="searchResult" style="display:none;margin-top:12px"></div>
     </div>
-    <div class="km-hero compact"><p class="km-label">KM atual na rodovia</p><p class="km-value" id="kmVal">—</p><p class="km-sub" id="kmSource"></p></div>
+    <div class="km-hero compact"><p class="km-label">KM</p><p class="km-value" id="kmVal">—</p><p class="km-sub" id="kmSource"></p></div>
     <div id="gpsStatus" class="gps bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>GPS · BUSCANDO SINAL</div>
     <div class="card">
-      <button id="btnSend" class="ctrl-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Enviar lista WhatsApp</button>
+      <button id="btnSend" class="ctrl-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>Enviar</button>
       <div class="ctrl-row">
-        <label class="ctrl-label">Proximidade<select class="ctrl-select" id="qty"><option value="1">1</option><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></label>
+        <label class="ctrl-label">Proximidade<select class="ctrl-select" id="qty"><option value="1">1</option><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></label>
         <label class="ctrl-label"><input type="checkbox" class="ctrl-chk" id="chkMaps"> Maps</label>
       </div>
     </div>
@@ -410,37 +410,37 @@ canvas#c{display:none}
   <div id="gate">
     <div class="gate-box">
       <div class="gate-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
       </div>
-      <h1>Inspeção fotográfica</h1>
+      <h1>Foto</h1>
       <p>Selecione uma pasta segura para salvar fotos manuais e relatórios PDF da operação.</p>
       <div id="gateErr" class="gate-err" style="display:none"></div>
       <button class="gate-btn" onclick="startApp()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Ativar sistema
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.4 3.9A2 2 0 0 0 7.71 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h16Z"/><path d="M12 8v8M8 12h8"/></svg>Iniciar
       </button>
-      <button class="gate-btn sec" onclick="openMod('menu')">Voltar ao menu</button>
+      <button class="gate-btn sec" onclick="openMod('menu')">Voltar</button>
     </div>
   </div>
   <div id="settings">
     <button id="settings-close" onclick="toggleSet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Fechar</button>
-    <h2>Configurações</h2>
+    <h2>Ajustes</h2>
     <div class="s-group"><label class="s-lbl">Câmera ativa</label><select class="s-inp" id="camSel" onchange="switchCam(this.value)"></select></div>
     <div class="s-group"><label class="s-lbl">Intervalo (ms)</label><input type="number" class="s-inp" id="cfgInt" value="200"></div>
     <div class="s-group"><label class="s-lbl">Fotos por lote</label><input type="number" class="s-inp" id="cfgLote" value="50"></div>
   </div>
   <div id="app-shell">
     <video id="vid" autoplay playsinline muted onclick="manualPhoto()"></video>
-    <div id="km-hud"><span class="h-l">Posição rodoviária</span><p class="h-v" id="kmTxt">KM ---</p></div>
-    <div id="rec-tag"><div class="dot"></div><span>Registrando no PDF</span></div>
+    <div id="km-hud"><span class="h-l">Posição</span><p class="h-v" id="kmTxt">KM ---</p></div>
+    <div id="rec-tag"><div class="dot"></div><span>PDF</span></div>
     <div id="ui-ctrl">
       <button class="ui-btn" id="btn-gear" onclick="toggleSet()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.2 1.04V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.04-.2H2.87a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .2-1.04V2.87a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.25.27.62.43 1.04.48H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15Z"/></svg>
       </button>
       <button class="ui-btn" id="btn-start" onclick="startCap()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></svg>Iniciar
       </button>
       <button class="ui-btn" id="btn-stop" onclick="stopCap()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Finalizar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>Parar
       </button>
       <button class="ui-btn" id="btn-menu" onclick="openMod('menu')">Menu</button>
     </div>
@@ -452,11 +452,11 @@ canvas#c{display:none}
 <div id="mod-km" class="module">
   <header class="hdr"><div class="hdr-in">
     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-    <div class="hdr-title"><h1>KM em tempo real</h1><p>Monitoramento rodoviário</p></div>
+    <div class="hdr-title"><h1>KM</h1><p>Rodovia</p></div>
     <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
   </div></header>
   <div class="wrap" style="min-height:calc(100vh - 58px);min-height:calc(100dvh - 58px);justify-content:center">
-    <div class="km-hero"><p class="km-label">KM atual na rodovia</p><p class="km-value" id="rtKm">—</p><p class="km-sub" id="rtCoords"></p></div>
+    <div class="km-hero"><p class="km-label">KM</p><p class="km-value" id="rtKm">—</p><p class="km-sub" id="rtCoords"></p></div>
     <div id="rtGps" class="gps bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>GPS · BUSCANDO SINAL</div>
     <div class="card" style="text-align:center"><p style="font-size:11px;font-weight:500;color:var(--muted);line-height:1.6">Mantenha o GPS ativo e permaneça em uma área aberta para maior precisão.</p></div>
   </div>
@@ -489,7 +489,7 @@ let cam='',stream=null,hDir=null,capturing=false,buffer=[],kmIniLote='',lat='0.0
 let _tt=null;
 function showToast(msg,type='ok'){
   const el=document.getElementById('toast');
-  const icons={ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',err:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'};
+  const icons={ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',err:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="10"/></svg>'};
   el.className='toast '+type;
   el.innerHTML=(icons[type]||'')+msg;
   clearTimeout(_tt);
@@ -581,9 +581,9 @@ function initApoio(){
 function searchId(){
   const term=norm(document.getElementById('inputId').value),msg=document.getElementById('searchMsg'),res=document.getElementById('searchResult');
   if(!term){clearId();return}
-  if(!posts.length){msg.style.display='flex';msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Carregando dados, tente novamente...';return}
+  if(!posts.length){msg.style.display='flex';msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Dados não carregados';res.style.display='none';return}
   const found=posts.find(p=>norm(p.id)===term||norm(p.id).includes(term));
-  if(!found){msg.style.display='flex';msg.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>ID "${term}" NÃO ENCONTRADO.`;searchItem=null;res.style.display='none';checkLock();return}
+  if(!found){msg.style.display='flex';msg.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>ID "${document.getElementById('inputId').value}" não encontrado`;res.style.display='none';return}
   searchItem=found;msg.style.display='none';renderSearch();showToast('Poste encontrado: '+found.id);
 }
 function clearId(){
@@ -599,7 +599,7 @@ function renderSearch(){
   let dt='Aguardando GPS...';
   if(pos){dt='Distância: '+range(hav(pos.lat,pos.lon,searchItem.lat,searchItem.lon),pos.acc);checkLock()}
   res.style.display='block';
-  res.innerHTML=`<div class="post searched"><div class="post-top"><div class="post-info"><p class="post-id">OS / ID: <span>${searchItem.id}</span></p><p class="post-dist" id="srch-dist">${dt}</p><p class="post-coords">Coordenadas: ${searchItem.lat.toFixed(6)}, ${searchItem.lon.toFixed(6)}</p></div><span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span></div><iframe class="post-map" src="https://maps.google.com/maps?q=${searchItem.lat},${searchItem.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe></div>`;
+  res.innerHTML=`<div class="post searched"><div class="post-top"><div class="post-info"><p class="post-id">OS / ID: <span>${searchItem.id}</span></p><p class="post-dist" id="srch-dist">${dt}</p><p class="post-coords">${searchItem.lat.toFixed(6)}, ${searchItem.lon.toFixed(6)}</p></div><div class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div></div></div>`;
 }
 function checkLock(){
   const b=document.getElementById('targetLock');if(!searchItem||!pos){b.classList.remove('on');return}
@@ -616,7 +616,7 @@ function renderApoio(){
   renderedKey=key;list.innerHTML='';
   items.forEach((o,i)=>{
     const div=document.createElement('div');div.className='post'+(i===0?' near':'');
-    div.innerHTML=`<div class="post-top"><input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked><div class="post-info"><p class="post-id">Poste / NOX: <span>${o.id}</span></p><p class="post-dist" id="dist-${i}">Distância: ${range(o.d,pos.acc)}</p></div><span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span></div><iframe class="post-map" src="https://maps.google.com/maps?q=${o.lat},${o.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>`;
+    div.innerHTML=`<div class="post-top"><input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked><div class="post-info"><p class="post-id">Poste / NOX: <span>${o.id}</span></p><p class="post-dist" id="dist-${i}">Distância: ${range(o.d,pos.acc)}</p><p class="post-coords">${o.lat.toFixed(6)}, ${o.lon.toFixed(6)}</p></div><div class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div></div>`;
     list.appendChild(div);
   });
   document.getElementById('btnSend').disabled=false;
