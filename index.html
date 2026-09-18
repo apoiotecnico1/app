@@ -1,488 +1,345 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071015">
-<title>Apoio Campo · Central Operacional</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<title>Apoio Campo — Central de Operação</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{--bg:#071015;--surface:#101b21;--surface2:#17252c;--line:#ffffff18;--text:#eef5f7;--muted:#9cafb7;--dim:#66808a;--yellow:#ffd74d;--yellow2:#c89e00;--green:#21c77d;--red:#ff6868;--orange:#ffb341;--safe:env(safe-area-inset-bottom,20px);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at top,#12242a,#071015 50%);color:var(--text)}body{min-height:100dvh}button,input,select{font:inherit}button{color:inherit;border:0;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}.hidden{display:none!important}.screen{min-height:100dvh}.menu{max-width:720px;margin:auto;padding:20px 16px calc(24px + var(--safe));display:flex;flex-direction:column;justify-content:center}.status,.card,.head{border:1px solid var(--line);background:linear-gradient(145deg,#ffffff09,#ffffff03);box-shadow:0 14px 40px #0004}.status{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:20px}.clock{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}.date{font-size:11px;color:var(--muted);text-transform:capitalize}.pill{padding:8px 11px;border-radius:99px;font-size:10px;font-weight:900;color:#aaf3d2;background:#21c77d16;border:1px solid #21c77d44}.brand{display:flex;align-items:center;gap:15px;margin:24px 0 12px}.logo{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(145deg,var(--yellow),var(--yellow2));color:#111;font-size:31px;font-weight:900}.brand small{color:var(--yellow);font-weight:900;letter-spacing:.35em}.brand h1{font-size:clamp(28px,8vw,42px);line-height:1;margin:4px 0;letter-spacing:-.06em}.intro{font-size:13px;line-height:1.65;color:var(--muted);margin-bottom:8px}.menu-grid{display:grid;gap:12px;margin-top:16px}.menu-btn{display:flex;align-items:center;gap:15px;text-align:left;padding:17px;border-radius:20px;border:1px solid var(--line);background:#ffffff06;transition:.2s}.menu-btn:active{transform:scale(0.98)}.menu-btn.primary{background:#ffd74d13;border-color:#ffd74d55}.ico{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:#ffffff0b;font-size:20px;font-weight:900;flex:none}.menu-btn strong{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.08em}.menu-btn span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.arrow{margin-left:auto;color:var(--yellow);font-size:24px}.footer{text-align:center;color:var(--dim);font-size:10px;letter-spacing:.15em;text-transform:uppercase;margin-top:24px}.module{display:none;min-height:100dvh}.module.active{display:block}.head{position:sticky;top:0;z-index:5;height:64px;padding:0 16px;display:flex;align-items:center;gap:12px;background:#071015dd;backdrop-filter:blur(18px)}.back{width:40px;height:40px;border-radius:11px;background:#ffffff09;border:1px solid var(--line);font-size:22px}.head-title{flex:1}.head-title h2{font-size:13px;letter-spacing:.15em;text-transform:uppercase;margin:0}.head-title p{font-size:10px;color:var(--muted);margin:4px 0 0}.content{max-width:720px;margin:auto;padding:16px 16px calc(20px + var(--safe));display:grid;gap:12px}.card{border-radius:20px;padding:18px}.label{color:var(--yellow);font-size:10px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;margin:0 0 13px}.search{display:flex;gap:8px}.search input,.field,select{width:100%;min-width:0;padding:13px;border-radius:12px;border:1px solid var(--line);background:#0005;color:var(--text)}.search input{text-transform:uppercase}.action{border-radius:12px;padding:0 15px;background:linear-gradient(135deg,var(--yellow),var(--yellow2));color:#111;font-weight:900;cursor:pointer}.subtle{background:#ffffff08;border:1px solid var(--line);color:var(--muted);padding:10px 13px;border-radius:12px}.message{font-size:12px;color:var(--orange);margin-top:10px}.hero{padding:24px;border-radius:24px;border:1px solid #21c77d55;background:linear-gradient(145deg,#0f8060,#0b493e)}.hero small{color:#b8ead6;letter-spacing:.25em;font-weight:900}.hero b{display:block;font-size:clamp(42px,14vw,70px);line-height:1;margin-top:8px;letter-spacing:-.07em}.hero p{color:#b8d9ce;font-size:11px;margin:10px 0 0}.gps{padding:14px;text-align:center;border-radius:12px;font-size:11px;font-weight:900;letter-spacing:.08em}.gps.ok{background:#21c77d16;color:#aaf3d2;border:1px solid #21c77d44}.gps.warn{background:#ffb34116;color:#ffd897;border:1px solid #ffb34144}.gps.bad{background:#ff686814;color:#ffc1c1;border:1px solid #ff686844}.post{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#ffffff05}.post.near{border-color:#ffd74d66}.post-main{display:flex;align-items:flex-start;gap:12px;padding:15px}.post-main input{width:19px;height:19px;accent-color:var(--yellow)}.post-info{flex:1;min-width:0}.post-id{font-size:13px;font-weight:900}.post-id em{color:var(--yellow);font-style:normal}.post-distance,.coords{font-size:10px;color:var(--muted);margin-top:4px}.map{height:135px;width:100%;border:0;filter:grayscale(.25)}.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center}.toolbar label{font-size:11px;color:var(--muted);font-weight:800;display:flex;gap:7px;align-items:center}.toolbar select{width:auto;padding:9px}.camera{position:fixed;inset:0;background:#000}.camera video{width:100%;height:100%;object-fit:cover}.hud{position:absolute;top:calc(16px + env(safe-area-inset-top));left:14px;padding:10px 14px;border-radius:14px;background:#08704fdd;border:1px solid #ffffff2c}.hud small{font-size:9px;letter-spacing:.2em;color:#bcebd8}.hud b{display:block;font-size:26px}.camera-actions{position:absolute;bottom:0;left:0;right:0;padding:18px 16px calc(22px + var(--safe));display:flex;gap:10px;background:linear-gradient(transparent,#000d)}.camera-actions button{height:52px;border-radius:13px;font-weight:900}.capture{flex:1;background:linear-gradient(135deg,var(--yellow),var(--yellow2));color:#111}.stop{flex:1;background:linear-gradient(135deg,#ef4444,#a81919)}.gear,.menu-camera{padding:0 17px;background:#0008;border:1px solid #ffffff22}.drawer{position:fixed;z-index:10;right:0;top:0;bottom:0;width:min(90vw,380px);padding:22px 18px calc(22px + var(--safe));overflow:auto;background:#0c171cfa;border-left:1px solid var(--line);transform:translateX(102%);transition:.25s}.drawer.open{transform:none}.drawer h2{margin:20px 0}.setting{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff0b;color:var(--muted);font-size:12px;font-weight:800}.setting input[type=checkbox]{width:19px;height:19px;accent-color:var(--yellow)}.setting input[type=color]{width:46px;height:28px}.setting input[type=number],.setting input[type=text],.setting select{width:140px;padding:9px}.toast{position:fixed;z-index:99;bottom:calc(18px + var(--safe));left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#15252bdd;border:1px solid #ffffff2b;padding:12px 16px;border-radius:12px;font-size:12px;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}@media(min-width:520px){.menu-grid{grid-template-columns:1fr 1fr}.menu-btn:first-child{grid-column:1/-1}}
+  :root{
+    --bg:#071015; --bg2:#0c1b22; --card:#0e1f27; --card2:#112732;
+    --fg:#e6f1f4; --muted:#7d97a3; --border:#1c3441;
+    --yellow:#ffd74d; --green:#21c77d; --red:#ff5c5c; --orange:#ff9a3c; --blue:#3aa6ff;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(circle at top,#0e2230,#071015 60%);
+    color:var(--fg);overscroll-behavior:none;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+  .app{max-width:560px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative}
+  header.topbar{
+    position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:14px 16px;
+    background:rgba(7,16,21,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+  }
+  .topbar .back{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+  .topbar h2{font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;margin:0}
+  .topbar p{font-size:10px;color:var(--muted);margin:0}
+  main{flex:1;padding:16px;padding-bottom:84px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{padding:14px;border-radius:12px;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary{background:linear-gradient(135deg,var(--yellow),#e8b53a);color:#071015}
+  .btn-ghost{background:rgba(255,255,255,.05);border:1px solid var(--border)}
+  .btn-danger{background:linear-gradient(135deg,#ff5c5c,#c22929);color:#fff}
+  .btn-green{background:linear-gradient(135deg,var(--green),#178a5a);color:#071015}
+  .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:800;border:1px solid}
+  .b-pendente{color:#ffd74d;background:rgba(255,215,77,.1);border-color:rgba(255,215,77,.4)}
+  .b-em_andamento{color:#3aa6ff;background:rgba(58,166,255,.1);border-color:rgba(58,166,255,.4)}
+  .b-resolvido{color:#21c77d;background:rgba(33,199,125,.1);border-color:rgba(33,199,125,.4)}
+  .b-inspecionado{color:#ff9a3c;background:rgba(255,154,60,.1);border-color:rgba(255,154,60,.4)}
+  .gps-ok{color:#21c77d;background:rgba(33,199,125,.1);border:1px solid rgba(33,199,125,.4)}
+  .gps-warn{color:#ff9a3c;background:rgba(255,154,60,.1);border:1px solid rgba(255,154,60,.4)}
+  .gps-bad{color:#ff5c5c;background:rgba(255,92,92,.1);border:1px solid rgba(255,92,92,.4)}
+  .gps-box{text-align:center;border-radius:12px;padding:12px;font-size:11px;font-weight:800}
+  input,select,textarea{width:100%;background:#0a161c;border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--fg);font-size:14px;font-family:inherit}
+  label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px}
+  .row{display:flex;gap:10px;align-items:center}
+  .row>*{flex:1}
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;z-index:30;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,16,21,.92);backdrop-filter:blur(14px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+  nav.bottom a{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;font-size:10px;font-weight:800;color:var(--muted);text-decoration:none}
+  nav.bottom a.on{color:var(--yellow)}
+  nav.bottom svg{width:22px;height:22px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+  .stat .n{font-size:26px;font-weight:900}
+  .stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+  .bar{height:10px;border-radius:6px;background:#0a161c;overflow:hidden}
+  .bar>div{height:100%;border-radius:6px}
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:10px;cursor:pointer}
+  .pill{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--border);background:rgba(255,255,255,.04);text-decoration:none}
+  #map,#map2,#map3{height:260px;border-radius:14px;border:1px solid var(--border)}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0e1f27;border:1px solid var(--yellow);color:var(--yellow);padding:10px 16px;border-radius:12px;font-weight:800;font-size:12px;z-index:60;opacity:0;transition:.3s;pointer-events:none}
+  .toast.on{opacity:1}
+  .drawer{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:none}
+  .drawer.on{display:block}
+  .drawer .sheet{position:absolute;bottom:0;left:0;right:0;max-width:560px;margin:0 auto;background:var(--card);border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}
+  .chk{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+  .chk input{width:20px;height:20px;flex:0}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-size:10px;text-transform:uppercase}
+  .hidden{display:none}
+  .big{font-size:40px;font-weight:900}
+  .muted{color:var(--muted)}
+  .center{text-align:center}
+  .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+  .mb8{margin-bottom:8px}
+  .tag{font-size:10px;color:var(--muted)}
+  .photo-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
+  .grid-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .module{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--card);text-decoration:none;color:var(--fg)}
+  .module .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,215,77,.12);color:var(--yellow)}
+  .module h3{margin:0;font-size:14px}
+  .module p{margin:0;font-size:11px;color:var(--muted)}
+  .cam-wrap{position:relative;width:100%;background:#000;border-radius:12px;overflow:hidden}
+  video{width:100%;height:auto;display:block}
 </style>
 </head>
 <body>
-<main id="menu" class="screen menu">
-<div class="status">
-<div><div id="clock" class="clock">--:--:--</div><div id="date" class="date">—</div></div>
-<div id="menuGps" class="pill">GPS · INATIVO</div>
+<div class="app">
+  <header class="topbar" id="topbar"></header>
+  <main id="view"></main>
+  <nav class="bottom" id="nav"></nav>
 </div>
-<div class="brand">
-<div class="logo">⚡</div>
-<div><small>SUPERVISÃO</small><h1>Apoio Campo</h1></div>
-</div>
-<p class="intro">Central de operação unificada para consulta de registros, posicionamento rodoviário e relatórios fotográficos.</p>
-<div class="menu-grid">
-<button class="menu-btn primary" data-open="apoio"><div class="ico">⌖</div><div><strong>Localizar ID</strong><span>Encontre serviços e registros próximos</span></div><b class="arrow">›</b></button>
-<button class="menu-btn" data-open="km"><div class="ico">KM</div><div><strong>Posição KM</strong><span>Monitoramento de marco quilométrico</span></div><b class="arrow">›</b></button>
-<button class="menu-btn" data-open="inspecao"><div class="ico">▣</div><div><strong>Inspeção Fotográfica</strong><span>Captura com tarja, dados e PDF</span></div><b class="arrow">›</b></button>
-</div>
-<p class="footer">Operação segura · Uso exclusivo em campo</p>
-</main>
-
-<section id="apoio" class="module">
-<header class="head">
-<button class="back" data-open="menu" aria-label="Voltar">‹</button>
-<div class="head-title"><h2>Localizar ID</h2><p>Registros e serviços próximos</p></div>
-</header>
-<div class="content">
-<div id="lock" class="card hidden" style="border-color:#21c77d;background:#21c77d18"><b>📍 ID identificado</b><div id="lockText" style="font-size:11px;margin-top:6px"></div></div>
-<div class="card">
-<p class="label">Buscar registro</p>
-<div class="search"><input id="search" placeholder="EX.: ID-1042" autocomplete="off"><button id="searchBtn" class="action">Buscar</button><button id="clearBtn" class="subtle" aria-label="Limpar">×</button></div>
-<div id="searchMsg" class="message hidden"></div>
-<div id="searchResult" class="hidden" style="margin-top:12px"></div>
-</div>
-<div class="hero"><small>KM MAIS PRÓXIMO</small><b id="kmValue">—</b><p id="kmSource">Aguardando GPS e base de dados</p></div>
-<div id="gpsApoio" class="gps bad">GPS · aguardando permissão</div>
-<div class="card">
-<button id="sendBtn" class="action" style="width:100%;height:50px" disabled>Enviar selecionados por WhatsApp</button>
-<div class="toolbar" style="margin-top:12px"><label>Quantidade <select id="qty"><option>1</option><option>5</option><option selected>10</option><option>20</option></select></label><label><input id="maps" type="checkbox" checked> Links Maps</label></div>
-</div>
-<div id="posts" style="display:grid;gap:10px"><div class="card">Carregando base de registros…</div></div>
-</div>
-</section>
-
-<section id="km" class="module">
-<header class="head">
-<button class="back" data-open="menu" aria-label="Voltar">‹</button>
-<div class="head-title"><h2>Posição KM</h2><p>Monitoramento rodoviário</p></div>
-</header>
-<div class="content" style="align-content:center">
-<div class="hero"><small>POSIÇÃO ATUAL</small><b id="rtKm">—</b><p id="rtCoords">Aguardando localização…</p></div>
-<div id="gpsRt" class="gps bad">GPS · aguardando permissão</div>
-<div class="card" style="text-align:center;color:var(--muted);font-size:12px">Mantenha o GPS ativo e permaneça em área aberta para obter maior precisão nas referências de campo.</div>
-</div>
-</section>
-
-<section id="inspecao" class="module">
-<div id="gate" class="screen menu">
-<div class="card" style="text-align:center">
-<div class="logo" style="margin:auto">▣</div>
-<h2 style="margin:22px 0 10px">Inspeção fotográfica</h2>
-<p style="color:var(--muted);font-size:13px;line-height:1.6">Escolha uma pasta para salvar as fotos e relatórios PDF gerados diretamente no seu dispositivo.</p>
-<div id="gateError" class="message hidden"></div>
-<button id="startApp" class="action" style="width:100%;height:52px;margin-top:18px">Selecionar pasta e ativar câmera</button>
-<button class="subtle" style="width:100%;margin-top:9px" data-open="menu">Voltar</button>
-</div>
-</div>
-<div id="camera" class="camera hidden">
-<video id="video" autoplay playsinline muted></video>
-<div class="hud"><small>POSIÇÃO</small><b id="camKm">KM —</b></div>
-<div class="camera-actions">
-<button id="gear" class="gear">⚙</button>
-<button id="startCapture" class="capture">● Iniciar lote</button>
-<button id="stopCapture" class="stop hidden">■ Finalizar</button>
-<button class="menu-camera" data-open="menu">Menu</button>
-</div>
-<div id="drawer" class="drawer">
-<button id="closeDrawer" class="subtle">× Fechar</button>
-<h2>Ajustes de Câmera</h2>
-<label class="setting">Câmera <select id="cameraSelect"></select></label>
-<label class="setting">Intervalo (ms) <input id="interval" type="number" min="100" max="10000" value="200"></label>
-<label class="setting">Fotos por lote <input id="batch" type="number" min="1" max="500" value="50"></label>
-<label class="setting">KM <input id="showKm" type="checkbox" checked></label>
-<label class="setting">Data e hora <input id="showDate" type="checkbox" checked></label>
-<label class="setting">Coordenadas <input id="showCoords" type="checkbox" checked></label>
-<label class="setting">Precisão <input id="showAcc" type="checkbox" checked></label>
-<label class="setting">Texto livre <input id="showText" type="checkbox"></label>
-<label class="setting">Fundo da tarja <input id="useBg" type="checkbox" checked></label>
-<label class="setting">Estilo <select id="style"><option value="modern">Modern</option><option value="clean">Clean</option><option value="bold">Bold</option></select></label>
-<label class="setting">Fonte <select id="font"><option>Arial</option><option>Verdana</option><option>Tahoma</option><option>Georgia</option><option>sans-serif</option></select></label>
-<label class="setting">Tamanho <input id="fontSize" type="number" min="14" max="48" value="24"></label>
-<label class="setting">Cor <input id="color" type="color" value="#ffffff"></label>
-<label class="setting">Transparência <input id="alpha" type="range" min=".2" max="1" step=".05" value=".95"></label>
-<label class="setting">Texto <input id="customText" type="text" value="Operação de Manutenção"></label>
-</div>
-</div>
-</section>
-
-<div id="toast" class="toast" aria-live="polite"></div>
-<canvas id="canvas" hidden></canvas>
+<div class="toast" id="toast"></div>
+<div class="drawer" id="drawer"><div class="sheet" id="sheet"></div></div>
 
 <script>
-'use strict';
-const $= s => document.querySelector(s),$$ = s => [...document.querySelectorAll(s)];
-const S = { posts: [], km: [], pos: null, watch: null, dir: null, stream: null, capturing: false, frames: [], startKm: '—', timer: null, target: null, loading: false };
-const norm = v => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase();
-const num = v => { let s = String(v ?? '').trim().replace(/\s/g, ''); if (s.includes(',') && s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.'); return Number(s) };
-
-const hav = (a, b, c, d) => {
-  const r = Math.PI / 180, x = .5 - Math.cos((c - a) * r) / 2 + Math.cos(a * r) * Math.cos(c * r) * (1 - Math.cos((d - b) * r)) / 2;
-  return 12742000 * Math.asin(Math.sqrt(Math.max(0, x)));
+const I = {
+  cross:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="4"/></svg>',
+  clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>',
+  dash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>',
+  stop:'<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><rect x="6" y="6" width="12" height="12"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16"><path d="M5 12l5 5L20 7"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6v20h12V8z"/><path d="M14 2v6h6"/></svg>'
 };
 
-const fmt = n => Number.isFinite(n) ? Math.round(n) + ' m' : '—';
-const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-function toast(t, e = false) {
-  const x = $('#toast');   x.textContent = t;   x.className = 'toast show';   x.style.borderColor = e ? '#ff686888' : '';   clearTimeout(toast.t);   toast.t = setTimeout(() => x.className = 'toast', 3500); }  function openModule(id) {   $$('.module').forEach(x => x.classList.remove('active'));$('#menu').classList.toggle('hidden', id !== 'menu');
-  if (id !== 'menu') $('#' + id).classList.add('active');
-  if (id === 'apoio' || id === 'km') startGps();
-  if (id === 'inspecao') $('#gate').classList.remove('hidden'); }  $$('[data-open]').forEach(x => x.addEventListener('click', () => openModule(x.dataset.open)));
-
-function clock() {
-  const d = new Date();
-  $('#clock').textContent = d.toLocaleTimeString('pt-BR');
-  $('#date').textContent = d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
-}
-clock();
-setInterval(clock, 1000);
-
-function badge(el, p, e) {
-  el.className = 'gps ' + (e ? 'bad' : !p ? 'bad' : p.acc <= 15 ? 'ok' : p.acc <= 35 ? 'warn' : 'bad');
-  el.textContent = e || (!p ? 'GPS · buscando sinal' : `GPS · ${p.acc <= 15 ? 'alta' : p.acc <= 35 ? 'média' : 'baixa'} precisão · ±${Math.round(p.acc)} m`);
-}
-
-function startGps() {
-  if (S.watch || !navigator.geolocation) return;
-  S.watch = navigator.geolocation.watchPosition(p => {
-    S.pos = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy };
-    $('#menuGps').textContent = 'GPS · ATIVO';
-    badge($('#gpsApoio'), S.pos);
-    badge($('#gpsRt'), S.pos);
-    render();
-  }, e => {
-    badge($('#gpsApoio'), null, 'GPS · ' + (e.code === 1 ? 'permissão negada' : 'indisponível'));
-    badge($('#gpsRt'), null, 'GPS · indisponível');
-  }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 });
-}
-
-async function file(u) {
-  const r = await fetch(u + '?v=' + Date.now(), { cache: 'no-store' });
-  if (!r.ok) throw Error('Arquivo não encontrado: ' + u);
-  return (await r.text()).replace(/^\uFEFF/, '');
-}
-
-function csv(t) {
-  const out = [];
-  let row = [], cell = '', q = false;
-  for (let i = 0; i < t.length; i++) {
-    const c = t[i], n = t[i + 1];
-    if (c === '"' && q && n === '"') { cell += '"'; i++; continue; }
-    if (c === '"') { q = !q; continue; }
-    if (c === ';' && !q) { row.push(cell); cell = ''; continue; }
-    if ((c === '\n' || c === '\r') && !q) {
-      if (c === '\r' && n === '\n') i++;
-      row.push(cell);
-      if (row.some(x => x.trim())) out.push(row);
-      row = []; cell = ''; continue;
-    }
-    cell += c;
-  }
-  if (cell || row.length) { row.push(cell); out.push(row); }
-  return out;
-}
-
-function col(h, ns) {
-  const a = h.map(norm);
-  return ns.map(norm).map(x => a.indexOf(x)).find(x => x >= 0) ?? -1;
-}
-
-async function load() {
-  try {
-    const [a, b] = await Promise.allSettled([file('dados.csv').catch(() => file('Dados_Completos_Grupo_2_all.csv')), file('SNVBR116SPRJ.csv')]);
-    if (a.status === 'fulfilled') {
-      const r = csv(a.value), h = r.shift(), i = col(h, ['id do nox', 'idnox', 'id']), la = col(h, ['latitude', 'lat']), lo = col(h, ['longitude', 'lon', 'long']);
-      S.posts = r.map(x => ({ id: String(x[i] || '').trim(), lat: num(x[la]), lon: num(x[lo]) })).filter(x => x.id && Number.isFinite(x.lat) && Number.isFinite(x.lon));
-    }
-    if (b.status === 'fulfilled') {
-      const r = csv(b.value), h = r.shift(), k = col(h, ['km']), la = col(h, ['latitude', 'lat']), lo = col(h, ['longitude', 'lon', 'long']);
-      S.km = r.map(x => ({ km: num(x[k]), lat: num(x[la]), lon: num(x[lo]) })).filter(x => Number.isFinite(x.km) && Number.isFinite(x.lat) && Number.isFinite(x.lon));
-    }
-    render();
-  } catch (e) {
-    toast('Falha ao carregar os arquivos CSV', true);
-  } finally {
-    S.loading = false;
-  }
-}
-
-function nearest(a) {
-  if (!S.pos || !a.length) return null;
-  return a.reduce((b, x) => !b || hav(S.pos.lat, S.pos.lon, x.lat, x.lon) < hav(S.pos.lat, S.pos.lon, b.lat, b.lon) ? x : b, null);
-}
-
-function render() {
-  const k = nearest(S.km);
-  if (k) {
-    const v = k.km.toFixed(2).replace('.', ',');
-    $('#kmValue').textContent = v;
-    $('#rtKm').textContent = 'KM ' + v;
-    $('#camKm').textContent = 'KM ' + v;
-    $('#kmSource').textContent = `Referência: ${S.km.length} pontos`;
-  }
-  if (S.pos) $('#rtCoords').textContent = `${S.pos.lat.toFixed(6)}, ${S.pos.lon.toFixed(6)}`;
-  renderPosts();
-  checkLock();
-}
-
-function renderPosts() {
-  if (!S.pos || !S.posts.length) return;
-  const n = Number($('#qty').value), a = S.posts.map(x => ({ ...x, d: hav(S.pos.lat, S.pos.lon, x.lat, x.lon) })).sort((x, y) => x.d - y.d).slice(0, n);
-  $('#posts').innerHTML = a.map((x, i) => `<article class="post ${i ? '' : 'near'}"><div class="post-main"><input class="post-check" type="checkbox" checked value="${esc(x.id)}" data-lat="${x.lat}" data-lon="${x.lon}"><div class="post-info"><div class="post-id">ID: <em>${esc(x.id)}</em></div><div class="post-distance">Distância: ${fmt(x.d)} ±${Math.round(S.pos.acc)} m</div><div class="coords">${x.lat.toFixed(6)}, ${x.lon.toFixed(6)}</div></div><a class="subtle" target="_blank" rel="noopener" href="https://maps.google.com/?q=${x.lat},${x.lon}">Mapa</a></div>${$('#maps').checked ? `<iframe class="map" loading="lazy" src="https://maps.google.com/maps?q=${x.lat},${x.lon}&z=16&output=embed" title="Mapa ${esc(x.id)}"></iframe>` : ''}</article>`).join('');
-  $('#sendBtn').disabled = !a.length;
-}
-
-function checkLock() {
-  if (!S.target || !S.pos) return;
-  const d = hav(S.pos.lat, S.pos.lon, S.target.lat, S.target.lon);
-  if (d <= 5 + S.pos.acc) {
-    $('#lock').classList.remove('hidden');
-    $('#lockText').textContent = `${S.target.id} · distância aproximada ${Math.round(d)} m`;
-  }
-}
-
-function search() {
-  const q = norm($('#search').value);
-  if (!q) return;
-  const x = S.posts.find(p => norm(p.id) === q || norm(p.id).includes(q));
-  if (!x) {
-    $('#searchMsg').textContent = 'ID não encontrado na base carregada.';
-    $('#searchMsg').classList.remove('hidden');
-    return;
-  }
-  S.target = x;
-  $('#searchMsg').classList.add('hidden');
-  $('#searchResult').classList.remove('hidden');
-  $('#searchResult').innerHTML = `<article class="post near"><div class="post-main"><div class="post-info"><div class="post-id">ID: <em>${esc(x.id)}</em></div><div class="coords">${x.lat.toFixed(6)}, ${x.lon.toFixed(6)}</div><div class="post-distance">${S.pos ? 'Distância: ' + fmt(hav(S.pos.lat, S.pos.lon, x.lat, x.lon)) : 'Aguardando GPS…'}</div></div><a class="subtle" target="_blank" rel="noopener" href="https://maps.google.com/?q=${x.lat},${x.lon}">Mapa</a></div></article>`;
-  checkLock();
-  toast('ID encontrado: ' + x.id);
-}
-
-$('#searchBtn').onclick = search;
-$('#search').onkeydown = e => { if (e.key === 'Enter') search(); };
-$('#clearBtn').onclick = () => {
-  $('#search').value = '';
-  $('#searchResult').classList.add('hidden');
-  $('#searchMsg').classList.add('hidden');
-  S.target = null;
-  $('#lock').classList.add('hidden');
+const DB = {
+  get(k,d){ try{ return JSON.parse(localStorage.getItem('ac_'+k)) ?? d; }catch{ return d; } },
+  set(k,v){ localStorage.setItem('ac_'+k, JSON.stringify(v)); }
 };
-$('#qty').onchange = renderPosts;
-$('#maps').onchange = renderPosts;
+let POS=null, POS_ERR=null, WATCH=null;
+let KMS=DB.get('kms',null), REGS=DB.get('regs',null), FOTOS=DB.get('fotos',[]), REPORTS=DB.get('reports',[]);
 
-$('#sendBtn').onclick = () => {   const a = $$('.post-check:checked').map(x => ({ id: x.value, lat: +x.dataset.lat, lon: +x.dataset.lon }));
-  if (!a.length || !S.pos) return;
-  let t = `📍 *LISTA DE LOCALIZAÇÃO*\nData/Hora: ${new Date().toLocaleString('pt-BR')}\nGPS: ${S.pos.lat.toFixed(6)}, ${S.pos.lon.toFixed(6)}\n\n`;
-  a.forEach((x, i) => {
-    t += `${i + 1}. *ID:* ${x.id}\n`;
-    if ($('#maps').checked) t += `🗺️ https://maps.google.com/?q=${x.lat},${x.lon}\n`;
-  });
-  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
-  toast(`${a.length} ID(s) preparado(s)`);
+function seed(){
+  if(!KMS){
+    KMS=[];
+    const base=[[-23.550,-46.633],[-23.520,-46.610],[-23.490,-46.585],[-23.460,-46.560],[-23.430,-46.535],[-23.400,-46.510],[-23.370,-46.485],[-23.340,-46.460],[-23.310,-46.435],[-23.280,-46.410],[-23.250,-46.385],[-23.220,-46.360]];
+    base.forEach((p,i)=>KMS.push({id:'km'+(i+1),km:10+i*5,lat:p[0],lon:p[1],rodovia:'BR-116'}));
+    DB.set('kms',KMS);
+  }
+  if(!REGS){
+    REGS=[
+      {id:'AC-1001',id_no:'PT-1001',lat:-23.552,lon:-46.631,tipo:'poste',status:'pendente',observacao:'Lâmpada queimada',checklist:{}},
+      {id:'AC-1002',id_no:'CX-2042',lat:-23.518,lon:-46.608,tipo:'caixa',status:'em_andamento',observacao:'Reparo em andamento',checklist:{}},
+      {id:'AC-1003',id_no:'RG-3078',lat:-23.488,lon:-46.583,tipo:'registro',status:'resolvido',observacao:'Válvula trocada',checklist:{}},
+      {id:'AC-1004',id_no:'SV-4011',lat:-23.458,lon:-46.558,tipo:'servico',status:'inspecionado',observacao:'Inspeção concluída',checklist:{}},
+      {id:'AC-1005',id_no:'PT-1055',lat:-23.428,lon:-46.533,tipo:'poste',status:'pendente',observacao:'Aguardando peça',checklist:{}},
+      {id:'AC-1006',id_no:'CX-2090',lat:-23.398,lon:-46.508,tipo:'caixa',status:'em_andamento',observacao:'Conexão intermitente',checklist:{}},
+      {id:'AC-1007',id_no:'RG-3120',lat:-23.368,lon:-46.483,tipo:'registro',status:'pendente',observacao:'Vazamento detectado',checklist:{}},
+      {id:'AC-1008',id_no:'SV-4050',lat:-23.338,lon:-46.458,tipo:'servico',status:'resolvido',observacao:'Serviço finalizado',checklist:{}}
+    ];
+    DB.set('regs',REGS);
+  }
+}
+seed();
+
+function startGPS(){
+  if(WATCH) return;
+  if(!navigator.geolocation){ POS_ERR='não suportado'; renderTopbar(); return; }
+  WATCH=navigator.geolocation.watchPosition(
+    p=>{ POS={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy}; POS_ERR=null; onGPS(); },
+    e=>{ POS_ERR=errTxt(e); renderTopbar(); },
+    {enableHighAccuracy:true,maximumAge:0,timeout:15000}
+  );
+}
+function errTxt(e){ return e.code===1?'permissão negada':e.code===2?'sinal indisponível':'timeout'; }
+function dist(a,b){ const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180; const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2; return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))); }
+function nearest(p,arr){ if(!p) return null; let best=null,bd=Infinity; arr.forEach(o=>{const d=dist(p,o);if(d<bd){bd=d;best=o;}}); return best?{...best,_d:bd}:null; }
+function fmtDist(m){ return m<1000?m+' m':(m/1000).toFixed(2)+' km'; }
+const STATUS={pendente:{l:'Pendente',c:'#ffd74d'},em_andamento:{l:'Em andamento',c:'#3aa6ff'},resolvido:{l:'Resolvido',c:'#21c77d'},inspecionado:{l:'Inspecionado',c:'#ff9a3c'}};
+
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2600); }
+function openDrawer(html){ document.getElementById('sheet').innerHTML=html; document.getElementById('drawer').classList.add('on'); }
+function closeDrawer(){ document.getElementById('drawer').classList.remove('on'); }
+
+const ROUTES={
+  home:{t:'Apoio Campo',s:'Central de operação',render:home},
+  localizar:{t:'Localizar ID',s:'Encontrar registros por GPS',render:localizar},
+  km:{t:'Posição KM',s:'Monitoramento rodoviário',render:km},
+  inspecao:{t:'Inspeção',s:'Inspeção fotográfica',render:inspecao},
+  checklist:{t:'Checklist',s:'Checklist de campo',render:checklist},
+  painel:{t:'Painel do Gestor',s:'Dashboard operacional',render:painel}
 };
 
-load();
+function go(r){ location.hash='#/'+r; }
 
-async function startApp() {
-  try {
-    if (!window.showDirectoryPicker) throw Error('Use Chrome ou Edge em HTTPS para selecionar uma pasta.');
-    S.dir = await showDirectoryPicker({ mode: 'readwrite' });
-    await camera();
-    $('#gate').classList.add('hidden');
-    $('#camera').classList.remove('hidden');
-    startGps();
-    navigator.wakeLock?.request('screen').catch(() => {});
-    document.documentElement.requestFullscreen?.().catch(() => {});
-    toast('Inspeção ativada');
-  } catch (e) {
-    $('#gateError').textContent = e.message;
-    $('#gateError').classList.remove('hidden');
-  }
+function route(){
+  let r=location.hash.replace('#/','')||'home';
+  if(!ROUTES[r]) r='home';
+  const cfg=ROUTES[r];
+  document.getElementById('topbar').innerHTML = r==='home'
+    ? `<div style="flex:1"><h2>${cfg.t}</h2><p>${cfg.s}</p></div>`
+    : `<button class="back" onclick="go('home')">${I.back}</button><div style="flex:1"><h2>${cfg.t}</h2><p>${cfg.s}</p></div>`;
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#/'+r));
+  cfg.render(); window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+
+function renderNav(){
+  document.getElementById('nav').innerHTML=[['localizar',I.cross,'Localizar'],['km',I.pin,'KM'],['inspecao',I.cam,'Inspeção'],['checklist',I.clip,'Checklist'],['painel',I.dash,'Painel']].map(([r,i,l])=>`<a href="#/${r}">${i}<span>${l}</span></a>`).join('');
+}
+function renderTopbar(){ const sub=document.querySelector('.topbar p'); if(!sub) return; if(POS_ERR) sub.textContent='GPS · '+POS_ERR; else if(POS) sub.textContent=`GPS · ±${Math.round(POS.acc)} m`; }
+function onGPS(){ renderTopbar(); if(location.hash.includes('km')) km(); if(location.hash.includes('localizar')) localizar(); }
+
+function home(){
+  const now=new Date();
+  const gpsCls=POS_ERR||!POS?'gps-bad':POS.acc<=15?'gps-ok':POS.acc<=35?'gps-warn':'gps-bad';
+  const gpsTxt=POS_ERR?('GPS · '+POS_ERR):!POS?'GPS · buscando sinal':`GPS · ±${Math.round(POS.acc)} m`;
+  const mods=[['localizar',I.cross,'Localizar ID','Encontre registros por GPS'],['km',I.pin,'Posição KM','KM atual na rodovia'],['inspecao',I.cam,'Inspeção','Fotos com HUD + PDF'],['checklist',I.clip,'Checklist','Itens de verificação'],['painel',I.dash,'Painel','Dashboard do gestor']];
+  document.getElementById('view').innerHTML=`
+    <div class="card center"><div class="tag">OPERAÇÃO DE CAMPO</div><div class="big mt8" style="color:var(--yellow)">${now.toLocaleTimeString('pt-BR')}</div><div class="muted mt8">${now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})}</div><div class="gps-box ${gpsCls} mt12">${gpsTxt}</div></div>
+    <div class="grid2">${mods.map(([r,i,t,d])=>`<a class="module" href="#/${r}"><div class="ico">${i}</div><h3>${t}</h3><p>${d}</p></a>`).join('')}</div>
+    <div class="card mt12" style="display:flex;gap:10px;align-items:center;border-color:rgba(255,215,77,.3)"><div style="color:var(--yellow)">${I.shield}</div><div><div style="font-weight:800;font-size:12px">Segurança em campo</div><div class="tag">Use EPI e mantenha o aplicativo aberto para registro contínuo.</div></div></div>`;
 }
 
-async function camera(id) {
-  S.stream?.getTracks().forEach(t => t.stop());
-  S.stream = await navigator.mediaDevices.getUserMedia({
-    video: id ? { deviceId: { exact: id } } : { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-    audio: false
-  });
-  $('#video').srcObject = S.stream;
-  const ds = await navigator.mediaDevices.enumerateDevices(), cs = ds.filter(x => x.kind === 'videoinput');
-  $('#cameraSelect').innerHTML = cs.map((x, i) => `<option value="${x.deviceId}" ${x.deviceId === id ? 'selected' : ''}>Câmera ${i + 1}</option>`).join('');
+let LMAP=null,LMARK=[],SEARCH='';
+function localizar(){
+  const list=REGS.filter(r=>!SEARCH||r.id_no.toLowerCase().includes(SEARCH.toLowerCase())||r.id.toLowerCase().includes(SEARCH.toLowerCase()));
+  const sorted=POS?[...list].map(r=>({...r,_d:dist(POS,r)})).sort((a,b)=>a._d-b._d):list;
+  document.getElementById('view').innerHTML=`
+    <div class="card"><label>BUSCAR ID</label><div class="row"><input id="q" placeholder="ID do nó..." value="${SEARCH}" oninput="SEARCH=this.value;localizar()" /><button class="btn btn-ghost" onclick="SEARCH='';document.getElementById('q').value='';localizar()">${I.x}</button></div></div>
+    <div class="card"><div class="row" style="margin-bottom:10px"><div><div class="tag">KM MAIS PRÓXIMO</div><div style="font-weight:900;font-size:18px;color:var(--yellow)">${POS?(()=>{const n=nearest(POS,KMS);return n?'KM '+n.km:'—'})():'—'}</div></div><div style="text-align:right"><div class="tag">REGISTROS</div><div style="font-weight:900;font-size:18px">${REGS.length}</div></div></div><div id="map"></div></div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:10px">PRÓXIMOS</div><div id="rlist"></div></div>`;
+  renderMap(sorted); renderRList(sorted);
+}
+function renderMap(list){
+  if(LMAP){ LMAP.remove(); LMAP=null; }
+  const c=POS?[POS.lat,POS.lon]:[-23.45,-46.58];
+  LMAP=L.map('map').setView(c,13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(LMAP);
+  LMARK.forEach(m=>m.remove()); LMARK=[];
+  if(POS){ L.circleMarker([POS.lat,POS.lon],{radius:8,color:'#21c77d',fillColor:'#21c77d',fillOpacity:.9}).addTo(LMAP); L.circle([POS.lat,POS.lon],{radius:POS.acc||15,color:'#21c77d',fillColor:'#21c77d',fillOpacity:.08}).addTo(LMAP); }
+  list.slice(0,40).forEach(r=>{ const col=STATUS[r.status].c; const m=L.circleMarker([r.lat,r.lon],{radius:7,color:col,fillColor:col,fillOpacity:.85}).addTo(LMAP); m.bindPopup(`<b>${r.id_no}</b><br><span style="font-size:11px">${STATUS[r.status].l}</span>`); m.on('click',()=>openReg(r.id)); LMARK.push(m); });
+}
+function renderRList(list){
+  const el=document.getElementById('rlist');
+  if(!list.length){ el.innerHTML='<div class="muted center" style="padding:20px">Nenhum registro</div>'; return; }
+  el.innerHTML=list.slice(0,30).map(r=>`<div class="list-item" onclick="openReg('${r.id}')"><div><div style="font-weight:800">${r.id_no}</div><div class="tag">${r.tipo} · ${r._d!=null?fmtDist(r._d):'—'}</div></div><span class="badge b-${r.status}">${STATUS[r.status].l}</span></div>`).join('');
+}
+function openReg(id){
+  const r=REGS.find(x=>x.id===id); if(!r) return; const d=POS?dist(POS,r):null;
+  openDrawer(`<div class="row" style="margin-bottom:14px"><div><div class="tag">ID DO NÓ</div><div style="font-weight:900;font-size:18px">${r.id_no}</div></div><span class="badge b-${r.status}">${STATUS[r.status].l}</span></div><div class="grid2 mb8"><div><div class="tag">TIPO</div><div>${r.tipo}</div></div><div><div class="tag">DISTÂNCIA</div><div>${d!=null?fmtDist(d):'—'}</div></div></div><div class="mb8"><div class="tag">COORDENADAS</div><div>${r.lat.toFixed(5)}, ${r.lon.toFixed(5)}</div></div><div class="mb8"><div class="tag">OBSERVAÇÃO</div><div>${r.observacao||'—'}</div></div><label class="mt12">STATUS</label><select id="st">${Object.keys(STATUS).map(k=>`<option value="${k}" ${k===r.status?'selected':''}>${STATUS[k].l}</option>`).join('')}</select><label class="mt12">OBSERVAÇÃO</label><textarea id="ob" rows="3">${r.observacao||''}</textarea><button class="btn btn-primary mt12" onclick="saveReg('${r.id}')">SALVAR ALTERAÇÕES</button><button class="btn btn-green mt8" onclick="shareWA('${r.id}')">${I.send} COMPARTILHAR NO WHATSAPP</button><button class="btn btn-ghost mt8" onclick="closeDrawer()">FECHAR</button>`);
+}
+function saveReg(id){ const r=REGS.find(x=>x.id===id); r.status=document.getElementById('st').value; r.observacao=document.getElementById('ob').value; DB.set('regs',REGS); closeDrawer(); toast('Registro atualizado'); localizar(); }
+function shareWA(id){ const r=REGS.find(x=>x.id===id); const d=POS?dist(POS,r):null; const txt=`*Apoio Campo*%0AID: ${r.id_no}%0ATipo: ${r.tipo}%0AStatus: ${STATUS[r.status].l}%0A${d!=null?'Distância: '+fmtDist(d)+'%0A':''}Coords: ${r.lat.toFixed(5)},${r.lon.toFixed(5)}%0AObs: ${r.observacao||'-'}`; window.open('https://wa.me/?text='+txt,'_blank'); }
+
+let KMAP=null;
+function km(){
+  const n=POS?nearest(POS,KMS):null;
+  document.getElementById('view').innerHTML=`
+    <div class="card center"><div class="tag">KM ATUAL</div><div class="big" style="color:var(--yellow)">${n?'KM '+n.km:'—'}</div><div class="muted mt8">${n?n.rodovia:'aguardando GPS'}</div></div>
+    <div class="grid2"><div class="card center"><div class="tag">LATITUDE</div><div style="font-weight:800">${POS?POS.lat.toFixed(5):'—'}</div></div><div class="card center"><div class="tag">LONGITUDE</div><div style="font-weight:800">${POS?POS.lon.toFixed(5):'—'}</div></div></div>
+    <div class="card"><div class="gps-box ${POS_ERR||!POS?'gps-bad':POS.acc<=15?'gps-ok':POS.acc<=35?'gps-warn':'gps-bad'}">${POS_ERR?('GPS · '+POS_ERR):!POS?'GPS · buscando sinal':`GPS · ±${Math.round(POS.acc)} m de precisão`}</div></div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:10px">MAPA DE REFERÊNCIA</div><div id="map2"></div></div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:8px">DICA DE PRECISÃO</div><div class="tag">Mantenha o celular ao ar livre, longe de obstáculos. Alta precisão ativa ±15 m.</div></div>`;
+  if(KMAP){ KMAP.remove(); KMAP=null; }
+  if(POS){ KMAP=L.map('map2').setView([POS.lat,POS.lon],15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(KMAP); L.circleMarker([POS.lat,POS.lon],{radius:8,color:'#21c77d',fillColor:'#21c77d',fillOpacity:.9}).addTo(KMAP); L.circle([POS.lat,POS.lon],{radius:POS.acc||15,color:'#21c77d',fillColor:'#21c77d',fillOpacity:.08}).addTo(KMAP); if(n) L.marker([n.lat,n.lon]).addTo(KMAP).bindPopup('KM '+n.km); }
 }
 
-function settings() {
-  return {
-    km: $('#showKm').checked,
-    date: $('#showDate').checked,
-    coords: $('#showCoords').checked,
-    acc: $('#showAcc').checked,
-    text: $('#showText').checked ? $('#customText').value : '',
-    bg: $('#useBg').checked
-  };
+let STREAM=null, CAPTURING=false, FRAMES=[], TIMER=null, SETTINGS={interval:3,batch:6,text:''}, STARTKM='—';
+function inspecao(){
+  const n=POS?nearest(POS,KMS):null;
+  document.getElementById('view').innerHTML=`
+    <div class="card"><div class="row" style="margin-bottom:10px"><div><div class="tag">KM ATUAL</div><div style="font-weight:900;color:var(--yellow)">${n?'KM '+n.km:'—'}</div></div><div style="text-align:right"><div class="tag">FOTOS</div><div style="font-weight:900">${FOTOS.length}</div></div></div><div class="gps-box ${POS_ERR||!POS?'gps-bad':POS.acc<=15?'gps-ok':'gps-warn'}">${POS_ERR?('GPS · '+POS_ERR):!POS?'GPS · buscando':`GPS · ±${Math.round(POS.acc)} m`}</div></div>
+    <div class="card"><div id="camArea"></div></div>
+    <div class="card"><label>CONFIGURAÇÃO DO LOTE</label><div class="grid2"><div><label>INTERVALO (s)</label><input type="number" id="iv" value="${SETTINGS.interval}" min="1" max="30" onchange="SETTINGS.interval=+this.value"/></div><div><label>QTD FOTOS</label><input type="number" id="bt" value="${SETTINGS.batch}" min="1" max="30" onchange="SETTINGS.batch=+this.value"/></div></div><label class="mt12">TEXTO NA FOTO (opcional)</label><input id="tx" value="${SETTINGS.text}" placeholder="Ex: Setor Norte" oninput="SETTINGS.text=this.value"/></div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:10px">RELATÓRIOS RECENTES</div><div id="reps"></div></div>`;
+  renderCamArea(); renderReps();
+}
+function renderCamArea(){
+  const el=document.getElementById('camArea');
+  if(!STREAM){ el.innerHTML=`<button class="btn btn-primary" onclick="startCam()">${I.cam} ATIVAR CÂMERA</button>`; return; }
+  el.innerHTML=`<div class="cam-wrap"><video id="vid" autoplay playsinline muted></video><canvas id="cnv" class="hidden"></canvas></div><div class="grid2 mt12">${CAPTURING?`<button class="btn btn-danger" onclick="stopBatch()">${I.stop} PARAR LOTE</button><button class="btn btn-primary" onclick="finishBatch()">${I.check} FINALIZAR</button>`:`<button class="btn btn-ghost" onclick="captureOne()">${I.cam} FOTO</button><button class="btn btn-green" onclick="startBatch()">${I.play} LOTE (${SETTINGS.batch})</button>`}</div>${CAPTURING?`<div class="center mt12"><div class="tag">CAPTURANDO</div><div class="big" style="color:var(--yellow)">${FRAMES.length}/${SETTINGS.batch}</div></div>`:''}${FRAMES.length?`<div class="mt12"><div class="grid-photos">${FRAMES.map(f=>`<img class="photo-thumb" src="${f}"/>`).join('')}</div></div>`:''}`;
+  const videoEl = document.getElementById('vid');
+  if(videoEl) videoEl.srcObject = STREAM;
+}
+function renderReps(){ 
+  const el=document.getElementById('reps'); 
+  if(!el) return;
+  el.innerHTML=REPORTS.length?REPORTS.slice(0,5).map(r=>`<div class="list-item"><div><div style="font-weight:800">${I.file} Relatório ${r.id}</div><div class="tag">${new Date(r.data).toLocaleString('pt-BR')} · ${r.fotos} fotos · ${r.km_inicial}→${r.km_final}</div></div><a class="pill" href="${r.pdf}" download="relatorio-${r.id}.pdf" style="color:var(--yellow)">PDF</a></div>`).join(''):'<div class="muted center" style="padding:16px">Nenhum relatório</div>'; 
+}
+async function startCam(){ try{ STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}); renderCamArea(); }catch(e){ toast('Câmera: '+e.message); } }
+function drawOverlay(){
+  const v=document.getElementById('vid'), c=document.getElementById('cnv'); if(!v||!v.videoWidth) return null;
+  c.width=v.videoWidth; c.height=v.videoHeight; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0);
+  const n=POS?nearest(POS,KMS):null, km=n?'KM '+n.km:'—', lat=POS?POS.lat.toFixed(5):'—', lon=POS?POS.lon.toFixed(5):'—', acc=POS?'±'+Math.round(POS.acc)+'m':'—', dt=new Date().toLocaleString('pt-BR');
+  const pad=12,h=64;
+  ctx.fillStyle='rgba(7,16,21,.78)'; ctx.fillRect(pad,pad,c.width*0.55,h);
+  ctx.fillStyle='#ffd74d'; ctx.font='bold 26px sans-serif'; ctx.fillText(km,pad+12,pad+30);
+  ctx.fillStyle='#e6f1f4'; ctx.font='16px sans-serif'; ctx.fillText(`${lat}, ${lon}`,pad+12,pad+52);
+  ctx.fillStyle='rgba(7,16,21,.78)'; ctx.fillRect(c.width-c.width*0.4-pad,pad,c.width*0.4,h);
+  ctx.fillStyle='#21c77d'; ctx.font='bold 16px sans-serif'; ctx.fillText(acc,c.width-c.width*0.4-pad+12,pad+24);
+  ctx.fillStyle='#e6f1f4'; ctx.font='14px sans-serif'; ctx.fillText(dt,c.width-c.width*0.4-pad+12,pad+48);
+  if(SETTINGS.text){ ctx.fillStyle='rgba(7,16,21,.78)'; ctx.fillRect(pad,c.height-50,c.width-pad*2,38); ctx.fillStyle='#ffd74d'; ctx.font='bold 20px sans-serif'; ctx.fillText(SETTINGS.text,pad+12,c.height-22); }
+  return c;
+}
+function captureOne(){ const c=drawOverlay(); if(!c){ toast('Câmera não pronta'); return; } const url=c.toDataURL('image/jpeg',.85); FOTOS.push({url,km:nearest(POS,KMS)?.km,lat:POS?.lat,lon:POS?.lon,data:new Date().toISOString(),tipo:'manual'}); DB.set('fotos',FOTOS); FRAMES.push(url); renderCamArea(); toast('Foto capturada'); }
+function startBatch(){ CAPTURING=true; FRAMES=[]; STARTKM=nearest(POS,KMS)?.km||'—'; renderCamArea(); loop(); }
+function loop(){ if(!CAPTURING) return; const c=drawOverlay(); if(c){ const url=c.toDataURL('image/jpeg',.85); FRAMES.push(url); FOTOS.push({url,km:nearest(POS,KMS)?.km,lat:POS?.lat,lon:POS?.lon,data:new Date().toISOString(),tipo:'lote'}); DB.set('fotos',FOTOS); renderCamArea(); } if(FRAMES.length>=SETTINGS.batch){ finishBatch(); return; } TIMER=setTimeout(loop,Math.max(800,SETTINGS.interval*1000)); }
+function stopBatch(){ CAPTURING=false; clearTimeout(TIMER); renderCamArea(); }
+function finishBatch(){
+  CAPTURING=false; clearTimeout(TIMER); if(!FRAMES.length){ toast('Nenhuma foto'); renderCamArea(); return; }
+  const endKm=nearest(POS,KMS)?.km||'—', pdf=makePDF(), id=('R'+Date.now()).slice(0,10);
+  REPORTS.unshift({id,data:new Date().toISOString(),fotos:FRAMES.length,km_inicial:String(STARTKM),km_final:String(endKm),pdf}); DB.set('reports',REPORTS); FRAMES=[]; renderCamArea(); renderReps(); toast('Relatório gerado');
+}
+function makePDF(){
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'pt',format:'a4'}); const W=doc.internal.pageSize.getWidth(); let y=40;
+  doc.setFontSize(20); doc.setTextColor(7,16,21); doc.text('Relatório de Inspeção',40,y); y+=24;
+  doc.setFontSize(10); doc.setTextColor(80); doc.text('Apoio Campo · '+new Date().toLocaleString('pt-BR'),40,y); y+=14;
+  doc.text(`KM: ${STARTKM} → ${nearest(POS,KMS)?.km||'—'}   |   Operador: Campo   |   Fotos: ${FRAMES.length}`,40,y); y+=20;
+  const cw=(W-80)/2, ch=cw*0.75;
+  FRAMES.forEach((f)=>{ if(y+ch+30>doc.internal.pageSize.getHeight()-40){ doc.addPage(); y=40; } try{ doc.addImage(f,'JPEG',40,y,cw,ch); }catch(e){} });
+  return doc.output('dataurlstring');
 }
 
-function draw() {
-  const v = $('#video'), c = $('#canvas'), x = c.getContext('2d');
-  if (!v.videoWidth) return null;
-  c.width = v.videoWidth;
-  c.height = v.videoHeight;
-  x.drawImage(v, 0, 0, c.width, c.height);
-  const z = settings(), l = [];
-  const k = nearest(S.km);
-  if (z.km) l.push('KM ' + (k ? k.km.toFixed(2) : '—'));
-  if (z.date) l.push(new Date().toLocaleString('pt-BR'));
-  if (z.coords) l.push(S.pos ? `GPS: ${S.pos.lat.toFixed(6)}, ${S.pos.lon.toFixed(6)}` : 'GPS: —');
-  if (z.acc) l.push(S.pos ? 'Precisão: ±' + Math.round(S.pos.acc) + ' m' : 'Precisão: —');
-  if (z.text) l.push(z.text);
-  const size = Math.max(14, Math.min(48, +($('#fontSize').value) || 24)), h = l.length * (size + 10) + 25;
-  if (z.bg) {
-    const g = x.createLinearGradient(0, c.height - h - 25, 0, c.height);
-    g.addColorStop(0, '#0000');
-    g.addColorStop(1, '#000c');
-    x.fillStyle = g;
-    x.fillRect(0, c.height - h - 25, c.width, h + 25);
-  }
-  x.save();
-  x.globalAlpha = +($('#alpha').value) || .95;
-  x.font = `${$('#style').value === 'bold' ? '900' : $('#style').value === 'clean' ? '700' : '800'} ${size}px ${$('#font').value}`;
-  x.fillStyle = $('#color').value;
-  x.strokeStyle = '#000a';
-  x.lineWidth = 3;
-  x.lineJoin = 'round';
-  l.forEach((v, i) => {
-    const y = c.height - (l.length - i - 1) * (size + 10) - 20;
-    x.strokeText(v, 20, y);
-    x.fillText(v, 20, y);
-  });
-  x.restore();
-  return c.toDataURL('image/jpeg', .78);
+const CHK_ITEMS=['EPI completo','Sinalização instalada','Acesso liberado','Material disponível','Condição climática OK','Comunicação com base','Equipamento testado','Área isolada'];
+function checklist(){
+  const sorted=POS?[...REGS].map(r=>({...r,_d:dist(POS,r)})).sort((a,b)=>a._d-b._d):REGS;
+  document.getElementById('view').innerHTML=`<div class="card"><div class="row"><div><div class="tag">REGISTROS</div><div style="font-weight:900">${REGS.length}</div></div><div style="text-align:right"><div class="tag">GPS</div><div style="font-weight:900;color:${POS?'var(--green)':'var(--red)'}">${POS?'ativo':'off'}</div></div></div></div><div class="card"><div id="clist"></div></div>`;
+  const el=document.getElementById('clist');
+  el.innerHTML=sorted.length?sorted.map(r=>`<div class="list-item" onclick="openChk('${r.id}')"><div><div style="font-weight:800">${r.id_no}</div><div class="tag">${r.tipo}${r._d!=null?' · '+fmtDist(r._d):''}</div></div><span class="badge b-${r.status}">${STATUS[r.status].l}</span></div>`).join(''):'<div class="muted center" style="padding:20px">Nenhum registro</div>';
+}
+function openChk(id){
+  const r=REGS.find(x=>x.id===id); if(!r) return; const cl=r.checklist||{};
+  openDrawer(`<div style="font-weight:900;font-size:18px;margin-bottom:4px">${r.id_no}</div><div class="tag mb8">${r.tipo} · ${STATUS[r.status].l}</div><label class="mt12">ITENS DE VERIFICAÇÃO</label>${CHK_ITEMS.map((it,i)=>`<label class="chk"><input type="checkbox" id="c${i}" ${cl[i]?'checked':''}/><span style="font-size:13px">${it}</span></label>`).join('')}<label class="mt12">STATUS</label><select id="cs">${Object.keys(STATUS).map(k=>`<option value="${k}" ${k===r.status?'selected':''}>${STATUS[k].l}</option>`).join('')}</select><label class="mt12">OBSERVAÇÃO</label><textarea id="co" rows="3">${r.observacao||''}</textarea><button class="btn btn-primary mt12" onclick="saveChk('${r.id}')">SALVAR CHECKLIST</button><button class="btn btn-ghost mt8" onclick="closeDrawer()">FECHAR</button>`);
+}
+function saveChk(id){ const r=REGS.find(x=>x.id===id); const cl={}; CHK_ITEMS.forEach((_,i)=>cl[i]=document.getElementById('c'+i).checked); r.checklist=cl; r.status=document.getElementById('cs').value; r.observacao=document.getElementById('co').value; DB.set('regs',REGS); closeDrawer(); toast('Checklist salvo'); checklist(); }
+
+let PMAP=null;
+function painel(){
+  const st={}; REGS.forEach(r=>st[r.status]=(st[r.status]||0)+1); const total=REGS.length; const pct=k=>total?Math.round((st[k]||0)/total*100):0;
+  document.getElementById('view').innerHTML=`
+    <div class="grid2"><div class="stat"><div class="l">Registros</div><div class="n">${total}</div></div><div class="stat"><div class="l">Fotos</div><div class="n">${FOTOS.length}</div></div><div class="stat"><div class="l">Relatórios</div><div class="n">${REPORTS.length}</div></div><div class="stat"><div class="l">Resolvidos</div><div class="n" style="color:var(--green)">${st.resolvido||0}</div></div></div>
+    <div class="card mt12"><div style="font-weight:800;font-size:12px;margin-bottom:12px">DISTRIBUIÇÃO POR STATUS</div>${Object.keys(STATUS).map(k=>`<div class="row" style="margin-bottom:8px"><span style="flex:0 0 110px;font-size:12px;font-weight:700">${STATUS[k].l}</span><div class="bar"><div style="width:${pct(k)}%;background:${STATUS[k].c}"></div></div><span style="flex:0 0 40px;text-align:right;font-size:12px">${st[k]||0}</span></div>`).join('')}</div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:10px">MAPA CONSOLIDADO</div><div id="map3"></div></div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:10px">REGISTROS</div><table><thead><tr><th>ID</th><th>Tipo</th><th>Status</th><th>Coords</th></tr></thead><tbody>${REGS.map(r=>`<tr><td style="font-weight:800">${r.id_no}</td><td>${r.tipo}</td><td><span class="badge b-${r.status}">${STATUS[r.status].l}</span></td><td class="tag">${r.lat.toFixed(3)},${r.lon.toFixed(3)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="card"><div style="font-weight:800;font-size:12px;margin-bottom:10px">RELATÓRIOS</div><div id="preps"></div></div>`;
+  if(PMAP){ PMAP.remove(); PMAP=null; }
+  PMAP=L.map('map3').setView([-23.45,-46.58],11); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(PMAP);
+  REGS.forEach(r=>{ const col=STATUS[r.status].c; L.circleMarker([r.lat,r.lon],{radius:6,color:col,fillColor:col,fillOpacity:.85}).addTo(PMAP).bindPopup(r.id_no); });
+  const prepsEl=document.getElementById('preps');
+  if(prepsEl) prepsEl.innerHTML=REPORTS.length?REPORTS.map(r=>`<div class="list-item"><div><div style="font-weight:800">Relatório ${r.id}</div><div class="tag">${new Date(r.data).toLocaleString('pt-BR')} · ${r.fotos} fotos</div></div><a class="pill" href="${r.pdf}" download style="color:var(--yellow)">PDF</a></div>`).join(''):'<div class="muted center" style="padding:16px">Nenhum relatório</div>';
 }
 
-async function savePhoto() {
-  const d = draw();
-  if (!d || !S.dir) return;
-  const f = await S.dir.getFileHandle(`MANUAL_KM_${Date.now()}.jpg`, { create: true }), w = await f.createWritable();
-  await w.write(await (await fetch(d)).blob());
-  await w.close();
-  toast('Foto manual salva');
-}
+renderNav(); startGPS(); 
+if(!location.hash) location.hash='#/home';
+route();
 
-function getImageDimensions(dataUrl) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve({ width: img.width, height: img.height });
-    img.src = dataUrl;
-  });
-}
-
-async function pdf(frames) {
-  if (!frames.length) return;
-  const js = window.jspdf;
-  if (!js) throw Error('Biblioteca PDF ainda não carregou.');
-
-  const d = new js.jsPDF('p', 'mm', 'a4');
-  const pw = d.internal.pageSize.getWidth();
-  const ph = d.internal.pageSize.getHeight();
-  const footerH = 14;
-
-  for (let i = 0; i < frames.length; i++) {
-    const im = frames[i];
-    if (i > 0) d.addPage();
-
-    d.setFillColor(7, 16, 21);
-    d.rect(0, 0, pw, ph, 'F');
-
-    if (i === 0) {
-      d.setTextColor(255, 215, 77);
-      d.setFontSize(22);
-      d.text('RELATÓRIO DE INSPEÇÃO', 14, 22);
-      d.setTextColor(255, 255, 255);
-      d.setFontSize(11);
-      d.text(`KM: ${S.startKm} → ${nearest(S.km)?.km ?? '—'}`, 14, 32);
-      d.text('Data/Hora: ' + new Date().toLocaleString('pt-BR'), 14, 40);
-
-      const dims = await getImageDimensions(im);
-      const maxW = pw - 28, maxH = ph - 75;
-      const ratio = Math.min(maxW / dims.width, maxH / dims.height);
-      const imgW = dims.width * ratio, imgH = dims.height * ratio;
-      const imgX = (pw - imgW) / 2, imgY = 48 + (maxH - imgH) / 2;
-
-      d.addImage(im, 'JPEG', imgX, imgY, imgW, imgH);
-    } else {
-      const dims = await getImageDimensions(im);
-      const maxW = pw - 12, maxH = ph - footerH - 12;
-      const ratio = Math.min(maxW / dims.width, maxH / dims.height);
-      const imgW = dims.width * ratio, imgH = dims.height * ratio;
-      const imgX = (pw - imgW) / 2, imgY = 6 + (maxH - imgH) / 2;
-
-      d.addImage(im, 'JPEG', imgX, imgY, imgW, imgH);
-    }
-
-    d.setDrawColor(255, 255, 255, 30);
-    d.line(14, ph - footerH, pw - 14, ph - footerH);
-    d.setTextColor(156, 175, 183);
-    d.setFontSize(9);
-    d.text(`Registro ${i + 1} de ${frames.length} · KM ${S.startKm}`, 14, ph - 4);
-    d.text('Apoio Campo', pw - 14, ph - 4, { align: 'right' });
-  }
-
-  const fn = `RELATORIO_KM_${S.startKm}_AO_${nearest(S.km)?.km ?? 'FIM'}_${Date.now()}.pdf`;
-  const f = await S.dir.getFileHandle(fn, { create: true }), w = await f.createWritable();
-  await w.write(d.output('blob'));
-  await w.close();
-  toast('PDF salvo com sucesso');
-}
-
-async function loop() {
-  if (!S.capturing) return;
-  try {
-    const d = draw();
-    if (d) S.frames.push(d);
-    if (S.frames.length >= Math.max(1, +($('#batch').value) || 50)) {
-      const a = S.frames.splice(0);
-      await pdf(a);
-    }
-  } catch (e) {
-    toast(e.message, true);
-    S.capturing = false;
-  }
-  S.timer = setTimeout(loop, Math.max(100, +($('#interval').value) || 200));
-}
-
-$('#startApp').onclick = startApp;
-$('#cameraSelect').onchange = e => camera(e.target.value).catch(x => toast(x.message, true));
-$('#gear').onclick = () => $('#drawer').classList.add('open');
-$('#closeDrawer').onclick = () => $('#drawer').classList.remove('open');
-$('#video').onclick = () => savePhoto().catch(e => toast(e.message, true));
-
-$('#startCapture').onclick = () => {
-  S.capturing = true;
-  S.frames = [];
-  S.startKm = nearest(S.km)?.km ?? '—';
-  $('#startCapture').classList.add('hidden');
-  $('#stopCapture').classList.remove('hidden');
-  loop();
-};
-
-$('#stopCapture').onclick = async () => {
-  S.capturing = false;
-  clearTimeout(S.timer);
-  try {
-    await pdf(S.frames);
-  } catch (e) {
-    toast(e.message, true);
-  }
-  S.frames = [];
-  $('#startCapture').classList.remove('hidden');
-  $('#stopCapture').classList.add('hidden');
-};
-
-addEventListener('pagehide', () => {
-  S.stream?.getTracks().forEach(t => t.stop());
-  if (S.watch) navigator.geolocation.clearWatch(S.watch);
-});
+document.getElementById('drawer').addEventListener('click',e=>{ if(e.target.id==='drawer') closeDrawer(); });
 </script>
 </body>
 </html>
