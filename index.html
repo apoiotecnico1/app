@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
 <title>Apoio Campo — Central de Operação</title>
-<link rel="stylesheet" href__="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -60,7 +60,7 @@
   .stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
   .bar{height:10px;border-radius:6px;background:#0a161c;overflow:hidden}
   .bar>div{height:100%;border-radius:6px}
-  .list-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:10px}
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:10px;cursor:pointer}
   .pill{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--border);background:rgba(255,255,255,.04);text-decoration:none}
   #map,#map2,#map3{height:260px;border-radius:14px;border:1px solid var(--border)}
   .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0e1f27;border:1px solid var(--yellow);color:var(--yellow);padding:10px 16px;border-radius:12px;font-weight:800;font-size:12px;z-index:60;opacity:0;transition:.3s;pointer-events:none}
@@ -86,6 +86,8 @@
   .module .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,215,77,.12);color:var(--yellow)}
   .module h3{margin:0;font-size:14px}
   .module p{margin:0;font-size:11px;color:var(--muted)}
+  .cam-wrap{position:relative;width:100%;background:#000;border-radius:12px;overflow:hidden}
+  video{width:100%;height:auto;display:block}
 </style>
 </head>
 <body>
@@ -172,7 +174,9 @@ const ROUTES={
   checklist:{t:'Checklist',s:'Checklist de campo',render:checklist},
   painel:{t:'Painel do Gestor',s:'Dashboard operacional',render:painel}
 };
+
 function go(r){ location.hash='#/'+r; }
+
 function route(){
   let r=location.hash.replace('#/','')||'home';
   if(!ROUTES[r]) r='home';
@@ -180,12 +184,13 @@ function route(){
   document.getElementById('topbar').innerHTML = r==='home'
     ? `<div style="flex:1"><h2>${cfg.t}</h2><p>${cfg.s}</p></div>`
     : `<button class="back" onclick="go('home')">${I.back}</button><div style="flex:1"><h2>${cfg.t}</h2><p>${cfg.s}</p></div>`;
-  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.r===r));
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#/'+r));
   cfg.render(); window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',route);
+
 function renderNav(){
-  document.getElementById('nav').innerHTML=[['localizar',I.cross,'Localizar'],['km',I.pin,'KM'],['inspecao',I.cam,'Inspeção'],['checklist',I.clip,'Checklist'],['painel',I.dash,'Painel']].map(([r,i,l])=>`<a data-r="${r}" href__="#/${r}">${i}<span>${l}</span></a>`).join('');
+  document.getElementById('nav').innerHTML=[['localizar',I.cross,'Localizar'],['km',I.pin,'KM'],['inspecao',I.cam,'Inspeção'],['checklist',I.clip,'Checklist'],['painel',I.dash,'Painel']].map(([r,i,l])=>`<a href="#/${r}">${i}<span>${l}</span></a>`).join('');
 }
 function renderTopbar(){ const sub=document.querySelector('.topbar p'); if(!sub) return; if(POS_ERR) sub.textContent='GPS · '+POS_ERR; else if(POS) sub.textContent=`GPS · ±${Math.round(POS.acc)} m`; }
 function onGPS(){ renderTopbar(); if(location.hash.includes('km')) km(); if(location.hash.includes('localizar')) localizar(); }
@@ -197,11 +202,11 @@ function home(){
   const mods=[['localizar',I.cross,'Localizar ID','Encontre registros por GPS'],['km',I.pin,'Posição KM','KM atual na rodovia'],['inspecao',I.cam,'Inspeção','Fotos com HUD + PDF'],['checklist',I.clip,'Checklist','Itens de verificação'],['painel',I.dash,'Painel','Dashboard do gestor']];
   document.getElementById('view').innerHTML=`
     <div class="card center"><div class="tag">OPERAÇÃO DE CAMPO</div><div class="big mt8" style="color:var(--yellow)">${now.toLocaleTimeString('pt-BR')}</div><div class="muted mt8">${now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})}</div><div class="gps-box ${gpsCls} mt12">${gpsTxt}</div></div>
-    <div class="grid2">${mods.map(([r,i,t,d])=>`<a class="module" href__="#/${r}"><div class="ico">${i}</div><h3>${t}</h3><p>${d}</p></a>`).join('')}</div>
+    <div class="grid2">${mods.map(([r,i,t,d])=>`<a class="module" href="#/${r}"><div class="ico">${i}</div><h3>${t}</h3><p>${d}</p></a>`).join('')}</div>
     <div class="card mt12" style="display:flex;gap:10px;align-items:center;border-color:rgba(255,215,77,.3)"><div style="color:var(--yellow)">${I.shield}</div><div><div style="font-weight:800;font-size:12px">Segurança em campo</div><div class="tag">Use EPI e mantenha o aplicativo aberto para registro contínuo.</div></div></div>`;
 }
 
-let LMAP,LMARK=[],SEARCH='';
+let LMAP=null,LMARK=[],SEARCH='';
 function localizar(){
   const list=REGS.filter(r=>!SEARCH||r.id_no.toLowerCase().includes(SEARCH.toLowerCase())||r.id.toLowerCase().includes(SEARCH.toLowerCase()));
   const sorted=POS?[...list].map(r=>({...r,_d:dist(POS,r)})).sort((a,b)=>a._d-b._d):list;
@@ -232,7 +237,7 @@ function openReg(id){
 function saveReg(id){ const r=REGS.find(x=>x.id===id); r.status=document.getElementById('st').value; r.observacao=document.getElementById('ob').value; DB.set('regs',REGS); closeDrawer(); toast('Registro atualizado'); localizar(); }
 function shareWA(id){ const r=REGS.find(x=>x.id===id); const d=POS?dist(POS,r):null; const txt=`*Apoio Campo*%0AID: ${r.id_no}%0ATipo: ${r.tipo}%0AStatus: ${STATUS[r.status].l}%0A${d!=null?'Distância: '+fmtDist(d)+'%0A':''}Coords: ${r.lat.toFixed(5)},${r.lon.toFixed(5)}%0AObs: ${r.observacao||'-'}`; window.open('https://wa.me/?text='+txt,'_blank'); }
 
-let KMAP;
+let KMAP=null;
 function km(){
   const n=POS?nearest(POS,KMS):null;
   document.getElementById('view').innerHTML=`
@@ -259,9 +264,14 @@ function renderCamArea(){
   const el=document.getElementById('camArea');
   if(!STREAM){ el.innerHTML=`<button class="btn btn-primary" onclick="startCam()">${I.cam} ATIVAR CÂMERA</button>`; return; }
   el.innerHTML=`<div class="cam-wrap"><video id="vid" autoplay playsinline muted></video><canvas id="cnv" class="hidden"></canvas></div><div class="grid2 mt12">${CAPTURING?`<button class="btn btn-danger" onclick="stopBatch()">${I.stop} PARAR LOTE</button><button class="btn btn-primary" onclick="finishBatch()">${I.check} FINALIZAR</button>`:`<button class="btn btn-ghost" onclick="captureOne()">${I.cam} FOTO</button><button class="btn btn-green" onclick="startBatch()">${I.play} LOTE (${SETTINGS.batch})</button>`}</div>${CAPTURING?`<div class="center mt12"><div class="tag">CAPTURANDO</div><div class="big" style="color:var(--yellow)">${FRAMES.length}/${SETTINGS.batch}</div></div>`:''}${FRAMES.length?`<div class="mt12"><div class="grid-photos">${FRAMES.map(f=>`<img class="photo-thumb" src="${f}"/>`).join('')}</div></div>`:''}`;
-  document.getElementById('vid').srcObject=STREAM;
+  const videoEl = document.getElementById('vid');
+  if(videoEl) videoEl.srcObject = STREAM;
 }
-function renderReps(){ const el=document.getElementById('reps'); el.innerHTML=REPORTS.length?REPORTS.slice(0,5).map(r=>`<div class="list-item"><div><div style="font-weight:800">${I.file} Relatório ${r.id}</div><div class="tag">${new Date(r.data).toLocaleString('pt-BR')} · ${r.fotos} fotos · ${r.km_inicial}→${r.km_final}</div></div><a class="pill" href__="${r.pdf}" download="relatorio-${r.id}.pdf" style="color:var(--yellow)">PDF</a></div>`).join(''):'<div class="muted center" style="padding:16px">Nenhum relatório</div>'; }
+function renderReps(){ 
+  const el=document.getElementById('reps'); 
+  if(!el) return;
+  el.innerHTML=REPORTS.length?REPORTS.slice(0,5).map(r=>`<div class="list-item"><div><div style="font-weight:800">${I.file} Relatório ${r.id}</div><div class="tag">${new Date(r.data).toLocaleString('pt-BR')} · ${r.fotos} fotos · ${r.km_inicial}→${r.km_final}</div></div><a class="pill" href="${r.pdf}" download="relatorio-${r.id}.pdf" style="color:var(--yellow)">PDF</a></div>`).join(''):'<div class="muted center" style="padding:16px">Nenhum relatório</div>'; 
+}
 async function startCam(){ try{ STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}); renderCamArea(); }catch(e){ toast('Câmera: '+e.message); } }
 function drawOverlay(){
   const v=document.getElementById('vid'), c=document.getElementById('cnv'); if(!v||!v.videoWidth) return null;
@@ -292,7 +302,7 @@ function makePDF(){
   doc.setFontSize(10); doc.setTextColor(80); doc.text('Apoio Campo · '+new Date().toLocaleString('pt-BR'),40,y); y+=14;
   doc.text(`KM: ${STARTKM} → ${nearest(POS,KMS)?.km||'—'}   |   Operador: Campo   |   Fotos: ${FRAMES.length}`,40,y); y+=20;
   const cw=(W-80)/2, ch=cw*0.75;
-  FRAMES.forEach((f,i)=>{ if(y+ch+30>doc.internal.pageSize.getHeight()-40){ doc.addPage(); y=40; } try{ doc.addImage(f,'JPEG',40,y,cw,ch); }catch(e){} });
+  FRAMES.forEach((f)=>{ if(y+ch+30>doc.internal.pageSize.getHeight()-40){ doc.addPage(); y=40; } try{ doc.addImage(f,'JPEG',40,y,cw,ch); }catch(e){} });
   return doc.output('dataurlstring');
 }
 
@@ -309,7 +319,7 @@ function openChk(id){
 }
 function saveChk(id){ const r=REGS.find(x=>x.id===id); const cl={}; CHK_ITEMS.forEach((_,i)=>cl[i]=document.getElementById('c'+i).checked); r.checklist=cl; r.status=document.getElementById('cs').value; r.observacao=document.getElementById('co').value; DB.set('regs',REGS); closeDrawer(); toast('Checklist salvo'); checklist(); }
 
-let PMAP;
+let PMAP=null;
 function painel(){
   const st={}; REGS.forEach(r=>st[r.status]=(st[r.status]||0)+1); const total=REGS.length; const pct=k=>total?Math.round((st[k]||0)/total*100):0;
   document.getElementById('view').innerHTML=`
@@ -321,10 +331,14 @@ function painel(){
   if(PMAP){ PMAP.remove(); PMAP=null; }
   PMAP=L.map('map3').setView([-23.45,-46.58],11); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(PMAP);
   REGS.forEach(r=>{ const col=STATUS[r.status].c; L.circleMarker([r.lat,r.lon],{radius:6,color:col,fillColor:col,fillOpacity:.85}).addTo(PMAP).bindPopup(r.id_no); });
-  document.getElementById('preps').innerHTML=REPORTS.length?REPORTS.map(r=>`<div class="list-item"><div><div style="font-weight:800">Relatório ${r.id}</div><div class="tag">${new Date(r.data).toLocaleString('pt-BR')} · ${r.fotos} fotos</div></div><a class="pill" href__="${r.pdf}" download style="color:var(--yellow)">PDF</a></div>`).join(''):'<div class="muted center" style="padding:16px">Nenhum relatório</div>';
+  const prepsEl=document.getElementById('preps');
+  if(prepsEl) prepsEl.innerHTML=REPORTS.length?REPORTS.map(r=>`<div class="list-item"><div><div style="font-weight:800">Relatório ${r.id}</div><div class="tag">${new Date(r.data).toLocaleString('pt-BR')} · ${r.fotos} fotos</div></div><a class="pill" href="${r.pdf}" download style="color:var(--yellow)">PDF</a></div>`).join(''):'<div class="muted center" style="padding:16px">Nenhum relatório</div>';
 }
 
-renderNav(); startGPS(); route();
+renderNav(); startGPS(); 
+if(!location.hash) location.hash='#/home';
+route();
+
 document.getElementById('drawer').addEventListener('click',e=>{ if(e.target.id==='drawer') closeDrawer(); });
 </script>
 </body>
