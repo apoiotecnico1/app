@@ -49,8 +49,6 @@
   .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
   .stat .n{font-size:26px;font-weight:900}
   .stat .l{font-size:10px;color:var(--muted);text-transform:uppercase}
-  .bar{height:10px;border-radius:6px;background:#0a161c;overflow:hidden}
-  .bar>div{height:100%;border-radius:6px}
   .list-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:10px;cursor:pointer}
   .pill{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid var(--border);background:rgba(255,255,255,.04);text-decoration:none}
   #map,#map2,#map3{height:260px;border-radius:14px;border:1px solid var(--border)}
@@ -94,13 +92,10 @@ const I = {
   clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>',
   dash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>',
-  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>',
-  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>',
   stop:'<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><rect x="6" y="6" width="12" height="12"/></svg>',
-  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16"><path d="M5 12l5 5L20 7"/></svg>',
-  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6v20h12V8z"/><path d="M14 2v6h6"/></svg>'
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16"><path d="M5 12l5 5L20 7"/></svg>'
 };
 
 const DB = {
@@ -109,26 +104,43 @@ const DB = {
 };
 
 let POS=null, POS_ERR=null, WATCH=null;
-let KMS=DB.get('kms',null), REGS=DB.get('regs',null), FOTOS=DB.get('fotos',[]), REPORTS=DB.get('reports',[]);
+let KMS = [], REGS = [], FOTOS = DB.get('fotos',[]), REPORTS = DB.get('reports',[]);
 
-function seed(){
-  if(!KMS){
-    KMS=[];
-    const base=[[-23.550,-46.633],[-23.520,-46.610],[-23.490,-46.585],[-23.460,-46.560],[-23.430,-46.535],[-23.400,-46.510],[-23.370,-46.485],[-23.340,-46.460],[-23.310,-46.435],[-23.280,-46.410],[-23.250,-46.385],[-23.220,-46.360]];
-    base.forEach((p,i)=>KMS.push({id:'km'+(i+1),km:10+i*5,lat:p[0],lon:p[1],rodovia:'BR-116'}));
-    DB.set('kms',KMS);
-  }
-  if(!REGS){
-    REGS=[
-      {id:'CPS-1001',id_no:'PT-1001',lat:-23.552,lon:-46.631,tipo:'poste',status:'pendente',observacao:'Lâmpada queimada',checklist:{}},
-      {id:'CPS-1002',id_no:'CX-2042',lat:-23.518,lon:-46.608,tipo:'caixa',status:'em_andamento',observacao:'Reparo em andamento',checklist:{}},
-      {id:'CPS-1003',id_no:'RG-3078',lat:-23.488,lon:-46.583,tipo:'registro',status:'resolvido',observacao:'Válvula trocada',checklist:{}},
-      {id:'CPS-1004',id_no:'SV-4011',lat:-23.458,lon:-46.558,tipo:'servico',status:'inspecionado',observacao:'Inspeção concluída',checklist:{}}
+// Sincronização dinâmica com o GitHub (apoiotecnico1.github.io/cps)
+async function initData() {
+  try {
+    const [resKms, resRegs] = await Promise.all([
+      fetch('https://apoiotecnico1.github.io/cps/data/kms.json').catch(() => null),
+      fetch('https://apoiotecnico1.github.io/cps/data/regs.json').catch(() => null)
+    ]);
+    
+    if (resKms && resKms.ok) {
+      KMS = await resKms.json();
+    } else {
+      throw new Error('Fallback local para KMS');
+    }
+  } catch {
+    // Fallback padrão se não carregar da Web
+    KMS = [
+      {id:'km1',km:10,lat:-23.550,lon:-46.633,rodovia:'BR-116'},
+      {id:'km2',km:15,lat:-23.520,lon:-46.610,rodovia:'BR-116'}
     ];
-    DB.set('regs',REGS);
   }
+
+  try {
+    if (resRegs && resRegs.ok) {
+      REGS = await resRegs.json();
+    } else {
+      throw new Error('Fallback local para REGS');
+    }
+  } catch {
+    REGS = DB.get('regs', [
+      {id:'CPS-1001',id_no:'PT-1001',lat:-23.552,lon:-46.631,tipo:'poste',status:'pendente',observacao:'Lâmpada queimada',checklist:{}},
+      {id:'CPS-1002',id_no:'CX-2042',lat:-23.518,lon:-46.608,tipo:'caixa',status:'em_andamento',observacao:'Reparo em andamento',checklist:{}}
+    ]);
+  }
+  route();
 }
-seed();
 
 function startGPS(){
   if(WATCH) return;
@@ -140,7 +152,7 @@ function startGPS(){
   );
 }
 function dist(a,b){ const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180; const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2; return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))); }
-function nearest(p,arr){ if(!p) return null; let best=null,bd=Infinity; arr.forEach(o=>{const d=dist(p,o);if(d<bd){bd=d;best=o;}}); return best?{...best,_d:bd}:null; }
+function nearest(p,arr){ if(!p || !arr.length) return null; let best=null,bd=Infinity; arr.forEach(o=>{const d=dist(p,o);if(d<bd){bd=d;best=o;}}); return best?{...best,_d:bd}:null; }
 function fmtDist(m){ return m<1000?m+' m':(m/1000).toFixed(2)+' km'; }
 const STATUS={pendente:{l:'Pendente',c:'#ffd74d'},em_andamento:{l:'Em andamento',c:'#3aa6ff'},resolvido:{l:'Resolvido',c:'#21c77d'},inspecionado:{l:'Inspecionado',c:'#ff9a3c'}};
 
@@ -205,16 +217,16 @@ function renderMap(list){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(LMAP);
   LMARK.forEach(m=>m.remove()); LMARK=[];
   if(POS){ L.circleMarker([POS.lat,POS.lon],{radius:8,color:'#21c77d',fillColor:'#21c77d',fillOpacity:.9}).addTo(LMAP); }
-  list.forEach(r=>{ const col=STATUS[r.status].c; const m=L.circleMarker([r.lat,r.lon],{radius:7,color:col,fillColor:col,fillOpacity:.85}).addTo(LMAP); m.bindPopup(`<b>${r.id_no}</b><br><span style="font-size:11px">${STATUS[r.status].l}</span>`); m.on('click',()=>openReg(r.id)); LMARK.push(m); });
+  list.forEach(r=>{ const col=STATUS[r.status]?.c||'#fff'; const m=L.circleMarker([r.lat,r.lon],{radius:7,color:col,fillColor:col,fillOpacity:.85}).addTo(LMAP); m.bindPopup(`<b>${r.id_no}</b><br><span style="font-size:11px">${STATUS[r.status]?.l||r.status}</span>`); m.on('click',()=>openReg(r.id)); LMARK.push(m); });
 }
 function renderRList(list){
   const el=document.getElementById('rlist');
   if(!list.length){ el.innerHTML='<div class="muted center" style="padding:20px">Nenhum registro</div>'; return; }
-  el.innerHTML=list.map(r=>`<div class="list-item" onclick="openReg('${r.id}')"><div><div style="font-weight:800">${r.id_no}</div><div class="tag">${r.tipo} · ${r._d!=null?fmtDist(r._d):'—'}</div></div><span class="badge b-${r.status}">${STATUS[r.status].l}</span></div>`).join('');
+  el.innerHTML=list.map(r=>`<div class="list-item" onclick="openReg('${r.id}')"><div><div style="font-weight:800">${r.id_no}</div><div class="tag">${r.tipo} · ${r._d!=null?fmtDist(r._d):'—'}</div></div><span class="badge b-${r.status}">${STATUS[r.status]?.l||r.status}</span></div>`).join('');
 }
 function openReg(id){
   const r=REGS.find(x=>x.id===id); if(!r) return;
-  openDrawer(`<div class="row" style="margin-bottom:14px"><div><div class="tag">ID DO NÓ</div><div style="font-weight:900;font-size:18px">${r.id_no}</div></div><span class="badge b-${r.status}">${STATUS[r.status].l}</span></div><label>STATUS</label><select id="st">${Object.keys(STATUS).map(k=>`<option value="${k}" ${k===r.status?'selected':''}>${STATUS[k].l}</option>`).join('')}</select><label class="mt12">OBSERVAÇÃO</label><textarea id="ob" rows="3">${r.observacao||''}</textarea><button class="btn btn-primary mt12" onclick="saveReg('${r.id}')">SALVAR</button><button class="btn btn-ghost mt8" onclick="closeDrawer()">FECHAR</button>`);
+  openDrawer(`<div class="row" style="margin-bottom:14px"><div><div class="tag">ID DO NÓ</div><div style="font-weight:900;font-size:18px">${r.id_no}</div></div><span class="badge b-${r.status}">${STATUS[r.status]?.l||r.status}</span></div><label>STATUS</label><select id="st">${Object.keys(STATUS).map(k=>`<option value="${k}" ${k===r.status?'selected':''}>${STATUS[k].l}</option>`).join('')}</select><label class="mt12">OBSERVAÇÃO</label><textarea id="ob" rows="3">${r.observacao||''}</textarea><button class="btn btn-primary mt12" onclick="saveReg('${r.id}')">SALVAR</button><button class="btn btn-ghost mt8" onclick="closeDrawer()">FECHAR</button>`);
 }
 function saveReg(id){ const r=REGS.find(x=>x.id===id); r.status=document.getElementById('st').value; r.observacao=document.getElementById('ob').value; DB.set('regs',REGS); closeDrawer(); toast('Atualizado'); localizar(); }
 
@@ -228,7 +240,7 @@ function km(){
   if(POS){ KMAP=L.map('map2').setView([POS.lat,POS.lon],15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(KMAP); L.circleMarker([POS.lat,POS.lon],{radius:8,color:'#21c77d',fillColor:'#21c77d',fillOpacity:.9}).addTo(KMAP); if(n) L.marker([n.lat,n.lon]).addTo(KMAP).bindPopup('KM '+n.km); }
 }
 
-let STREAM=null, CAPTURING=false, FRAMES=[], TIMER=null, SETTINGS={interval:3,batch:6,text:''}, STARTKM='—';
+let STREAM=null, CAPTURING=false, FRAMES=[], TIMER=null, SETTINGS={interval:3,batch:6,text:''};
 function inspecao(){
   const n=POS?nearest(POS,KMS):null;
   document.getElementById('view').innerHTML=`
@@ -248,13 +260,13 @@ async function startCam(){ try{ STREAM=await navigator.mediaDevices.getUserMedia
 function drawOverlay(){
   const v=document.getElementById('vid'), c=document.getElementById('cnv'); if(!v||!v.videoWidth) return null;
   c.width=v.videoWidth; c.height=v.videoHeight; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0);
-  const n=nearest(POS,KMS), km=n?'KM '+n.km:'—', dt=new Date().toLocaleString('pt-BR');
+  const n=nearest(POS,KMS), km=n?'KM '+n.km:'—';
   ctx.fillStyle='rgba(7,16,21,.78)'; ctx.fillRect(12,12,c.width*0.5,50);
   ctx.fillStyle='#ffd74d'; ctx.font='bold 24px sans-serif'; ctx.fillText(km,24,45);
   return c;
 }
 function captureOne(){ const c=drawOverlay(); if(!c){ toast('Câmera indisponível'); return; } const url=c.toDataURL('image/jpeg',.85); FOTOS.push({url,data:new Date().toISOString()}); DB.set('fotos',FOTOS); FRAMES.push(url); renderCamArea(); toast('Foto salva'); }
-function startBatch(){ CAPTURING=true; FRAMES=[]; STARTKM=nearest(POS,KMS)?.km||'—'; renderCamArea(); loop(); }
+function startBatch(){ CAPTURING=true; FRAMES=[]; renderCamArea(); loop(); }
 function loop(){ if(!CAPTURING) return; const c=drawOverlay(); if(c){ FRAMES.push(c.toDataURL('image/jpeg',.85)); renderCamArea(); } if(FRAMES.length>=SETTINGS.batch){ finishBatch(); return; } TIMER=setTimeout(loop,SETTINGS.interval*1000); }
 function stopBatch(){ CAPTURING=false; clearTimeout(TIMER); renderCamArea(); }
 function finishBatch(){
@@ -277,7 +289,7 @@ function makePDF(){
 const CHK_ITEMS=['EPI completo','Sinalização instalada','Acesso liberado','Equipamento testado'];
 function checklist(){
   document.getElementById('view').innerHTML=`<div class="card"><div id="clist"></div></div>`;
-  document.getElementById('clist').innerHTML=REGS.map(r=>`<div class="list-item" onclick="openChk('${r.id}')"><div><div style="font-weight:800">${r.id_no}</div><div class="tag">${r.tipo}</div></div><span class="badge b-${r.status}">${STATUS[r.status].l}</span></div>`).join('');
+  document.getElementById('clist').innerHTML=REGS.map(r=>`<div class="list-item" onclick="openChk('${r.id}')"><div><div style="font-weight:800">${r.id_no}</div><div class="tag">${r.tipo}</div></div><span class="badge b-${r.status}">${STATUS[r.status]?.l||r.status}</span></div>`).join('');
 }
 function openChk(id){
   const r=REGS.find(x=>x.id===id), cl=r.checklist||{};
@@ -294,12 +306,15 @@ function painel(){
   if(PMAP){ PMAP.remove(); PMAP=null; }
   PMAP=L.map('map3').setView([-23.45,-46.58],12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(PMAP);
-  REGS.forEach(r=>L.circleMarker([r.lat,r.lon],{radius:6,color:STATUS[r.status].c,fillColor:STATUS[r.status].c,fillOpacity:.8}).addTo(PMAP));
+  REGS.forEach(r=>{
+    const col = STATUS[r.status]?.c || '#fff';
+    L.circleMarker([r.lat,r.lon],{radius:6,color:col,fillColor:col,fillOpacity:.8}).addTo(PMAP);
+  });
 }
 
 startGPS();
 renderNav();
-route();
+initData(); // Inicia efetuando o carregamento dinâmico via fetch da página do GitHub
 </script>
 </body>
 </html>
