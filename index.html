@@ -296,7 +296,8 @@ canvas#c{display:none}
 <div id="slidePanel"><button id="slidePanel-close" onclick="closeSlide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>Fechar</button><h3>⚡ Ferramentas</h3></div>
 <div id="notesPanel"><button id="notesPanel-close" onclick="closeNotes()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>Fechar</button><h3>📝 Notas do Poste</h3><div id="notesList"></div><div class="note-input-wrap"><textarea id="noteText" placeholder="Digite sua nota..."></textarea><div style="display:flex;flex-direction:column;gap:6px"><button class="ep-btn go" onclick="addNote()">Adicionar</button></div></div></div>
 <div class="toast" id="toast" aria-live="polite"></div>
-<script>setTimeout(function(){$("splash").classList.add("done")},2200);
+<script>const $=id=>document.getElementById(id);let DOM={};
+document.title="NOX OS - LOADED";console.log("NOX JS loaded");setTimeout(function(){$("splash").classList.add("done")},2200);
 setTimeout(function(){$("splash").classList.add("done")},3000);
 window.addEventListener("load",function(){$("splash").classList.add("done")});
 document.addEventListener("DOMContentLoaded",function(){$("splash").classList.add("done")});
@@ -312,7 +313,7 @@ let posts=[],kmDB=[],pos=null,searchItem=null,renderedKey="",apoioInit=false,rtI
 let cam="",stream=null,hDir=null,capturing=false,buffer=[],kmIniLote="",lat="0.000000",lon="0.000000",wakeLock=null,cameras=[];
 let notesDB={},favSet=new Set(),searchHistory=[],zoomLevel=100,rotateAngle=0,isDark=false;
 let jsPdfLoaded=false,_tt=null,rafId=null,_renderRaf=null,_rtRafId=null,lastGpsTime=0;
-const $=id=>document.getElementById(id);let DOM={};
+
 function cacheDOM(){DOM={menuClock:$("menuClock"),menuDate:$("menuDate"),kmVal:$("kmVal"),kmSource:$("kmSource"),gpsStatus:$("gpsStatus"),inputId:$("inputId"),searchMsg:$("searchMsg"),searchResult:$("searchResult"),targetLock:$("targetLock"),targetLockSub:$("targetLockSub"),postList:$("postList"),btnSend:$("btnSend"),qty:$("qty"),chkMaps:$("chkMaps"),rtKm:$("rtKm"),rtCoords:$("rtCoords"),rtGps:$("rtGps"),kmTxt:$("kmTxt"),recTag:$("recTag"),uiCtrl:$("ui-ctrl"),btnStart:$("btn-start"),btnStop:$("btn-stop"),vid:$("vid"),toast:$("toast"),splash:$("splash"),gate:$("gate"),gateErr:$("gateErr"),appShell:$("app-shell"),settings:$("settings"),camSel:$("camSel"),cfgInt:$("cfgInt"),cfgLote:$("cfgLote"),kmHud:$("km-hud"),zoomModal:$("zoomModal"),zoomImg:$("zoomImg"),zoomInfo:$("zoomInfo"),lightbox:$("lightbox"),lbImg:$("lbImg"),lbInfo:$("lbInfo"),slidePanel:$("slidePanel"),notesPanel:$("notesPanel"),notesList:$("notesList"),noteText:$("noteText"),editPanel:$("editPanel"),kmStats:$("kmStats"),cfgReportName:$("cfgReportName"),cfgLogoUrl:$("cfgLogoUrl"),cfgUnits:$("cfgUnits"),edBrightness:$("edBrightness"),edContrast:$("edContrast"),edSaturation:$("edSaturation"),edRotate:$("edRotate"),edBw:$("edBw"),edInvert:$("edInvert")};cacheDOM();
 function rafThrottle(fn,ms){return function(...args){const now=Date.now();if(now-lastGpsTime>=ms){lastGpsTime=now;fn.apply(this,args)}else if(!rafId)rafId=requestAnimationFrame(()=>{lastGpsTime=Date.now();fn.apply(this,args);rafId=null})};}
 function showToast(msg,type="ok"){const el=DOM.toast;const icons={ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',err:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'};el.className="toast "+type;el.innerHTML=(icons[type]||"")+msg;clearTimeout(_tt);requestAnimationFrame(()=>{el.classList.add("show");_tt=setTimeout(()=>el.classList.remove("show"),3000)})}
@@ -375,6 +376,8 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeZoom()
 
 
 
-</script>>>
+
+
+</script>>>>>
 </body>
 </html>
