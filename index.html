@@ -102,7 +102,8 @@ img,video{display:block;max-width:100%}
 .ms-time-group .ms-date{font-size:10px;font-weight:600;color:var(--muted);text-transform:capitalize;margin-top:2px}
 .ms-gps-pill{display:flex;align-items:center;gap:7px;border-radius:20px;border:1px solid rgba(16,185,129,.2);background:rgba(16,185,129,.06);padding:7px 14px}
 .ms-gps-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(16,185,129,.5);animation:dotPulse 2s infinite}
-@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}
+}
 .ms-gps-pill span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green2)}
 .menu-brand{display:flex;align-items:center;gap:16px;margin-bottom:6px}
 .menu-logo{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;flex-shrink:0;box-shadow:0 8px 28px rgba(255,214,0,.14),inset 0 1px 0 rgba(255,255,255,.25)}
@@ -379,12 +380,15 @@ canvas#c{display:none}
 <!-- APOIO -->
 <div id="mod-apoio" class="module"
 
->   <header class="hdr"><div class="hdr-in"
+>   <header class="hdr"
 
->     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-    <div class="hdr-title"><h1>Apoio localização</h1><p>Postes e ordens de serviço</p></div>
-    <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
-  </div></header>
+>     <div class="hdr-in"
+
+>       <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div class="hdr-title"><h1>Apoio localização</h1><p>Postes e ordens de serviço</p></div>
+      <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+    </div>
+  </header>
   <div class="wrap"
 
 >     <div id="targetLock" class="target-lock"><h2>📍 Você está no poste!</h2><p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p></div>
@@ -412,10 +416,23 @@ canvas#c{display:none}
 >       <button id="btnSend" class="ctrl-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Enviar lista WhatsApp</button>
       <div class="ctrl-row"
 
->         <label class="ctrl-label">Proximidade<select class="ctrl-select" id="qty"><option value="1">1</option><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></label>
-        <label class="ctrl-label"><input type="checkbox" class="ctrl-chk" id="chkMaps"
+>         <label class="ctrl-label">Proximidade
+          <select class="ctrl-select" id="qty"
 
-> Maps</label>
+>             <option value="1">1</option>
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </label>
+        <label class="ctrl-label"
+
+>           <input type="checkbox" class="ctrl-chk" id="chkMaps"
+
+> Maps
+        </label>
       </div>
     </div>
     <div id="postList" style="display:flex;flex-direction:column;gap:10px"
@@ -480,12 +497,15 @@ canvas#c{display:none}
 <!-- KM -->
 <div id="mod-km" class="module"
 
->   <header class="hdr"><div class="hdr-in"
+>   <header class="hdr"
 
->     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-    <div class="hdr-title"><h1>KM em tempo real</h1><p></p></div>
-    <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
-  </div></header>
+>     <div class="hdr-in"
+
+>       <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div class="hdr-title"><h1>KM em tempo real</h1><p></p></div>
+      <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+    </div>
+  </header>
   <div class="wrap" style="min-height:calc(100vh - 58px);min-height:calc(100dvh - 58px);justify-content:center"
 
 >     <div class="km-hero"><p class="km-label">KM atual na rodovia</p><p class="km-value" id="rtKm">—</p><p class="km-sub" id="rtCoords"></p></div>
@@ -571,7 +591,6 @@ async function loadPosts(){
       };
     }).filter(p=>p.id&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
 
-    // pré-calcula KM aproximado de cada poste uma única vez
     postsKm=posts.map(p=>{
       const k=kmAt(p.lat,p.lon);
       return {
@@ -736,7 +755,6 @@ function renderApoio(){
 
   const qty=Number(document.getElementById('qty').value||10);
 
-  // usa lista com KM já pré-calculado, calcula só distância (ultrarrápido)
   const items=postsKm.map(p=>{
     const d=hav(pos.lat,pos.lon,p.lat,p.lon);
     return {id:p.id,lat:p.lat,lon:p.lon,km:p.km,d};
@@ -746,7 +764,6 @@ function renderApoio(){
   const list=document.getElementById('postList');
 
   if(key===renderedKey){
-    // mesma lista de IDs: só atualiza textos
     items.forEach((o,i)=>{
       const el=document.getElementById('dist-'+i);
       const kmEl=document.getElementById('km-'+i);
@@ -769,7 +786,7 @@ function renderApoio(){
 >       <input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked>
       <div class="post-info"
 
->         <p class="post-id">ID: <span>${o.id}</span></p>
+>         <p class="post-id">Poste: <span>${o.id}</span></p>
         <p class="post-dist" id="dist-${i}">Distância: ${range(o.d,pos.acc)}</p>
         <p class="post-km" id="km-${i}">${kmLabel}</p>
       </div>
