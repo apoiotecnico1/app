@@ -394,62 +394,55 @@ canvas#c{display:none}
     <div class="card card-accent">
       <p class="card-label">Localizador</p>
 
-      <!-- TOGGLE MODO -->
+      <!-- ABAS DE MODO -->
       <div style="display:flex;gap:6px;margin-bottom:14px;">
-        <button id="tab-id"  onclick="setSearchMode('id')"
-          style="flex:1;min-height:34px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;border:1px solid rgba(255,214,0,.45);background:linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06));color:var(--accent);cursor:pointer;transition:all .2s">
+        <button id="tab-id" onclick="setSearchMode('id')"
+          style="flex:1;min-height:34px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .2s;border:1px solid rgba(255,214,0,.45);background:linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06));color:var(--accent);">
           🔍 Por ID
         </button>
         <button id="tab-km" onclick="setSearchMode('km')"
-          style="flex:1;min-height:34px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;transition:all .2s">
+          style="flex:1;min-height:34px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:var(--glass);color:var(--muted);">
           📏 Por KM
         </button>
       </div>
 
-      <!-- PAINEL: busca por ID -->
+      <!-- PAINEL ID -->
       <div id="panel-id">
         <div class="search-row">
           <div class="search-wrap">
-            <input class="search-input" id="inputId" placeholder="EX: 1800  - 1400"
-              autocomplete="off" spellcheck="false"
-              onkeydown="if(event.key==='Enter')searchId()">
+            <input class="search-input" id="inputId" placeholder="EX: 1800  - 1400" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')searchId()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </div>
-          <button class="btn-icon go" onclick="searchId()" aria-label="Buscar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-          <button class="btn-icon clr" onclick="clearId()" aria-label="Limpar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
+          <button class="btn-icon go" onclick="searchId()" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+          <button class="btn-icon clr" onclick="clearId()" aria-label="Limpar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
         </div>
         <div id="searchMsg" class="search-msg" style="display:none"></div>
         <div id="searchResult" style="display:none;margin-top:12px"></div>
       </div>
 
-      <!-- PAINEL: busca por KM -->
-      <div id="panel-km" style="display:none">
-        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-          <div class="search-wrap" style="flex:1">
-            <input class="search-input" id="inputKm" placeholder="EX: 125,400"
-              autocomplete="off" spellcheck="false" inputmode="decimal"
-              onkeydown="if(event.key==='Enter')searchByKm()">
+      <!-- PAINEL KM -->
+      <div id="panel-km" style="display:none;">
+        <div class="search-row">
+          <div class="search-wrap">
+            <input class="search-input" id="inputKm" placeholder="EX: 89  ou  89,450" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')searchByKm()"
+              style="text-transform:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </div>
-          <select id="kmQty" class="ctrl-select" style="height:46px;border-radius:var(--r-sm)">
+          <button class="btn-icon go" onclick="searchByKm()" aria-label="Buscar KM"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+          <button class="btn-icon clr" onclick="clearKm()" aria-label="Limpar KM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <!-- Qtd resultados -->
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+          <span style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--muted);">Qtd. resultados:</span>
+          <select id="kmQty" style="border-radius:8px;border:1px solid var(--border);background:var(--surface);color:#fff;padding:6px 28px 6px 10px;font-size:12px;font-weight:800;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222.5%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center;">
             <option value="1">1</option>
             <option value="3" selected>3</option>
             <option value="5">5</option>
             <option value="10">10</option>
           </select>
-          <button class="btn-icon go" onclick="searchByKm()" aria-label="Buscar por KM">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-          <button class="btn-icon clr" onclick="clearKm()" aria-label="Limpar KM">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
         </div>
-        <div id="kmSearchMsg" class="search-msg" style="display:none"></div>
-        <div id="kmSearchResult" style="display:none;margin-top:12px;display:none;flex-direction:column;gap:10px"></div>
+        <div id="kmSearchMsg" class="search-msg" style="display:none;margin-top:10px;"></div>
+        <div id="kmSearchResult" style="display:none;margin-top:12px;display:flex;flex-direction:column;gap:10px;"></div>
       </div>
     </div>
     <div class="km-hero compact"><p class="km-label"></p><p class="km-value" id="kmVal">—</p><p class="km-sub" id="kmSource"></p></div>
@@ -1024,119 +1017,171 @@ function toggleSet(){
   document.getElementById('settings').classList.toggle('open');
 }
 
-/* ===== MODO BUSCA (ID / KM) ===== */
-let searchMode='id';
-function setSearchMode(mode){
-  searchMode=mode;
-  const tabId=document.getElementById('tab-id');
-  const tabKm=document.getElementById('tab-km');
-  const panId=document.getElementById('panel-id');
-  const panKm=document.getElementById('panel-km');
-  if(mode==='id'){
-    tabId.style.border='1px solid rgba(255,214,0,.45)';
-    tabId.style.background='linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06))';
-    tabId.style.color='var(--accent)';
-    tabKm.style.border='1px solid var(--border)';
-    tabKm.style.background='var(--glass)';
-    tabKm.style.color='var(--muted)';
-    panId.style.display='block';
-    panKm.style.display='none';
+/* ================================================================
+   MODO BUSCA — toggle Por ID / Por KM
+   ================================================================ */
+let searchMode = 'id';
+
+function setSearchMode(mode) {
+  searchMode = mode;
+  const tabId  = document.getElementById('tab-id');
+  const tabKm  = document.getElementById('tab-km');
+  const panId  = document.getElementById('panel-id');
+  const panKm  = document.getElementById('panel-km');
+
+  const activeStyle  = 'border:1px solid rgba(255,214,0,.45);background:linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06));color:var(--accent);';
+  const inactiveStyle= 'border:1px solid var(--border);background:var(--glass);color:var(--muted);';
+
+  if (mode === 'id') {
+    tabId.style.cssText += activeStyle;
+    tabKm.style.cssText += inactiveStyle;
+    panId.style.display = 'block';
+    panKm.style.display = 'none';
   } else {
-    tabKm.style.border='1px solid rgba(255,214,0,.45)';
-    tabKm.style.background='linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06))';
-    tabKm.style.color='var(--accent)';
-    tabId.style.border='1px solid var(--border)';
-    tabId.style.background='var(--glass)';
-    tabId.style.color='var(--muted)';
-    panKm.style.display='block';
-    panId.style.display='none';
-    // limpa estado da busca por ID
-    searchItem=null;
-    document.getElementById('searchResult').style.display='none';
-    document.getElementById('searchMsg').style.display='none';
+    tabKm.style.cssText += activeStyle;
+    tabId.style.cssText += inactiveStyle;
+    panKm.style.display = 'block';
+    panId.style.display = 'none';
+    // limpa estado da busca por ID ao trocar de aba
+    searchItem = null;
+    document.getElementById('searchResult').style.display  = 'none';
+    document.getElementById('searchMsg').style.display     = 'none';
     document.getElementById('targetLock').classList.remove('on');
   }
 }
 
-/* ===== BUSCA POR KM ===== */
-function searchByKm(){
-  const raw=document.getElementById('inputKm').value.trim().replace(',','.');
-  const kmIn=parseFloat(raw);
-  const msg=document.getElementById('kmSearchMsg');
-  const res=document.getElementById('kmSearchResult');
+/* ================================================================
+   BUSCA POR KM
+   Regra principal:
+     - Se o usuário digitar um número inteiro (ex: 89), trata como
+       intervalo 89,000 – 89,999 (ou seja, qualquer poste cujo KM
+       esteja entre 89.000 e 89.999 inclusive).
+     - Se digitar com vírgula/ponto decimal (ex: 89,450), busca os
+       N postes mais próximos daquele KM exato.
+   ================================================================ */
+function parseKmInput(raw) {
+  // Normaliza separador decimal: troca vírgula por ponto
+  const normalized = raw.replace(',', '.');
+  const val = parseFloat(normalized);
+  if (isNaN(val)) return null;
 
-  if(!raw||isNaN(kmIn)){
-    msg.style.display='flex';
-    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Informe um KM válido (ex.: 125,400)';
-    res.style.display='none';
-    return;
-  }
-  if(!postsKm.length){
-    msg.style.display='flex';
-    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Carregando dados, aguarde...';
-    res.style.display='none';
-    return;
-  }
-
-  msg.style.display='none';
-
-  // filtra postes que têm KM calculado e ordena por diferença
-  const qty=parseInt(document.getElementById('kmQty').value)||3;
-  const results=postsKm
-    .filter(p=>p.km!=null)
-    .map(p=>({...p, delta:Math.abs(p.km - kmIn)}))
-    .sort((a,b)=>a.delta-b.delta)
-    .slice(0,qty);
-
-  if(!results.length){
-    msg.style.display='flex';
-    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Nenhum poste encontrado para este KM.';
-    res.style.display='none';
-    return;
-  }
-
-  res.style.display='flex';
-  res.innerHTML='';
-
-  results.forEach((o,i)=>{
-    const deltaM=Math.round(o.delta*1000);
-    const kmLabel=(Math.round(o.km*100)/100).toFixed(2).replace('.',',');
-    let distLabel='Aguardando GPS...';
-    if(pos){
-      const d=hav(pos.lat,pos.lon,o.lat,o.lon);
-      distLabel='Distância: '+range(d,pos.acc);
-    }
-
-    const div=document.createElement('div');
-    div.className='post'+(i===0?' near':'');
-    div.innerHTML=`
-      <div class="post-top">
-        <div class="post-info">
-          <p class="post-id">Poste: <span>${o.id}</span></p>
-          <p class="post-km">KM do poste: ${kmLabel} &nbsp;<span style="color:var(--warn);font-size:9px">Δ ${deltaM}m do KM buscado</span></p>
-          <p class="post-dist" id="kmsrch-dist-${i}">${distLabel}</p>
-          <p class="post-coords">Coords: ${o.lat.toFixed(6)}, ${o.lon.toFixed(6)}</p>
-        </div>
-        <span class="post-pin">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-        </span>
-      </div>
-      <iframe class="post-map" src="https://maps.google.com/maps?q=${o.lat},${o.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>`;
-    res.appendChild(div);
-  });
-
-  showToast(`${results.length} poste(s) próximo(s) ao KM ${raw.replace('.',',')} encontrado(s)`);
+  // Verifica se o input original era inteiro (sem separador decimal)
+  const hasDecimal = raw.includes(',') || raw.includes('.');
+  return { val, isInteger: !hasDecimal };
 }
 
-function clearKm(){
-  document.getElementById('inputKm').value='';
-  document.getElementById('kmSearchMsg').style.display='none';
-  const res=document.getElementById('kmSearchResult');
-  res.style.display='none';
-  res.innerHTML='';
+function searchByKm() {
+  const raw     = document.getElementById('inputKm').value.trim();
+  const msgEl   = document.getElementById('kmSearchMsg');
+  const resEl   = document.getElementById('kmSearchResult');
+  const qty     = parseInt(document.getElementById('kmQty').value) || 3;
+
+  // Limpa estado anterior
+  msgEl.style.display = 'none';
+  resEl.style.display = 'none';
+  resEl.innerHTML     = '';
+
+  if (!raw) {
+    msgEl.style.display = 'flex';
+    msgEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Digite um valor de KM para buscar.';
+    return;
+  }
+
+  const parsed = parseKmInput(raw);
+  if (!parsed) {
+    msgEl.style.display = 'flex';
+    msgEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Valor inválido. Use ex: 89 ou 89,450';
+    return;
+  }
+
+  if (!postsKm.length) {
+    msgEl.style.display = 'flex';
+    msgEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Aguarde — dados ainda carregando...';
+    return;
+  }
+
+  let candidates = [];
+
+  if (parsed.isInteger) {
+    // ── MODO INTEIRO: intervalo [N.000, N.999] ──────────────────────
+    const kmMin = parsed.val;
+    const kmMax = parsed.val + 0.999;
+
+    // Filtra postes cujo KM esteja no intervalo
+    const inRange = postsKm.filter(p => p.km !== null && p.km >= kmMin && p.km <= kmMax);
+
+    if (inRange.length === 0) {
+      // Nenhum dentro do intervalo → busca os N mais próximos do valor inteiro por distância de KM
+      candidates = postsKm
+        .filter(p => p.km !== null)
+        .map(p => ({ ...p, delta: Math.abs(p.km - parsed.val) }))
+        .sort((a, b) => a.delta - b.delta)
+        .slice(0, qty);
+    } else {
+      // Ordena os que estão no intervalo pelo KM mais próximo do início do intervalo
+      candidates = inRange
+        .map(p => ({ ...p, delta: Math.abs(p.km - parsed.val) }))
+        .sort((a, b) => a.delta - b.delta)
+        .slice(0, qty);
+    }
+  } else {
+    // ── MODO DECIMAL: N postes com KM mais próximo do valor exato ──
+    candidates = postsKm
+      .filter(p => p.km !== null)
+      .map(p => ({ ...p, delta: Math.abs(p.km - parsed.val) }))
+      .sort((a, b) => a.delta - b.delta)
+      .slice(0, qty);
+  }
+
+  if (!candidates.length) {
+    msgEl.style.display = 'flex';
+    msgEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Nenhum poste encontrado para este KM.';
+    return;
+  }
+
+  // ── Renderiza resultados ─────────────────────────────────────────
+  resEl.style.display = 'flex';
+
+  const label = parsed.isInteger
+    ? `Postes no trecho KM ${parsed.val},000 – ${parsed.val},999`
+    : `Postes mais próximos de KM ${raw.replace('.', ',')}`;
+
+  let html = `<p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px;">${label}</p>`;
+
+  candidates.forEach((o, i) => {
+    const kmFmt  = o.km.toFixed(3).replace('.', ',');
+    const deltaM = (o.delta * 1000).toFixed(0);
+    const distTxt = pos
+      ? 'Dist. GPS: ' + range(hav(pos.lat, pos.lon, o.lat, o.lon), pos.acc)
+      : 'GPS indisponível';
+
+    html += `
+      <div class="post${i === 0 ? ' near' : ''}">
+        <div class="post-top">
+          <div class="post-info">
+            <p class="post-id">Poste: <span>${o.id}</span></p>
+            <p class="post-km">KM do poste: ${kmFmt} <span style="color:var(--warn);font-size:9px;">(Δ ${deltaM}m)</span></p>
+            <p class="post-dist">${distTxt}</p>
+            <p class="post-coords">${o.lat.toFixed(6)}, ${o.lon.toFixed(6)}</p>
+          </div>
+          <span class="post-pin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+        </div>
+        <iframe class="post-map" src="https://maps.google.com/maps?q=${o.lat},${o.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>
+      </div>`;
+  });
+
+  resEl.innerHTML = html;
+  showToast(candidates.length + ' poste(s) encontrado(s)');
+}
+
+function clearKm() {
+  document.getElementById('inputKm').value = '';
+  document.getElementById('kmSearchMsg').style.display  = 'none';
+  const r = document.getElementById('kmSearchResult');
+  r.style.display = 'none';
+  r.innerHTML = '';
 }
 </script>
 </body>
