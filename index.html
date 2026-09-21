@@ -46,7 +46,7 @@
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overscroll-behavior:none}
 button{font-family:var(--font);cursor:pointer;border:0;background:none;color:inherit;-webkit-user-select:none;user-select:none}
-input,select,textarea{font-family:var(--font);outline:none}
+input,select{font-family:var(--font);outline:none}
 img,video{display:block;max-width:100%}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -102,8 +102,7 @@ img,video{display:block;max-width:100%}
 .ms-time-group .ms-date{font-size:10px;font-weight:600;color:var(--muted);text-transform:capitalize;margin-top:2px}
 .ms-gps-pill{display:flex;align-items:center;gap:7px;border-radius:20px;border:1px solid rgba(16,185,129,.2);background:rgba(16,185,129,.06);padding:7px 14px}
 .ms-gps-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(16,185,129,.5);animation:dotPulse 2s infinite}
-@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}
-}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 .ms-gps-pill span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green2)}
 .menu-brand{display:flex;align-items:center;gap:16px;margin-bottom:6px}
 .menu-logo{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent3));display:grid;place-items:center;flex-shrink:0;box-shadow:0 8px 28px rgba(255,214,0,.14),inset 0 1px 0 rgba(255,255,255,.25)}
@@ -236,7 +235,6 @@ img,video{display:block;max-width:100%}
 #km-hud{position:absolute;top:calc(18px + var(--safe-t));left:14px;min-width:160px;border-radius:var(--r-md);border:1px solid rgba(255,255,255,.1);background:rgba(4,120,87,.78);padding:10px 18px;text-align:center;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 6px 28px rgba(0,0,0,.5);pointer-events:none;z-index:100}
 #km-hud .h-l{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.2em;color:rgba(220,252,231,.55)}
 #km-hud .h-v{font-size:26px;font-weight:900;line-height:1.1;margin-top:2px}
-#activity-hud{position:absolute;bottom:calc(24px + var(--safe-b) + 56px);left:14px;right:14px;text-align:left;font-size:11px;font-weight:600;color:rgba(255,255,255,.7);text-shadow:0 0 4px rgba(0,0,0,.6);pointer-events:none;z-index:90}
 #rec-tag{position:absolute;top:calc(22px + var(--safe-t));right:14px;display:flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.6);padding:7px 13px;border-radius:22px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:all .25s var(--ease);z-index:100;pointer-events:none}
 #rec-tag.on{opacity:1}
 #rec-tag .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;box-shadow:0 0 8px rgba(239,68,68,.5)}
@@ -260,9 +258,9 @@ img,video{display:block;max-width:100%}
 #settings h2{font-size:18px;font-weight:900;letter-spacing:-.01em}
 .s-group{margin-top:22px}
 .s-lbl{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:7px}
-.s-inp{width:100%;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:#fff;padding:13px;font-size:13px;font-weight:800;transition:border-color .2s var(--ease);appearance:none;-webkit-appearance:none}
+.s-inp{width:100%;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:#fff;padding:13px;font-size:13px;font-weight:800;transition:border-color .2s var(--ease);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
 .s-inp:focus{border-color:var(--accent)}
-#cfgActivity{min-height:60px;resize:vertical}
+canvas#c{display:none}
 /* ===== TOAST ===== */
 .toast{position:fixed;bottom:calc(18px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(16px);border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--surface);padding:12px 20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;box-shadow:var(--shadow-lg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:99998;opacity:0;transition:all .25s var(--ease);pointer-events:none;display:flex;align-items:center;gap:8px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -383,23 +381,13 @@ img,video{display:block;max-width:100%}
 
 >   <header class="hdr"><div class="hdr-in"
 
->     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-    </button>
+>     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     <div class="hdr-title"><h1>Apoio localização</h1><p>Postes e ordens de serviço</p></div>
-    <span class="hdr-badge"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-    </span>
+    <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
   </div></header>
   <div class="wrap"
 
->     <div id="targetLock" class="target-lock"
-
->       <h2>📍 Você está no poste!</h2>
-      <p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p>
-    </div>
+>     <div id="targetLock" class="target-lock"><h2>📍 Você está no poste!</h2><p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p></div>
     <div class="card card-accent"
 
 >       <p class="card-label">Localizar ordem de serviço</p>
@@ -411,62 +399,28 @@ img,video{display:block;max-width:100%}
 
 >           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </div>
-        <button class="btn-icon go" onclick="searchId()" aria-label="Buscar"
-
->           <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        </button>
-        <button class="btn-icon clr" onclick="clearId()" aria-label="Limpar"
-
->           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
+        <button class="btn-icon go" onclick="searchId()" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+        <button class="btn-icon clr" onclick="clearId()" aria-label="Limpar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       </div>
       <div id="searchMsg" class="search-msg" style="display:none"></div>
       <div id="searchResult" style="display:none;margin-top:12px"></div>
     </div>
-    <div class="km-hero compact"
-
->       <p class="km-label">KM atual na rodovia</p>
-      <p class="km-value" id="kmVal">—</p>
-      <p class="km-sub" id="kmSource"></p>
-    </div>
-    <div id="gpsStatus" class="gps bad"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-      GPS · BUSCANDO SINAL
-    </div>
+    <div class="km-hero compact"><p class="km-label">KM atual na rodovia</p><p class="km-value" id="kmVal">—</p><p class="km-sub" id="kmSource"></p></div>
+    <div id="gpsStatus" class="gps bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>GPS · BUSCANDO SINAL</div>
     <div class="card"
 
->       <button id="btnSend" class="ctrl-send" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-        Enviar lista WhatsApp
-      </button>
+>       <button id="btnSend" class="ctrl-send" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Enviar lista WhatsApp</button>
       <div class="ctrl-row"
 
->         <label class="ctrl-label"
+>         <label class="ctrl-label">Proximidade<select class="ctrl-select" id="qty"><option value="1">1</option><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></label>
+        <label class="ctrl-label"><input type="checkbox" class="ctrl-chk" id="chkMaps"
 
->           Proximidade
-          <select class="ctrl-select" id="qty"
-
->             <option value="1">1</option>
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-        </label>
-        <label class="ctrl-label"
-
->           <input type="checkbox" class="ctrl-chk" id="chkMaps"
-
-> Maps
-        </label>
+> Maps</label>
       </div>
     </div>
     <div id="postList" style="display:flex;flex-direction:column;gap:10px"
 
->       <div class="skel"></div>
-      <div class="skel"></div>
+>       <div class="skel"></div><div class="skel"></div>
     </div>
   </div>
 </div>
@@ -486,52 +440,23 @@ img,video{display:block;max-width:100%}
       <div id="gateErr" class="gate-err" style="display:none"></div>
       <button class="gate-btn" onclick="startApp()"
 
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
-        Ativar sistema
+>         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Ativar sistema
       </button>
       <button class="gate-btn sec" onclick="openMod('menu')">Voltar ao menu</button>
     </div>
   </div>
   <div id="settings"
 
->     <button id="settings-close" onclick="toggleSet()"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      Fechar
-    </button>
+>     <button id="settings-close" onclick="toggleSet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Fechar</button>
     <h2>Configurações</h2>
-    <div class="s-group"
-
->       <label class="s-lbl">Câmera ativa</label>
-      <select class="s-inp" id="camSel" onchange="switchCam(this.value)"></select>
-    </div>
-    <div class="s-group"
-
->       <label class="s-lbl">Intervalo (ms)</label>
-      <input type="number" class="s-inp" id="cfgInt" value="200"
-
->     </div>
-    <div class="s-group"
-
->       <label class="s-lbl">Fotos por lote</label>
-      <input type="number" class="s-inp" id="cfgLote" value="50"
-
->     </div>
-    <div class="s-group"
-
->       <label class="s-lbl">Texto da atividade</label>
-      <textarea class="s-inp" id="cfgActivity" rows="2" placeholder="Ex.: Inspeção luminárias pista Sul"></textarea>
-    </div>
+    <div class="s-group"><label class="s-lbl">Câmera ativa</label><select class="s-inp" id="camSel" onchange="switchCam(this.value)"></select></div>
+    <div class="s-group"><label class="s-lbl">Intervalo (ms)</label><input type="number" class="s-inp" id="cfgInt" value="200"></div>
+    <div class="s-group"><label class="s-lbl">Fotos por lote</label><input type="number" class="s-inp" id="cfgLote" value="50"></div>
   </div>
   <div id="app-shell"
 
 >     <video id="vid" autoplay playsinline muted onclick="manualPhoto()"></video>
-    <div id="km-hud"
-
->       <span class="h-l">KM atual</span>
-      <p class="h-v" id="kmTxt">KM ---</p>
-    </div>
-    <div id="activity-hud"><span id="activityLabel">Atividade: (não definida)</span></div>
+    <div id="km-hud"><span class="h-l">KM atual</span><p class="h-v" id="kmTxt">KM ---</p></div>
     <div id="rec-tag"><div class="dot"></div><span>Registrando no PDF</span></div>
     <div id="ui-ctrl"
 
@@ -557,40 +482,22 @@ img,video{display:block;max-width:100%}
 
 >   <header class="hdr"><div class="hdr-in"
 
->     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-    </button>
+>     <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     <div class="hdr-title"><h1>KM em tempo real</h1><p></p></div>
-    <span class="hdr-badge"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    </span>
+    <span class="hdr-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
   </div></header>
   <div class="wrap" style="min-height:calc(100vh - 58px);min-height:calc(100dvh - 58px);justify-content:center"
 
->     <div class="km-hero"
-
->       <p class="km-label">KM atual na rodovia</p>
-      <p class="km-value" id="rtKm">—</p>
-      <p class="km-sub" id="rtCoords"></p>
-    </div>
-    <div id="rtGps" class="gps bad"
-
->       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-      GPS · BUSCANDO SINAL
-    </div>
-    <div class="card" style="text-align:center"
-
->       <p style="font-size:11px;font-weight:500;color:var(--muted);line-height:1.6">Mantenha o GPS ativo e permaneça em uma área aberta para maior precisão.</p>
-    </div>
+>     <div class="km-hero"><p class="km-label">KM atual na rodovia</p><p class="km-value" id="rtKm">—</p><p class="km-sub" id="rtCoords"></p></div>
+    <div id="rtGps" class="gps bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>GPS · BUSCANDO SINAL</div>
+    <div class="card" style="text-align:center"><p style="font-size:11px;font-weight:500;color:var(--muted);line-height:1.6">Mantenha o GPS ativo e permaneça em uma área aberta para maior precisão.</p></div>
   </div>
 </div>
 <!-- TOAST -->
 <div class="toast" id="toast" aria-live="polite"></div>
 <script>
 /* ====================================================================
-   CPS OS v2 — Sistema de Apoio & Inspeção (KM aprox + texto atividade)
+   CPS OS v2 — Sistema de Apoio & Inspeção
    ==================================================================== */
 /* ===== UTILITIES ===== */
 const ACC_G=15,ACC_Y=35;
@@ -604,15 +511,11 @@ function findCol(h,cs){const m=h.map(norm);for(const c of cs){const i=m.indexOf(
 /* ===== STATE ===== */
 let posts=[],postsKm=[],kmDB=[],pos=null,searchItem=null,renderedKey='',apoioInit=false,rtInit=false;
 let cam='',stream=null,hDir=null,capturing=false,buffer=[],kmIniLote='',lat='0.000000',lon='0.000000',wakeLock=null,cameras=[];
-let activityText=''; // texto livre da atividade
 /* ===== TOAST ===== */
 let _tt=null;
 function showToast(msg,type='ok'){
   const el=document.getElementById('toast');
-  const icons={
-    ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',
-    err:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'
-  };
+  const icons={ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',err:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'};
   el.className='toast '+type;
   el.innerHTML=(icons[type]||'')+msg;
   clearTimeout(_tt);
@@ -628,8 +531,9 @@ function openMod(id){
   if(id==='apoio')initApoio();
   if(id==='km')initRt();
 }
-/* ===== SPLASH / CLOCK ===== */
+/* ===== SPLASH ===== */
 setTimeout(()=>document.getElementById('splash').classList.add('done'),2200);
+/* ===== CLOCK ===== */
 function tickClock(){
   const now=new Date();
   document.getElementById('menuClock').textContent=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -667,10 +571,15 @@ async function loadPosts(){
       };
     }).filter(p=>p.id&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
 
-    // Pré-calcula KM aproximado de cada poste (se kmDB já carregado)
+    // pré-calcula KM aproximado de cada poste uma única vez
     postsKm=posts.map(p=>{
       const k=kmAt(p.lat,p.lon);
-      return {id:p.id,lat:p.lat,lon:p.lon,km:k?k.km:null};
+      return {
+        id:p.id,
+        lat:p.lat,
+        lon:p.lon,
+        km:k?k.km:null
+      };
     });
 
     renderApoio();
@@ -694,14 +603,6 @@ async function loadKm(){
       };
     }).filter(p=>Number.isFinite(p.km)&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
     updateKm();
-    // Se já há postes, recalcula postsKm com base na base de KM
-    if(posts.length){
-      postsKm=posts.map(p=>{
-        const k=kmAt(p.lat,p.lon);
-        return {id:p.id,lat:p.lat,lon:p.lon,km:k?k.km:null};
-      });
-      renderApoio();
-    }
   }catch(e){}
 }
 /* ===== KM CÁLCULO ===== */
@@ -736,8 +637,8 @@ function updateKm(){
 function initApoio(){
   if(apoioInit)return;
   apoioInit=true;
-  loadKm();
   loadPosts();
+  loadKm();
   if('geolocation'in navigator)navigator.geolocation.watchPosition(p=>{
     pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};
     gpsBadge(document.getElementById('gpsStatus'),pos);
@@ -747,7 +648,9 @@ function initApoio(){
   },null,{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
 function searchId(){
-  const term=norm(document.getElementById('inputId').value),msg=document.getElementById('searchMsg'),res=document.getElementById('searchResult');
+  const term=norm(document.getElementById('inputId').value),
+        msg=document.getElementById('searchMsg'),
+        res=document.getElementById('searchResult');
   if(!term){clearId();return}
   if(!posts.length){
     msg.style.display='flex';
@@ -833,7 +736,7 @@ function renderApoio(){
 
   const qty=Number(document.getElementById('qty').value||10);
 
-  // usa lista com KM pré-calculado, só atualiza distância (rápido e estável)
+  // usa lista com KM já pré-calculado, calcula só distância (ultrarrápido)
   const items=postsKm.map(p=>{
     const d=hav(pos.lat,pos.lon,p.lat,p.lon);
     return {id:p.id,lat:p.lat,lon:p.lon,km:p.km,d};
@@ -843,7 +746,7 @@ function renderApoio(){
   const list=document.getElementById('postList');
 
   if(key===renderedKey){
-    // mesma lista: só atualiza textos, sem recriar DOM (não pisca)
+    // mesma lista de IDs: só atualiza textos
     items.forEach((o,i)=>{
       const el=document.getElementById('dist-'+i);
       const kmEl=document.getElementById('km-'+i);
@@ -863,9 +766,8 @@ function renderApoio(){
     div.className='post'+(i===0?' near':'');
     div.innerHTML=`<div class="post-top"
 
->       <input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}"
-
->       <div class="post-info"
+>       <input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked>
+      <div class="post-info"
 
 >         <p class="post-id">Poste: <span>${o.id}</span></p>
         <p class="post-dist" id="dist-${i}">Distância: ${range(o.d,pos.acc)}</p>
@@ -876,18 +778,8 @@ function renderApoio(){
 >         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
       </span>
     </div>
-    <iframe class="post-map" id="map-${i}" src="https://maps.google.com/maps?q=${o.lat},${o.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy" style="display:none"></iframe>`;
+    <iframe class="post-map" src="https://maps.google.com/maps?q=${o.lat},${o.lon}&t=k&z=19&ie=UTF8&iwloc=&output=embed" loading="lazy"></iframe>`;
     list.appendChild(div);
-  });
-
-  // controla visibilidade do mapa: oculto por padrão, só se marcar o poste
-  document.querySelectorAll('.post-chk').forEach((chk,i)=>{
-    const map=document.getElementById('map-'+i);
-    if(map)map.style.display='none';
-    chk.addEventListener('change',()=>{
-      if(!map)return;
-      map.style.display=chk.checked?'block':'none';
-    });
   });
 
   document.getElementById('btnSend').disabled=false;
@@ -938,17 +830,6 @@ function initRt(){
   },()=>gpsBadge(document.getElementById('rtGps'),null,'Erro ao obter localização'),{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
 /* ===== INSPEÇÃO ===== */
-function initActivityText(){
-  const inp=document.getElementById('cfgActivity');
-  if(!inp)return;
-  activityText=inp.value.trim();
-  const label=document.getElementById('activityLabel');
-  if(label)label.textContent=activityText?`Atividade: ${activityText}`:'Atividade: (não definida)';
-  inp.addEventListener('input',()=>{
-    activityText=inp.value.trim();
-    if(label)label.textContent=activityText?`Atividade: ${activityText}`:'Atividade: (não definida)';
-  });
-}
 async function startApp(){
   const err=document.getElementById('gateErr');
   try{
@@ -960,7 +841,6 @@ async function startApp(){
     await listCams();
     loadKm();
     initGpsInspecao();
-    initActivityText();
     document.documentElement.requestFullscreen?.().catch(()=>null);
     showToast('Sistema de inspeção ativado');
   }catch(e){
@@ -996,32 +876,23 @@ function initGpsInspecao(){
 }
 function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
   ctx.drawImage(document.getElementById('vid'),0,0,w,h);
-  const bh=h*.12;
+  const bh=h*.1;
   const grad=ctx.createLinearGradient(0,h-bh,0,h);
   grad.addColorStop(0,'rgba(0,0,0,0)');
-  grad.addColorStop(.3,'rgba(0,0,0,.6)');
-  grad.addColorStop(1,'rgba(0,0,0,.9)');
+  grad.addColorStop(.3,'rgba(0,0,0,.5)');
+  grad.addColorStop(1,'rgba(0,0,0,.82)');
   ctx.fillStyle=grad;
   ctx.fillRect(0,h-bh,w,bh);
-
   ctx.fillStyle='#fff';
   ctx.font=`bold ${bh*.36}px Arial,sans-serif`;
-  ctx.fillText(`KM ${kmVal}`,20,h-bh*.65);
-
+  ctx.fillText(`KM ${kmVal}`,20,h-bh*.55);
   ctx.font=`${bh*.2}px Arial,sans-serif`;
-  ctx.fillStyle='rgba(255,255,255,.8)';
-  ctx.fillText(`${ts} | GPS: ${gpsStr}`,20,h-bh*.35);
-
-  if(activityText){
-    ctx.font=`${bh*.2}px Arial,sans-serif`;
-    ctx.fillStyle='rgba(255,255,255,.85)';
-    ctx.fillText(activityText,20,h-bh*.15);
-  }
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  ctx.fillText(`${ts} | GPS: ${gpsStr}`,20,h-bh*.2);
 }
 async function manualPhoto(){
   if(!hDir)return;
   const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d');
-  if(!vid.videoWidth){showToast('Câmera ainda não inicializada','err');return}
   c.width=vid.videoWidth;
   c.height=vid.videoHeight;
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
@@ -1035,9 +906,6 @@ async function manualPhoto(){
   showToast('Foto manual salva');
 }
 function startCap(){
-  if(!hDir){showToast('Selecione uma pasta antes de iniciar captura','err');return}
-  const vid=document.getElementById('vid');
-  if(!vid.videoWidth){showToast('Câmera ainda não inicializada','err');return}
   capturing=true;
   buffer=[];
   kmIniLote=document.getElementById('kmTxt').innerText.replace('KM ','');
@@ -1092,7 +960,9 @@ async function savePDF(data,kmI,kmF){
   await w.close();
   showToast(`PDF salvo: KM ${kmI} → ${kmF}`);
 }
-function toggleSet(){document.getElementById('settings').classList.toggle('open')}
+function toggleSet(){
+  document.getElementById('settings').classList.toggle('open');
+}
 </script>
 </body>
 </html>
