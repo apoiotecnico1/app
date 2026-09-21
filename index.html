@@ -296,11 +296,9 @@ canvas#c{display:none}
 <div id="slidePanel"><button id="slidePanel-close" onclick="closeSlide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>Fechar</button><h3>⚡ Ferramentas</h3></div>
 <div id="notesPanel"><button id="notesPanel-close" onclick="closeNotes()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>Fechar</button><h3>📝 Notas do Poste</h3><div id="notesList"></div><div class="note-input-wrap"><textarea id="noteText" placeholder="Digite sua nota..."></textarea><div style="display:flex;flex-direction:column;gap:6px"><button class="ep-btn go" onclick="addNote()">Adicionar</button></div></div></div>
 <div class="toast" id="toast" aria-live="polite"></div>
-<script>const $=id=>document.getElementById(id);let DOM={};
-document.title="NOX OS - LOADED";console.log("NOX JS loaded");setTimeout(function(){$("splash").classList.add("done")},2200);
-setTimeout(function(){$("splash").classList.add("done")},3000);
-window.addEventListener("load",function(){$("splash").classList.add("done")});
-document.addEventListener("DOMContentLoaded",function(){$("splash").classList.add("done")});
+<script>const $=id=>document.getElementById(id);
+let DOM={};
+setTimeout(function(){$("splash").classList.add("done")},2000);
 const ACC_G=15,ACC_Y=35;
 const norm=s=>String(s||"").trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Z0-9_ ]+/g," ").replace(/\s+/g," ");
 const parsePt=v=>{const s=String(v||"").trim();return/,\d+$/.test(s)?Number(s.replace(/\./g,"").replace(",",".")):Number(s)};
@@ -372,12 +370,10 @@ loadFavs();
 DOM.zoomModal?.addEventListener("wheel",function(e){e.preventDefault();if(e.deltaY<0)zoomStep(10);else zoomStep(-10)},{passive:false});
 DOM.lightbox?.addEventListener("click",function(e){if(e.target===DOM.lightbox)closeLightbox()});
 
-document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeZoom();closeLightbox();DOM.editPanel?.classList.remove("open");DOM.slidePanel?.classList.remove("open");DOM.notesPanel?.classList.remove("open")}});
 
 
-
-
-
-</script>>>>>
+</script>>
+>
+>>>>>
 </body>
 </html>
