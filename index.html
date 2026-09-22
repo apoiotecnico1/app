@@ -203,10 +203,10 @@ img,video{display:block;max-width:100%}
 .post-pin svg{width:15px;height:15px}
 .post-map{height:136px;width:100%;border:0;filter:grayscale(12%) contrast(1.04)}
 
+/* ===== PERFORMANCE SAFE ===== */
 .map-action{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 14px 14px;border-radius:var(--r-sm);border:1px solid rgba(255,214,0,.18);background:rgba(255,214,0,.06);color:var(--accent);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;min-height:38px}
+.map-action:active{transform:scale(.98)}
 .perf-note{font-size:10px;color:var(--muted);font-weight:700;margin-top:8px;line-height:1.45}
-.search-tabs{display:flex;gap:6px;margin-bottom:14px}.search-tab{flex:1;min-height:34px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer}.search-tab.on{border-color:rgba(255,214,0,.45);background:linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06));color:var(--accent)}
-.label-hud{position:absolute;top:calc(78px + var(--safe-t));right:14px;max-width:220px;border-radius:var(--r-sm);border:1px solid rgba(255,214,0,.25);background:rgba(0,0,0,.58);padding:8px 12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:100}.label-hud label{display:block;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;color:rgba(255,214,0,.75);margin-bottom:4px}.label-hud input{width:100%;background:transparent;border:0;color:#fff;font-size:11px;font-weight:800;outline:none}
 
 /* ===== CONTROLS ===== */
 .ctrl-send{width:100%;min-height:48px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--green),var(--green3));color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s var(--ease);box-shadow:0 3px 16px rgba(16,185,129,.12);position:relative;overflow:hidden}
@@ -397,33 +397,19 @@ canvas#c{display:none}
   <div class="wrap"
 
 >     <div id="targetLock" class="target-lock"><h2>📍 Você está no poste!</h2><p id="targetLockSub">ID ALVO: --- | DISTÂNCIA &lt; 5M</p></div>
-    <div class="card card-accent">
-      <p class="card-label">Localizador</p>
-      <div class="search-tabs">
-        <button id="tab-id" class="search-tab on" onclick="setSearchMode('id')">Por ID</button>
-        <button id="tab-km" class="search-tab" onclick="setSearchMode('km')">Por KM</button>
-      </div>
-      <div id="panel-id">
-        <div class="search-row">
-          <div class="search-wrap">
-            <input class="search-input" id="inputId" placeholder="EX: 1800  - 1400" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')searchId()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </div>
-          <button class="btn-icon go" onclick="searchId()" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
-          <button class="btn-icon clr" onclick="clearId()" aria-label="Limpar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="card card-accent"
+
+>       <p class="card-label">Localizador</p>
+      <div class="search-row"
+
+>         <div class="search-wrap"
+
+>           <input class="search-input" id="inputId" placeholder="EX: 1800  - 1400" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')searchId()"
+
+>           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </div>
-      </div>
-      <div id="panel-km" style="display:none">
-        <div class="search-row">
-          <div class="search-wrap">
-            <input class="search-input" id="inputKm" inputmode="decimal" placeholder="EX: 89 OU 89,450" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')searchByKm()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </div>
-          <select class="ctrl-select" id="kmQty" style="height:46px;width:72px"><option value="1">1</option><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select>
-          <button class="btn-icon go" onclick="searchByKm()" aria-label="Buscar KM"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
-          <button class="btn-icon clr" onclick="clearKm()" aria-label="Limpar KM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-        </div>
-        <p class="perf-note">Digite KM inteiro, ex: 89, para buscar de 89,00 até 89,99.</p>
+        <button class="btn-icon go" onclick="searchId()" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+        <button class="btn-icon clr" onclick="clearId()" aria-label="Limpar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       </div>
       <div id="searchMsg" class="search-msg" style="display:none"></div>
       <div id="searchResult" style="display:none;margin-top:12px"></div>
@@ -474,10 +460,6 @@ canvas#c{display:none}
       <h1>Inspeção fotográfica</h1>
       <p>Selecione uma pasta segura para salvar fotos manuais e relatórios PDF da operação.</p>
       <div id="gateErr" class="gate-err" style="display:none"></div>
-      <div style="margin-top:16px;text-align:left">
-        <label class="s-lbl">Etiqueta / Tipo de serviço opcional</label>
-        <input id="fotoLabel" class="s-inp" type="text" placeholder="Ex: Manutenção viária, Vistoria, Capina" autocomplete="off" spellcheck="false" oninput="syncLabel(this.value)">
-      </div>
       <button class="gate-btn" onclick="startApp()"
 
 >         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Ativar sistema
@@ -497,7 +479,6 @@ canvas#c{display:none}
 
 >     <video id="vid" autoplay playsinline muted onclick="manualPhoto()"></video>
     <div id="km-hud"><span class="h-l">KM atual</span><p class="h-v" id="kmTxt">KM ---</p></div>
-    <div class="label-hud"><label>Etiqueta</label><input id="fotoLabelLive" type="text" placeholder="Tipo de serviço" oninput="syncLabel(this.value)"></div>
     <div id="rec-tag"><div class="dot"></div><span>Registrando no PDF</span></div>
     <div id="ui-ctrl"
 
@@ -545,9 +526,6 @@ canvas#c{display:none}
    ==================================================================== */
 /* ===== UTILITIES ===== */
 const ACC_G=15,ACC_Y=35;
-const PERF={renderMs:900,mapEmbed:false,maxCanvas:1280,jpeg:.55};
-let postsIndex=new Map(),lastApoioRender=0,renderTimer=null;
-window._fotoLabel='';
 const norm=s=>String(s||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9_ ]+/g,' ').replace(/\s+/g,' ');
 const parsePt=v=>{const s=String(v??'').trim();return/,\d+$/.test(s)?Number(s.replace(/\./g,'').replace(',','.')):Number(s)};
 const hav=(a,b,c,d)=>{const p=Math.PI/180,x=.5-Math.cos((c-a)*p)/2+Math.cos(a*p)*Math.cos(c*p)*(1-Math.cos((d-b)*p))/2;return 12742000*Math.asin(Math.sqrt(x))};
@@ -557,6 +535,7 @@ const nowBR=()=>new Date().toLocaleString('pt-BR').toUpperCase();
 function findCol(h,cs){const m=h.map(norm);for(const c of cs){const i=m.indexOf(norm(c));if(i>=0)return i}return-1}
 /* ===== STATE ===== */
 let posts=[],postsKm=[],kmDB=[],pos=null,searchItem=null,renderedKey='',apoioInit=false,rtInit=false;
+let postsIndex=new Map(),lastRenderApoio=0,renderApoioTimer=null;
 let cam='',stream=null,hDir=null,capturing=false,buffer=[],kmIniLote='',lat='0.000000',lon='0.000000',wakeLock=null,cameras=[];
 /* ===== TOAST ===== */
 let _tt=null;
@@ -579,7 +558,7 @@ function openMod(id){
   if(id==='km')initRt();
 }
 /* ===== SPLASH ===== */
-setTimeout(()=>document.getElementById('splash').classList.add('done'),600);
+setTimeout(()=>document.getElementById('splash').classList.add('done'),650);
 /* ===== CLOCK ===== */
 function tickClock(){
   const now=new Date();
@@ -599,18 +578,6 @@ function gpsBadge(el,p,err){
   el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>${txt}`;
 }
 /* ===== CSV ===== */
-
-function buildPostsIndex(){postsIndex.clear();for(const p of posts){const k=norm(p.id);if(k&&!postsIndex.has(k))postsIndex.set(k,p)}}
-function recomputePostsKm(){if(!posts.length||!kmDB.length)return;postsKm=posts.map(p=>{const k=kmAt(p.lat,p.lon);return{id:p.id,lat:p.lat,lon:p.lon,km:k?k.km:null}})}
-function mapLink(lat,lon){return `https://maps.google.com/?q=${lat.toFixed(6)},${lon.toFixed(6)}`}
-function renderMapBlock(lat,lon){return `<a class="map-action" href="${mapLink(lat,lon)}" target="_blank" rel="noopener">Abrir mapa</a>`}
-function scheduleRenderApoio(){const now=Date.now();clearTimeout(renderTimer);const wait=Math.max(0,PERF.renderMs-(now-lastApoioRender));renderTimer=setTimeout(()=>{lastApoioRender=Date.now();renderApoio()},wait)}
-function setSearchMode(mode){document.getElementById('panel-id').style.display=mode==='id'?'block':'none';document.getElementById('panel-km').style.display=mode==='km'?'block':'none';document.getElementById('tab-id').classList.toggle('on',mode==='id');document.getElementById('tab-km').classList.toggle('on',mode==='km');document.getElementById('searchMsg').style.display='none';document.getElementById('searchResult').style.display='none';}
-function parseKmInput(raw){raw=String(raw||'').trim();const isInteger=/^\d+$/.test(raw);const val=parseFloat(raw.replace(',','.'));if(!Number.isFinite(val))return null;return{val,isInteger,min:isInteger?val:val,max:isInteger?val+0.999:val}}
-function clearKm(){document.getElementById('inputKm').value='';document.getElementById('searchMsg').style.display='none';document.getElementById('searchResult').style.display='none'}
-function searchByKm(){const parsed=parseKmInput(document.getElementById('inputKm').value);const msg=document.getElementById('searchMsg'),res=document.getElementById('searchResult');if(!parsed){msg.style.display='flex';msg.textContent='Informe um KM válido.';res.style.display='none';return}if(!postsKm.length){recomputePostsKm()}if(!postsKm.length){msg.style.display='flex';msg.textContent='Dados de KM ainda carregando. Tente novamente.';return}const qty=Number(document.getElementById('kmQty').value||5);let arr=postsKm.filter(p=>p.km!=null);if(parsed.isInteger){const inside=arr.filter(p=>p.km>=parsed.min&&p.km<=parsed.max);arr=(inside.length?inside:arr).sort((a,b)=>Math.abs(a.km-parsed.val)-Math.abs(b.km-parsed.val)).slice(0,qty)}else{arr=arr.sort((a,b)=>Math.abs(a.km-parsed.val)-Math.abs(b.km-parsed.val)).slice(0,qty)}msg.style.display='none';res.style.display='block';res.innerHTML=arr.map((o,i)=>{const delta=Math.round(Math.abs(o.km-parsed.val)*1000);const dist=pos?`<p class="post-dist">Distância: ${range(hav(pos.lat,pos.lon,o.lat,o.lon),pos.acc)}</p>`:'';return `<div class="post ${i===0?'near':''}"><div class="post-top"><div class="post-info"><p class="post-id">Poste: <span>${o.id}</span></p><p class="post-km">KM: ${o.km.toFixed(2).replace('.',',')} · Δ ${delta}m</p>${dist}<p class="post-coords">${o.lat.toFixed(6)}, ${o.lon.toFixed(6)}</p></div><span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span></div>${renderMapBlock(o.lat,o.lon)}</div>`}).join('')}
-function syncLabel(v){window._fotoLabel=v||'';const a=document.getElementById('fotoLabel'),b=document.getElementById('fotoLabelLive');if(a&&a.value!==window._fotoLabel)a.value=window._fotoLabel;if(b&&b.value!==window._fotoLabel)b.value=window._fotoLabel}
-
 async function loadPosts(){
   try{
     let r=await fetch('dados.csv?v='+Date.now(),{cache:'no-store'}).catch(()=>null);
@@ -630,9 +597,17 @@ async function loadPosts(){
       };
     }).filter(p=>p.id&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
 
-    buildPostsIndex();
-    recomputePostsKm();
-    scheduleRenderApoio();
+    postsKm=posts.map(p=>{
+      const k=kmAt(p.lat,p.lon);
+      return {
+        id:p.id,
+        lat:p.lat,
+        lon:p.lon,
+        km:k?k.km:null
+      };
+    });
+
+    renderApoio();
   }catch(e){}
 }
 async function loadKm(){
@@ -652,9 +627,7 @@ async function loadKm(){
         lon:parsePt(r[iLon])
       };
     }).filter(p=>Number.isFinite(p.km)&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
-    recomputePostsKm();
     updateKm();
-    scheduleRenderApoio();
   }catch(e){}
 }
 /* ===== KM CÁLCULO ===== */
@@ -694,10 +667,10 @@ function initApoio(){
   if('geolocation'in navigator)navigator.geolocation.watchPosition(p=>{
     pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};
     gpsBadge(document.getElementById('gpsStatus'),pos);
-    scheduleRenderApoio();
+    renderApoio();
     updateKm();
     updateSearchDist();
-  },null,{enableHighAccuracy:true,maximumAge:0,timeout:5000});
+  },null,{enableHighAccuracy:true,maximumAge:1000,timeout:5000});
 }
 function searchId(){
   const term=norm(document.getElementById('inputId').value),
@@ -709,8 +682,7 @@ function searchId(){
     msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Carregando dados, tente novamente...';
     return;
   }
-  let found=postsIndex.get(term);
-  if(!found)found=posts.find(p=>norm(p.id).includes(term));
+  const found=postsIndex.get(term)||posts.find(p=>norm(p.id)===term||norm(p.id).includes(term));
   if(!found){
     msg.style.display='flex';
     msg.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>ID "${term}" NÃO ENCONTRADO.`;
@@ -753,23 +725,17 @@ function renderSearch(){
     checkLock();
   }
   res.style.display='block';
-  res.innerHTML=`<div class="post searched"
-
->     <div class="post-top"
-
->       <div class="post-info"
-
->         <p class="post-id">OS / ID: <span>${searchItem.id}</span></p>
+  res.innerHTML=`<div class="post searched">
+    <div class="post-top">
+      <div class="post-info">
+        <p class="post-id">OS / ID: <span>${searchItem.id}</span></p>
         <p class="post-dist" id="srch-dist">${dt}</p>
         <p class="post-km" id="srch-km">${kmTxt}</p>
         <p class="post-coords">Coordenadas: ${searchItem.lat.toFixed(6)}, ${searchItem.lon.toFixed(6)}</p>
       </div>
-      <span class="post-pin"
-
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      </span>
+      <span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
     </div>
-    ${renderMapBlock(searchItem.lat,searchItem.lon)}
+    <a class="map-action" href="https://maps.google.com/?q=${searchItem.lat.toFixed(6)},${searchItem.lon.toFixed(6)}" target="_blank" rel="noopener">Abrir mapa</a>
   </div>`;
 }
 function checkLock(){
@@ -783,56 +749,51 @@ function checkLock(){
     b.classList.remove('on');
   }
 }
-function renderApoio(){
+function renderApoio(force=false){
   if(!pos||!postsKm.length)return;
+  const now=Date.now();
+  if(!force && now-lastRenderApoio<800){
+    clearTimeout(renderApoioTimer);
+    renderApoioTimer=setTimeout(()=>renderApoio(true),820);
+    return;
+  }
+  lastRenderApoio=now;
   if(searchItem)updateSearchDist();
-
   const qty=Number(document.getElementById('qty').value||10);
-
-  const items=postsKm.map(p=>{
-    const d=hav(pos.lat,pos.lon,p.lat,p.lon);
-    return {id:p.id,lat:p.lat,lon:p.lon,km:p.km,d};
-  }).sort((a,b)=>a.d-b.d).slice(0,qty);
-
-  const key=items.map(i=>i.id).join(',');
+  const arr=[];
+  for(const p of postsKm){arr.push({id:p.id,lat:p.lat,lon:p.lon,km:p.km,d:hav(pos.lat,pos.lon,p.lat,p.lon)})}
+  arr.sort((a,b)=>a.d-b.d);
+  const items=arr.slice(0,qty);
+  const key=items.map(i=>i.id).join(',')+'|'+Math.round(pos.lat*10000)+'|'+Math.round(pos.lon*10000)+'|'+qty;
   const list=document.getElementById('postList');
-
   if(key===renderedKey){
     items.forEach((o,i)=>{
-      const el=document.getElementById('dist-'+i);
-      const kmEl=document.getElementById('km-'+i);
+      const el=document.getElementById('dist-'+i),kmEl=document.getElementById('km-'+i);
       if(el)el.textContent='Distância: '+range(o.d,pos.acc);
       if(kmEl)kmEl.textContent=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
     });
     document.getElementById('btnSend').disabled=false;
     return;
   }
-
   renderedKey=key;
-  list.innerHTML='';
-
+  const frag=document.createDocumentFragment();
   items.forEach((o,i)=>{
     const kmLabel=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
     const div=document.createElement('div');
     div.className='post'+(i===0?' near':'');
-    div.innerHTML=`<div class="post-top"
-
->       <input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked>
-      <div class="post-info"
-
->         <p class="post-id">Poste: <span>${o.id}</span></p>
+    div.innerHTML=`<div class="post-top">
+      <input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked>
+      <div class="post-info">
+        <p class="post-id">Poste: <span>${o.id}</span></p>
         <p class="post-dist" id="dist-${i}">Distância: ${range(o.d,pos.acc)}</p>
         <p class="post-km" id="km-${i}">${kmLabel}</p>
       </div>
-      <span class="post-pin"
-
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      </span>
+      <span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
     </div>
-    ${renderMapBlock(o.lat,o.lon)}`;
-    list.appendChild(div);
+    <a class="map-action" href="https://maps.google.com/?q=${o.lat.toFixed(6)},${o.lon.toFixed(6)}" target="_blank" rel="noopener">Abrir mapa</a>`;
+    frag.appendChild(div);
   });
-
+  list.replaceChildren(frag);
   document.getElementById('btnSend').disabled=false;
 }
 document.getElementById('btnSend').onclick=()=>{
@@ -855,7 +816,7 @@ document.getElementById('btnSend').onclick=()=>{
   window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank','noopener');
   showToast(`${items.length} postes enviados`);
 };
-document.getElementById('qty').onchange=()=>{renderedKey='';renderApoio()};
+document.getElementById('qty').onchange=()=>{renderedKey='';renderApoio(true)};
 /* ===== KM RT ===== */
 function initRt(){
   if(!kmDB.length)loadKm();
@@ -878,7 +839,7 @@ function initRt(){
       }
       if(best)document.getElementById('rtKm').textContent=(Math.round(best.km*100)/100).toFixed(2).replace('.',',');
     }
-  },()=>gpsBadge(document.getElementById('rtGps'),null,'Erro ao obter localização'),{enableHighAccuracy:true,maximumAge:0,timeout:5000});
+  },()=>gpsBadge(document.getElementById('rtGps'),null,'Erro ao obter localização'),{enableHighAccuracy:true,maximumAge:1000,timeout:5000});
 }
 /* ===== INSPEÇÃO ===== */
 async function startApp(){
@@ -923,37 +884,36 @@ function initGpsInspecao(){
       if(d<minD){minD=d;best=pt}
     }
     if(best)document.getElementById('kmTxt').textContent='KM '+best.km;
-  },null,{enableHighAccuracy:true});
+  },null,{enableHighAccuracy:true,maximumAge:1000,timeout:5000});
 }
 function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
   ctx.drawImage(document.getElementById('vid'),0,0,w,h);
-  const bh=h*.12;
+  const bh=h*.1;
   const grad=ctx.createLinearGradient(0,h-bh,0,h);
-  grad.addColorStop(0,'rgba(0,0,0,0)');grad.addColorStop(.3,'rgba(0,0,0,.55)');grad.addColorStop(1,'rgba(0,0,0,.88)');
-  ctx.fillStyle=grad;ctx.fillRect(0,h-bh,w,bh);
-  ctx.fillStyle='#fff';ctx.font=`bold ${bh*.30}px Arial,sans-serif`;ctx.fillText(`KM ${kmVal}`,20,h-bh*.55);
-  ctx.font=`${bh*.18}px Arial,sans-serif`;ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillText(`${ts} | GPS: ${gpsStr}`,20,h-bh*.22);
-  const lbl=(window._fotoLabel||'').trim();
-  if(lbl){
-    const fs=Math.max(16,Math.round(h*.026));ctx.font=`bold ${fs}px Arial,sans-serif`;const tw=ctx.measureText(lbl).width,pad=14,r=8,rw=tw+pad*2,rh=fs+18,rx=w-rw-18,ry=18;
-    ctx.fillStyle='rgba(255,214,0,.94)';ctx.beginPath();ctx.moveTo(rx+r,ry);ctx.lineTo(rx+rw-r,ry);ctx.arcTo(rx+rw,ry,rx+rw,ry+r,r);ctx.lineTo(rx+rw,ry+rh-r);ctx.arcTo(rx+rw,ry+rh,rx+rw-r,ry+rh,r);ctx.lineTo(rx+r,ry+rh);ctx.arcTo(rx,ry+rh,rx,ry+rh-r,r);ctx.lineTo(rx,ry+r);ctx.arcTo(rx,ry,rx+r,ry,r);ctx.fill();
-    ctx.fillStyle='#000';ctx.fillText(lbl,rx+pad,ry+fs+9);
-  }
+  grad.addColorStop(0,'rgba(0,0,0,0)');
+  grad.addColorStop(.3,'rgba(0,0,0,.5)');
+  grad.addColorStop(1,'rgba(0,0,0,.82)');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,h-bh,w,bh);
+  ctx.fillStyle='#fff';
+  ctx.font=`bold ${bh*.36}px Arial,sans-serif`;
+  ctx.fillText(`KM ${kmVal}`,20,h-bh*.55);
+  ctx.font=`${bh*.2}px Arial,sans-serif`;
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  ctx.fillText(`${ts} | GPS: ${gpsStr}`,20,h-bh*.2);
 }
 async function manualPhoto(){
   if(!hDir)return;
-  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d');
-  c.width=vid.videoWidth;
-  c.height=vid.videoHeight;
+  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d',{alpha:false});
+  if(!vid.videoWidth)return;
+  const max=1280,scale=Math.min(1,max/Math.max(vid.videoWidth,vid.videoHeight));
+  c.width=Math.round(vid.videoWidth*scale);c.height=Math.round(vid.videoHeight*scale);
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));
-  const fh=await hDir.getFileHandle(`MANUAL_${(window._fotoLabel||'').trim().replace(/[^A-Z0-9]/gi,'_').toUpperCase()||'KM'}_${km}_${Date.now()}.jpg`,{create:true});
-  const w=await fh.createWritable();
-  await w.write(blob);
-  await w.close();
-  document.getElementById('ui-ctrl').classList.remove('hide');
-  showToast('Foto manual salva');
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.78));
+  const fh=await hDir.getFileHandle(`MANUAL_KM_${km}_${Date.now()}.jpg`,{create:true});
+  const w=await fh.createWritable();await w.write(blob);await w.close();
+  document.getElementById('ui-ctrl').classList.remove('hide');showToast('Foto manual salva');
 }
 function startCap(){
   capturing=true;
@@ -979,22 +939,17 @@ async function stopCap(){
 }
 function capLoop(){
   if(!capturing)return;
-  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d',{alpha:false,desynchronized:true});
+  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d',{alpha:false});
   if(!vid.videoWidth){setTimeout(capLoop,150);return}
-  const scale=Math.min(1,PERF.maxCanvas/Math.max(vid.videoWidth,vid.videoHeight));
-  c.width=Math.round(vid.videoWidth*scale);
-  c.height=Math.round(vid.videoHeight*scale);
+  const max=1280,scale=Math.min(1,max/Math.max(vid.videoWidth,vid.videoHeight));
+  c.width=Math.round(vid.videoWidth*scale);c.height=Math.round(vid.videoHeight*scale);
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  buffer.push(c.toDataURL('image/jpeg',PERF.jpeg));
+  buffer.push(c.toDataURL('image/jpeg',.52));
   const lote=parseInt(document.getElementById('cfgLote').value)||50;
-  if(buffer.length>=lote){
-    const kmNow=km;
-    savePDF([...buffer],kmIniLote,kmNow);
-    buffer=[];
-    kmIniLote=kmNow;
-  }
-  setTimeout(()=>requestAnimationFrame(capLoop),Math.max(350,parseInt(document.getElementById('cfgInt').value)||500));
+  if(buffer.length>=lote){const kmNow=km,pack=[...buffer];buffer=[];savePDF(pack,kmIniLote,kmNow);kmIniLote=kmNow;}
+  const ms=Math.max(500,parseInt(document.getElementById('cfgInt').value)||500);
+  setTimeout(()=>requestAnimationFrame(capLoop),ms);
 }
 async function savePDF(data,kmI,kmF){
   if(!data.length)return;
@@ -1005,7 +960,7 @@ async function savePDF(data,kmI,kmF){
     if(i)doc.addPage();
     doc.addImage(data[i],'JPEG',0,0,pw,ph);
   }
-  const fh=await hDir.getFileHandle(`RELATORIO_${(window._fotoLabel||'').trim().replace(/[^A-Z0-9]/gi,'_').toUpperCase()||'KM'}_${kmI}_AO_${kmF}_${Date.now()}.pdf`,{create:true});
+  const fh=await hDir.getFileHandle(`RELATORIO_KM_${kmI}_AO_${kmF}_${Date.now()}.pdf`,{create:true});
   const w=await fh.createWritable();
   await w.write(doc.output('blob'));
   await w.close();
