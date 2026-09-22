@@ -203,7 +203,7 @@ img,video{display:block;max-width:100%}
 .post-pin svg{width:15px;height:15px}
 .post-map{height:136px;width:100%;border:0;filter:grayscale(12%) contrast(1.04)}
 
-/* ===== PERFORMANCE SAFE ===== */
+/* ===== PERFORMANCE - ABERTURA RAPIDA E LISTA LEVE ===== */
 .map-action{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 14px 14px;border-radius:var(--r-sm);border:1px solid rgba(255,214,0,.18);background:rgba(255,214,0,.06);color:var(--accent);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;min-height:38px}
 .map-action:active{transform:scale(.98)}
 .perf-note{font-size:10px;color:var(--muted);font-weight:700;margin-top:8px;line-height:1.45}
@@ -535,7 +535,7 @@ const nowBR=()=>new Date().toLocaleString('pt-BR').toUpperCase();
 function findCol(h,cs){const m=h.map(norm);for(const c of cs){const i=m.indexOf(norm(c));if(i>=0)return i}return-1}
 /* ===== STATE ===== */
 let posts=[],postsKm=[],kmDB=[],pos=null,searchItem=null,renderedKey='',apoioInit=false,rtInit=false;
-let postsIndex=new Map(),lastRenderApoio=0,renderApoioTimer=null;
+let postsIndex=new Map(),lastApoioRender=0,apoioRenderTimer=null;
 let cam='',stream=null,hDir=null,capturing=false,buffer=[],kmIniLote='',lat='0.000000',lon='0.000000',wakeLock=null,cameras=[];
 /* ===== TOAST ===== */
 let _tt=null;
@@ -558,7 +558,7 @@ function openMod(id){
   if(id==='km')initRt();
 }
 /* ===== SPLASH ===== */
-setTimeout(()=>document.getElementById('splash').classList.add('done'),650);
+setTimeout(()=>document.getElementById('splash').classList.add('done'),450);
 /* ===== CLOCK ===== */
 function tickClock(){
   const now=new Date();
@@ -597,17 +597,10 @@ async function loadPosts(){
       };
     }).filter(p=>p.id&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
 
-    postsKm=posts.map(p=>{
-      const k=kmAt(p.lat,p.lon);
-      return {
-        id:p.id,
-        lat:p.lat,
-        lon:p.lon,
-        km:k?k.km:null
-      };
-    });
-
-    renderApoio();
+    postsKm=posts.map(p=>({id:p.id,lat:p.lat,lon:p.lon,km:null}));
+    buildPostsIndex();
+    renderedKey='';
+    scheduleRenderApoio(true);
   }catch(e){}
 }
 async function loadKm(){
@@ -628,6 +621,8 @@ async function loadKm(){
       };
     }).filter(p=>Number.isFinite(p.km)&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
     updateKm();
+    renderedKey='';
+    scheduleRenderApoio(true);
   }catch(e){}
 }
 /* ===== KM CÁLCULO ===== */
@@ -648,6 +643,33 @@ function kmAt(lat,lon){
     if(d<bd){bd=d;best=p}
   }
   return best;
+}
+
+function buildPostsIndex(){
+  postsIndex.clear();
+  for(const p of posts){
+    const k=norm(p.id);
+    if(k&&!postsIndex.has(k))postsIndex.set(k,p);
+  }
+}
+function nearestPostsFast(qty){
+  if(!pos||!posts.length)return[];
+  const arr=[];
+  for(const p of posts){
+    arr.push({id:p.id,lat:p.lat,lon:p.lon,d:hav(pos.lat,pos.lon,p.lat,p.lon)});
+  }
+  arr.sort((a,b)=>a.d-b.d);
+  return arr.slice(0,qty);
+}
+function scheduleRenderApoio(force=false){
+  const now=Date.now();
+  if(force){renderedKey='';return renderApoio(true)}
+  if(now-lastApoioRender>900)return renderApoio(false);
+  clearTimeout(apoioRenderTimer);
+  apoioRenderTimer=setTimeout(()=>renderApoio(false),220);
+}
+function mapLink(lat,lon,label='Abrir mapa'){
+  return `<a class="map-action" href="https://maps.google.com/?q=${lat.toFixed(6)},${lon.toFixed(6)}" target="_blank" rel="noopener">🗺️ ${label}</a>`;
 }
 function updateKm(){
   const b=nearestKm();
@@ -670,7 +692,7 @@ function initApoio(){
     renderApoio();
     updateKm();
     updateSearchDist();
-  },null,{enableHighAccuracy:true,maximumAge:1000,timeout:5000});
+  },null,{enableHighAccuracy:true,maximumAge:1500,timeout:5000});
 }
 function searchId(){
   const term=norm(document.getElementById('inputId').value),
@@ -682,7 +704,7 @@ function searchId(){
     msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Carregando dados, tente novamente...';
     return;
   }
-  const found=postsIndex.get(term)||posts.find(p=>norm(p.id)===term||norm(p.id).includes(term));
+  const found=postsIndex.get(term)||posts.find(p=>norm(p.id).includes(term));
   if(!found){
     msg.style.display='flex';
     msg.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>ID "${term}" NÃO ENCONTRADO.`;
@@ -735,7 +757,7 @@ function renderSearch(){
       </div>
       <span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
     </div>
-    <a class="map-action" href="https://maps.google.com/?q=${searchItem.lat.toFixed(6)},${searchItem.lon.toFixed(6)}" target="_blank" rel="noopener">Abrir mapa</a>
+    ${mapLink(searchItem.lat,searchItem.lon,'Abrir mapa do ID')}
   </div>`;
 }
 function checkLock(){
@@ -750,35 +772,26 @@ function checkLock(){
   }
 }
 function renderApoio(force=false){
-  if(!pos||!postsKm.length)return;
-  const now=Date.now();
-  if(!force && now-lastRenderApoio<800){
-    clearTimeout(renderApoioTimer);
-    renderApoioTimer=setTimeout(()=>renderApoio(true),820);
-    return;
-  }
-  lastRenderApoio=now;
+  if(!pos||!posts.length)return;
+  lastApoioRender=Date.now();
   if(searchItem)updateSearchDist();
+
   const qty=Number(document.getElementById('qty').value||10);
-  const arr=[];
-  for(const p of postsKm){arr.push({id:p.id,lat:p.lat,lon:p.lon,km:p.km,d:hav(pos.lat,pos.lon,p.lat,p.lon)})}
-  arr.sort((a,b)=>a.d-b.d);
-  const items=arr.slice(0,qty);
-  const key=items.map(i=>i.id).join(',')+'|'+Math.round(pos.lat*10000)+'|'+Math.round(pos.lon*10000)+'|'+qty;
+  const items=nearestPostsFast(qty);
+  const key=items.map(i=>i.id+':'+Math.round(i.d)).join(',')+'|'+qty+'|'+kmDB.length;
   const list=document.getElementById('postList');
-  if(key===renderedKey){
-    items.forEach((o,i)=>{
-      const el=document.getElementById('dist-'+i),kmEl=document.getElementById('km-'+i);
-      if(el)el.textContent='Distância: '+range(o.d,pos.acc);
-      if(kmEl)kmEl.textContent=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
-    });
+
+  if(!force&&key===renderedKey){
     document.getElementById('btnSend').disabled=false;
     return;
   }
+
   renderedKey=key;
   const frag=document.createDocumentFragment();
+
   items.forEach((o,i)=>{
-    const kmLabel=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
+    const k=kmAt(o.lat,o.lon);
+    const kmLabel=k?('KM aprox: '+(Math.round(k.km*100)/100).toFixed(2).replace('.',',')):'KM aprox: —';
     const div=document.createElement('div');
     div.className='post'+(i===0?' near':'');
     div.innerHTML=`<div class="post-top">
@@ -790,9 +803,10 @@ function renderApoio(force=false){
       </div>
       <span class="post-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
     </div>
-    <a class="map-action" href="https://maps.google.com/?q=${o.lat.toFixed(6)},${o.lon.toFixed(6)}" target="_blank" rel="noopener">Abrir mapa</a>`;
+    ${document.getElementById('chkMaps').checked?mapLink(o.lat,o.lon,'Abrir mapa'):''}`;
     frag.appendChild(div);
   });
+
   list.replaceChildren(frag);
   document.getElementById('btnSend').disabled=false;
 }
@@ -804,7 +818,7 @@ document.getElementById('btnSend').onclick=()=>{
     chks.forEach(c=>items.push({id:c.value,lat:parseFloat(c.dataset.lat),lon:parseFloat(c.dataset.lon)}));
   }else{
     const qty=Number(document.getElementById('qty').value||10);
-    items=posts.map(p=>({...p,d:hav(pos.lat,pos.lon,p.lat,p.lon)})).sort((a,b)=>a.d-b.d).slice(0,qty).map(o=>({id:o.id,lat:o.lat,lon:o.lon}));
+    items=nearestPostsFast(qty).map(o=>({id:o.id,lat:o.lat,lon:o.lon}));
   }
   let tx=`📍 *LISTA DE LOCALIZAÇÃO DE POSTES*\nData/Hora: ${nowBR()}\nGPS Atual: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (${fmtAcc(pos.acc)})\n\n`;
   items.forEach((o,i)=>{
@@ -816,7 +830,8 @@ document.getElementById('btnSend').onclick=()=>{
   window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank','noopener');
   showToast(`${items.length} postes enviados`);
 };
-document.getElementById('qty').onchange=()=>{renderedKey='';renderApoio(true)};
+document.getElementById('qty').onchange=()=>scheduleRenderApoio(true);
+document.getElementById('chkMaps').onchange=()=>scheduleRenderApoio(true);
 /* ===== KM RT ===== */
 function initRt(){
   if(!kmDB.length)loadKm();
@@ -839,7 +854,7 @@ function initRt(){
       }
       if(best)document.getElementById('rtKm').textContent=(Math.round(best.km*100)/100).toFixed(2).replace('.',',');
     }
-  },()=>gpsBadge(document.getElementById('rtGps'),null,'Erro ao obter localização'),{enableHighAccuracy:true,maximumAge:1000,timeout:5000});
+  },()=>gpsBadge(document.getElementById('rtGps'),null,'Erro ao obter localização'),{enableHighAccuracy:true,maximumAge:1500,timeout:5000});
 }
 /* ===== INSPEÇÃO ===== */
 async function startApp(){
@@ -884,7 +899,7 @@ function initGpsInspecao(){
       if(d<minD){minD=d;best=pt}
     }
     if(best)document.getElementById('kmTxt').textContent='KM '+best.km;
-  },null,{enableHighAccuracy:true,maximumAge:1000,timeout:5000});
+  },null,{enableHighAccuracy:true});
 }
 function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
   ctx.drawImage(document.getElementById('vid'),0,0,w,h);
@@ -904,16 +919,18 @@ function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
 }
 async function manualPhoto(){
   if(!hDir)return;
-  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d',{alpha:false});
-  if(!vid.videoWidth)return;
-  const max=1280,scale=Math.min(1,max/Math.max(vid.videoWidth,vid.videoHeight));
-  c.width=Math.round(vid.videoWidth*scale);c.height=Math.round(vid.videoHeight*scale);
+  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d');
+  c.width=vid.videoWidth;
+  c.height=vid.videoHeight;
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.78));
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));
   const fh=await hDir.getFileHandle(`MANUAL_KM_${km}_${Date.now()}.jpg`,{create:true});
-  const w=await fh.createWritable();await w.write(blob);await w.close();
-  document.getElementById('ui-ctrl').classList.remove('hide');showToast('Foto manual salva');
+  const w=await fh.createWritable();
+  await w.write(blob);
+  await w.close();
+  document.getElementById('ui-ctrl').classList.remove('hide');
+  showToast('Foto manual salva');
 }
 function startCap(){
   capturing=true;
@@ -939,17 +956,22 @@ async function stopCap(){
 }
 function capLoop(){
   if(!capturing)return;
-  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d',{alpha:false});
-  if(!vid.videoWidth){setTimeout(capLoop,150);return}
-  const max=1280,scale=Math.min(1,max/Math.max(vid.videoWidth,vid.videoHeight));
-  c.width=Math.round(vid.videoWidth*scale);c.height=Math.round(vid.videoHeight*scale);
+  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d',{alpha:false,desynchronized:true});
+  if(!vid.videoWidth){setTimeout(()=>requestAnimationFrame(capLoop),120);return}
+  const maxW=1280,scale=Math.min(1,maxW/vid.videoWidth);
+  c.width=Math.round(vid.videoWidth*scale);
+  c.height=Math.round(vid.videoHeight*scale);
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  buffer.push(c.toDataURL('image/jpeg',.52));
+  buffer.push(c.toDataURL('image/jpeg',.50));
   const lote=parseInt(document.getElementById('cfgLote').value)||50;
-  if(buffer.length>=lote){const kmNow=km,pack=[...buffer];buffer=[];savePDF(pack,kmIniLote,kmNow);kmIniLote=kmNow;}
-  const ms=Math.max(500,parseInt(document.getElementById('cfgInt').value)||500);
-  setTimeout(()=>requestAnimationFrame(capLoop),ms);
+  if(buffer.length>=lote){
+    const kmNow=km;
+    savePDF([...buffer],kmIniLote,kmNow);
+    buffer=[];
+    kmIniLote=kmNow;
+  }
+  setTimeout(()=>requestAnimationFrame(capLoop),Math.max(500,parseInt(document.getElementById('cfgInt').value)||500));
 }
 async function savePDF(data,kmI,kmF){
   if(!data.length)return;
