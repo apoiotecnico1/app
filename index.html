@@ -502,8 +502,8 @@ canvas#c{display:none}
    CPS OS v2 — Sistema de Apoio & Inspeção (Protegido por Apps Script)
    ==================================================================== */
 
-/* COLOQUE AQUI A SUA URL DO GOOGLE APPS SCRIPT GERADA */
-const API_URL = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+/* SUA URL DO GOOGLE APPS SCRIPT CONFIGURADA */
+const API_URL = "https://script.google.com/macros/s/AKfycby1x03S5ycdautc9vZWKXPb7bM9djjOALuYtIXs1w9dWz2gkVSqNNHvI6mrzLNE4POujQ/exec";
 
 /* ===== UTILITIES ===== */
 const ACC_G=15,ACC_Y=35;
@@ -565,7 +565,7 @@ function gpsBadge(el,p,err){
 
 /* ===== CARREGAMENTO DE DADOS VIA GOOGLE SHEETS / APPS SCRIPT ===== */
 async function fetchSheetData(abaName){
-  if(!API_URL || API_URL.includes("https://script.google.com/macros/s/AKfycby1x03S5ycdautc9vZWKXPb7bM9djjOALuYtIXs1w9dWz2gkVSqNNHvI6mrzLNE4POujQ/exec")){
+  if(!API_URL || API_URL.includes("SUA_URL_DO_APPS_SCRIPT_AQUI")){
     showToast("Configure a API_URL do Apps Script!", "err");
     return [];
   }
@@ -583,18 +583,15 @@ async function fetchSheetData(abaName){
 
 async function loadPosts(){
   try{
-    // Substitui o antigo fetch('dados.csv') pela busca na aba da Planilha Google
-    // Dica: Crie uma aba chamada "dados" na sua planilha do Google
     const rows = await fetchSheetData("dados");
     if(!rows || rows.length < 2) return;
     
-    const h = rows[0]; // Cabeçalho da planilha
+    const h = rows[0];
     const iId = h.findIndex(col => /id.*nox|idnox|id/i.test(col));
     const iLat = h.findIndex(col => /latitude|lat/i.test(col));
     const iLon = h.findIndex(col => /longitude|lon|long/i.test(col));
     
     if(iId === -1 || iLat === -1 || iLon === -1) {
-      // Fallback caso as colunas estejam nas posições padrão (0, 1, 2)
       posts = rows.slice(1).map(r => ({
         id: String(r[0]||'').trim().toUpperCase(),
         lat: parsePt(r[1]),
@@ -619,8 +616,6 @@ async function loadPosts(){
 
 async function loadKm(){
   try{
-    // Substitui o antigo fetch('SNVBR116SPRJ.csv') pela busca na aba da Planilha Google
-    // Dica: Crie uma aba chamada "snv" na sua planilha do Google com esses dados
     const rows = await fetchSheetData("snv");
     if(!rows || rows.length < 2) return;
     
@@ -1157,7 +1152,6 @@ function capLoop(){
   c.height=vid.videoHeight;
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  buffer.path?.(c.toDataURL('image/jpeg',.58));
   buffer.push(c.toDataURL('image/jpeg',.58));
   const lote=parseInt(document.getElementById('cfgLote').value)||50;
   if(buffer.length>=lote){
