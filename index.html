@@ -199,10 +199,10 @@
     </div>
 
     <script>
-        // URL do seu Google Apps Script / Google Sheets fornecida
-        const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycby1x03S5ycdautc9vZWKXPb7bM9djjOALuYtIXs1w9dWz2gkVSqNNHvI6mrzLNE4POujQ/exec';
-        const CACHE_KEY = 'cps_os_sheets_data_v2';
-        const CACHE_TIME_KEY = 'cps_os_sheets_time_v2';
+        // URL do seu Google Apps Script atualizada
+        const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwApzUG_khQcS4fdEHkQCaEcgiJ0Qtik8D4ZXxCayeeOHSOITv6mpjnslFnAVDjN4Uc2A/exec';
+        const CACHE_KEY = 'cps_os_sheets_data_v3';
+        const CACHE_TIME_KEY = 'cps_os_sheets_time_v3';
 
         let baseDeDados = [];
 
@@ -234,7 +234,7 @@
                 
                 const json = await response.json();
                 
-                // Trata o formato do retorno (esperando array de objetos ou similar da planilha)
+                // Trata o formato do retorno da planilha
                 baseDeDados = Array.isArray(json) ? json : (json.dados || json.rows || []);
 
                 // Salva no cache local
@@ -272,12 +272,12 @@
                 return;
             }
 
-            // Filtro dinâmico na base de dados carregada da planilha
+            // Filtro dinâmico na base de dados carregada
             const resultados = baseDeDados.filter(item => {
                 return Object.values(item).some(val => 
                     String(val).toLowerCase().includes(termo)
                 );
-            }).slice(0, 15); // Limita a 15 resultados para manter a fluidez
+            }).slice(0, 15);
 
             if (resultados.length === 0) {
                 containerRes.innerHTML = 'Nenhum registro encontrado.';
@@ -285,8 +285,7 @@
             }
 
             let html = '';
-            resultados.forEach((item, index) => {
-                // Pega as chaves e valores principais de forma genérica
+            resultados.forEach((item) => {
                 let textoItem = Object.entries(item)
                     .map(([k, v]) => `<b>${k}:</b> ${v}`)
                     .join(' | ');
