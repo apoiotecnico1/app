@@ -1,252 +1,314 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestão de Postes e KM</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background: #f4f6f9; color: #333; }
-    h2 { color: #2c3e50; font-size: 1.4rem; margin-bottom: 10px; }
-    .card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; }
-    input, button { width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-    button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:active { background: #0056b3; }
-    .btn-sync { background: #28a745; margin-top: 5px; }
-    .btn-sync:active { background: #1e7e34; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9rem; }
-    th { background: #007bff; color: white; }
-    #status { font-weight: bold; color: #555; margin-bottom: 10px; font-size: 0.95rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CPS OS v2 - Apoio & Inspeção</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #22c55e;
+            --danger: #ef4444;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: #334155;
+            color: var(--text-muted);
+        }
+
+        .status-badge.online {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            padding-bottom: var(--safe-bottom);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            border-left: 3px solid var(--primary);
+            padding-left: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:active {
+            background-color: var(--primary-dark);
+        }
+
+        .resultado-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            gap: 10px;
+            transition: opacity 0.3s ease;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #334155;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
 
-  <h2>Controle de Postes e KM</h2>
-  
-  <div class="card">
-    <div id="status">Status: Pronto</div>
-    <input type="text" id="searchInput" placeholder="Pesquisar ID do poste ou KM..." oninput="filterData()">
-    <button class="btn-sync" onclick="clearCacheAndReload()">🔄 Atualizar Dados da Nuvem</button>
-  </div>
-
-  <div class="card">
-    <h3>Resultados</h3>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>ID do Poste</th>
-            <th>KM</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-          </tr>
-        <thead id="tableBody">
-          <tr><td colspan="4" style="text-align:center;">Carregando dados...</td></tr>
-        </tbody>
-      </table>
+    <!-- Tela de Carregamento Inicial -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loadingText" style="font-size: 0.9rem; color: var(--text-muted);">Carregando dados do Google Sheets...</p>
     </div>
-  </div>
 
-<script>
-  // Cole aqui a URL exata do seu Web App do Google Apps Script
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby1x03S5ycdautc9vZWKXPb7bM9djjOALuYtIXs1w9dWz2gkVSqNNHvI6mrzLNE4POujQ/exec";
+    <header>
+        <h1>⚡ CPS OS v2</h1>
+        <div id="syncStatus" class="status-badge">Sincronizando...</div>
+    </header>
 
-  let posts = [];
-  let kmDB = [];
-  let postsKm = [];
-  let renderedKey = '';
+    <div class="container">
+        <!-- Módulo 1: Localizador de Ativos / Postes -->
+        <div class="card">
+            <h2>Apoio de Localização</h2>
+            <div class="form-group">
+                <label for="buscaInput">Buscar por ID, OS ou KM:</label>
+                <input type="text" id="buscaInput" placeholder="Ex: P-102 ou 45.5" oninput="filtrarDados()">
+            </div>
+            <div id="resultadoBusca" class="resultado-box">Digite para iniciar a busca na base...</div>
+        </div>
 
-  // Inicialização veloz ao carregar a página
-  window.onload = async function() {
-    document.getElementById('status').innerText = "Status: Carregando dados locais...";
-    await loadPosts();
-    await loadKm();
-  };
+        <!-- Módulo 2: KM em Tempo Real & Status -->
+        <div class="card">
+            <h2>Monitoramento e Coordenadas</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px;">
+                <div>📍 Base de Dados: <span id="totalRegistros" style="color: var(--text-color);">0</span> itens carregados</div>
+                <div>🕒 Sincronização: <span id="ultimaSinc" style="color: var(--text-color);">Nunca</span></div>
+            </div>
+            <button style="margin-top: 12px;" onclick="forcarAtualizacao()">🔄 Atualizar Planilha Agora</button>
+        </div>
+    </div>
 
-  // Botão para forçar a limpeza do cache e buscar dados novos da planilha
-  async function clearCacheAndReload() {
-    if(confirm("Deseja atualizar os dados direto da planilha do Google?")) {
-      localStorage.removeItem('cps_posts_cache');
-      localStorage.removeItem('cps_snv_cache');
-      posts = [];
-      kmDB = [];
-      postsKm = [];
-      document.getElementById('status').innerText = "Status: Baixando novos dados...";
-      await loadPosts();
-      await loadKm();
-      alert("Dados atualizados com sucesso!");
-    }
-  }
+    <script>
+        // URL do seu Google Apps Script / Google Sheets fornecida
+        const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycby1x03S5ycdautc9vZWKXPb7bM9djjOALuYtIXs1w9dWz2gkVSqNNHvI6mrzLNE4POujQ/exec';
+        const CACHE_KEY = 'cps_os_sheets_data_v2';
+        const CACHE_TIME_KEY = 'cps_os_sheets_time_v2';
 
-  async function fetchSheetData(abaName) {
-    try {
-      const response = await fetch(`${WEB_APP_URL}?aba=${abaName}`);
-      const data = await response.json();
-      return data;
-    } catch(e) {
-      console.error("Erro ao buscar aba " + abaName, e);
-      return null;
-    }
-  }
+        let baseDeDados = [];
 
-  function findCol(headers, names) {
-    const hLower = headers.map(h => String(h).toLowerCase().trim());
-    for(let name of names) {
-      const idx = hLower.indexOf(name);
-      if(idx !== -1) return idx;
-    }
-    for(let name of names) {
-      const idx = hLower.findIndex(h => h.includes(name));
-      if(idx !== -1) return idx;
-    }
-    return -1;
-  }
+        window.addEventListener('DOMContentLoaded', () => {
+            inicializarSistema();
+        });
 
-  function parsePt(val) {
-    if(typeof val === 'number') return val;
-    if(!val) return NaN;
-    let s = String(val).trim().replace(',', '.');
-    return parseFloat(s);
-  }
+        async function inicializarSistema() {
+            // 1. Tenta carregar do cache local imediatamente para zero delay
+            const dadosCache = localStorage.getItem(CACHE_KEY);
+            const tempoCache = localStorage.getItem(CACHE_TIME_KEY);
 
-  // Carregamento Otimizado de Postes com Cache Local
-  async function loadPosts(){
-    const cached = localStorage.getItem('cps_posts_cache');
-    if(cached){
-      try{
-        posts = JSON.parse(cached);
-        processPostsData();
-        return;
-      }catch(e){/* ignora cache corrompido */}
-    }
+            if (dadosCache) {
+                baseDeDados = JSON.parse(dadosCache);
+                atualizarInterface(baseDeDados);
+                esconderLoading();
+                document.getElementById('syncStatus').innerText = 'Modo Cache (Pronto)';
+                if (tempoCache) document.getElementById('ultimaSinc').innerText = new Date(Number(tempoCache)).toLocaleTimeString();
+            }
 
-    try{
-      const rows = await fetchSheetData("dados");
-      if(!rows || rows.length < 2) return;
-      
-      const h = rows[0];
-      const iId = findCol(h, ['id do nox', 'idnox', 'id']);
-      const iLat = findCol(h, ['latitude', 'lat']);
-      const iLon = findCol(h, ['longitude', 'lon', 'long']);
-      
-      posts = rows.slice(1).map(r => ({
-        id: String(r[iId >= 0 ? iId : 0] || '').trim().toUpperCase(),
-        lat: parsePt(r[iLat >= 0 ? iLat : 1]),
-        lon: parsePt(r[iLon >= 0 ? iLon : 2])
-      })).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
+            // 2. Busca dados atualizados da API do Google em segundo plano
+            await baixarDadosDoGoogleSheets(!dadosCache);
+        }
 
-      localStorage.setItem('cps_posts_cache', JSON.stringify(posts));
-      processPostsData();
-    }catch(e){console.error(e);}
-  }
+        async function baixarDadosDoGoogleSheets(mostrarErroObrigatorio = false) {
+            try {
+                const response = await fetch(SHEET_API_URL);
+                if (!response.ok) throw new Error('Erro na requisição');
+                
+                const json = await response.json();
+                
+                // Trata o formato do retorno (esperando array de objetos ou similar da planilha)
+                baseDeDados = Array.isArray(json) ? json : (json.dados || json.rows || []);
 
-  function processPostsData(){
-    postsKm = posts.map(p=>{
-      const k = kmAt(p.lat, p.lon);
-      return { id: p.id, lat: p.lat, lon: p.lon, km: k ? k.km : null };
-    });
-    renderApoio();
-  }
+                // Salva no cache local
+                localStorage.setItem(CACHE_KEY, JSON.stringify(baseDeDados));
+                localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
 
-  // Carregamento Otimizado de KM (SNV) com Cache Local
-  async function loadKm(){
-    const cached = localStorage.getItem('cps_snv_cache');
-    if(cached){
-      try{
-        kmDB = JSON.parse(cached);
-        processKmData();
-        return;
-      }catch(e){/* ignora */}
-    }
+                atualizarInterface(baseDeDados);
+                esconderLoading();
+                
+                document.getElementById('syncStatus').innerText = 'Online (Sincronizado)';
+                document.getElementById('syncStatus').classList.add('online');
+                document.getElementById('ultimaSinc').innerText = new Date().toLocaleTimeString();
 
-    try{
-      const rows = await fetchSheetData("snv");
-      if(!rows || rows.length < 2) return;
-      
-      const h = rows[0];
-      const iKm = findCol(h, ['km']);
-      const iLat = findCol(h, ['lat', 'latitude']);
-      const iLon = findCol(h, ['lon', 'long', 'longitude']);
+            } catch (error) {
+                console.error("Erro ao sincronizar com Google Sheets:", error);
+                if (mostrarErroObrigatorio && baseDeDados.length === 0) {
+                    document.getElementById('loadingText').innerText = 'Erro ao carregar. Verifique a conexão.';
+                    setTimeout(esconderLoading, 2000);
+                } else {
+                    document.getElementById('syncStatus').innerText = 'Modo Offline';
+                }
+            }
+        }
 
-      kmDB = rows.slice(1).map(r => ({
-        km: parsePt(r[iKm >= 0 ? iKm : 0]),
-        lat: parsePt(r[iLat >= 0 ? iLat : 1]),
-        lon: parsePt(r[iLon >= 0 ? iLon : 2])
-      })).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
+        function atualizarInterface(dados) {
+            document.getElementById('totalRegistros').innerText = dados.length;
+        }
 
-      localStorage.setItem('cps_snv_cache', JSON.stringify(kmDB));
-      processKmData();
-    }catch(e){console.error(e);}
-  }
+        function filtrarDados() {
+            const termo = document.getElementById('buscaInput').value.toLowerCase().trim();
+            const containerRes = document.getElementById('resultadoBusca');
 
-  function processKmData(){
-    if(posts.length){
-      postsKm = posts.map(p=>{
-        const k = kmAt(p.lat, p.lon);
-        return { id: p.id, lat: p.lat, lon: p.lon, km: k ? k.km : null };
-      });
-      renderedKey = '';
-      renderApoio();
-    }
-    updateKm();
-  }
+            if (!termo || termo.length < 2) {
+                containerRes.innerHTML = 'Digite ao menos 2 caracteres para buscar...';
+                return;
+            }
 
-  function kmAt(lat, lon) {
-    if(!kmDB.length) return null;
-    let best = null;
-    let minDist = Infinity;
-    for(let i=0; i<kmDB.length; i++) {
-      let d = Math.abs(kmDB[i].lat - lat) + Math.abs(kmDB[i].lon - lon);
-      if(d < minDist) {
-        minDist = d;
-        best = kmDB[i];
-      }
-    }
-    return best;
-  }
+            // Filtro dinâmico na base de dados carregada da planilha
+            const resultados = baseDeDados.filter(item => {
+                return Object.values(item).some(val => 
+                    String(val).toLowerCase().includes(termo)
+                );
+            }).slice(0, 15); // Limita a 15 resultados para manter a fluidez
 
-  function updateKm() {
-    let pendentes = postsKm.filter(p => p.km === null).length;
-    if(pendentes === 0 && postsKm.length > 0) {
-      document.getElementById('status').innerText = "Status: Pronto (Dados carregados velozmente via Cache)";
-    } else if(postsKm.length > 0) {
-      document.getElementById('status').innerText = "Status: Processando KM...";
-    }
-  }
+            if (resultados.length === 0) {
+                containerRes.innerHTML = 'Nenhum registro encontrado.';
+                return;
+            }
 
-  function renderApoio() {
-    filterData();
-    updateKm();
-  }
+            let html = '';
+            resultados.forEach((item, index) => {
+                // Pega as chaves e valores principais de forma genérica
+                let textoItem = Object.entries(item)
+                    .map(([k, v]) => `<b>${k}:</b> ${v}`)
+                    .join(' | ');
+                html += `<div style="padding: 6px 0; border-bottom: 1px solid #334155;">${textoItem}</div>`;
+            });
 
-  function filterData() {
-    const query = document.getElementById('searchInput').value.trim().toUpperCase();
-    const filtered = postsKm.filter(p => {
-      if(!query) return true;
-      const matchId = p.id.includes(query);
-      const matchKm = p.km !== null && String(p.km).includes(query);
-      return matchId || matchKm;
-    });
+            containerRes.innerHTML = html;
+        }
 
-    let html = '';
-    const limit = 100; // Limita exibição para manter a rolagem ultra rápida no celular
-    const sliceData = filtered.slice(0, limit);
+        function forcarAtualizacao() {
+            document.getElementById('loadingText').innerText = 'Atualizando planilha do Google...';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            baixarDadosDoGoogleSheets(true);
+        }
 
-    if(sliceData.length === 0) {
-      html = '<tr><td colspan="4" style="text-align:center;">Nenhum poste encontrado.</td></tr>';
-    } else {
-      sliceData.forEach(p => {
-        html += `<tr>
-          <td>${p.id}</td>
-          <td>${p.km !== null ? p.km.toFixed(2) : 'Calculando...'}</td>
-          <td>${p.lat.toFixed(6)}</td>
-          <td>${p.lon.toFixed(6)}</td>
-        </tr>`;
-      });
-    }
-    document.getElementById('tableBody').innerHTML = html;
-  }
-</script>
-
+        function esconderLoading() {
+            const loader = document.getElementById('loadingOverlay');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 300);
+            }
+        }
+    </script>
 </body>
 </html>
