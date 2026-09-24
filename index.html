@@ -499,10 +499,9 @@ canvas#c{display:none}
 <div class="toast" id="toast" aria-live="polite"></div>
 <script>
 /* ====================================================================
-   CPS OS v2 — Sistema de Apoio & Inspeção (Protegido por Apps Script)
+   CPS OS v2 — Sistema de Apoio & Inspeção (Corrigido)
    ==================================================================== */
 
-/* SUA URL DO GOOGLE APPS SCRIPT CONFIGURADA */
 const API_URL = "https://script.google.com/macros/s/AKfycby1x03S5ycdautc9vZWKXPb7bM9djjOALuYtIXs1w9dWz2gkVSqNNHvI6mrzLNE4POujQ/exec";
 
 /* ===== UTILITIES ===== */
@@ -513,6 +512,7 @@ const hav=(a,b,c,d)=>{const p=Math.PI/180,x=.5-Math.cos((c-a)*p)/2+Math.cos(a*p)
 const range=(dist,acc=0)=>{const d=Math.round(dist),e=Number.isFinite(acc)?Math.round(acc):0;return`${Math.max(0,d-e)}M A ${d+e}M`};
 const fmtAcc=a=>!Number.isFinite(a)?'—':`±${Math.round(a)}M`;
 const nowBR=()=>new Date().toLocaleString('pt-BR').toUpperCase();
+function findCol(h,cs){const m=h.map(norm);for(const c of cs){const i=m.indexOf(norm(c));if(i>=0)return i}return-1}
 
 /* ===== STATE ===== */
 let posts=[],postsKm=[],kmDB=[],pos=null,searchItem=null,renderedKey='',apoioInit=false,rtInit=false;
@@ -587,23 +587,15 @@ async function loadPosts(){
     if(!rows || rows.length < 2) return;
     
     const h = rows[0];
-    const iId = h.findIndex(col => /id.*nox|idnox|id/i.test(col));
-    const iLat = h.findIndex(col => /latitude|lat/i.test(col));
-    const iLon = h.findIndex(col => /longitude|lon|long/i.test(col));
+    const iId = findCol(h, ['id do nox', 'idnox', 'id']);
+    const iLat = findCol(h, ['latitude', 'lat']);
+    const iLon = findCol(h, ['longitude', 'lon', 'long']);
     
-    if(iId === -1 || iLat === -1 || iLon === -1) {
-      posts = rows.slice(1).map(r => ({
-        id: String(r[0]||'').trim().toUpperCase(),
-        lat: parsePt(r[1]),
-        lon: parsePt(r[2])
-      })).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
-    } else {
-      posts = rows.slice(1).map(r => ({
-        id: String(r[iId]||'').trim().toUpperCase(),
-        lat: parsePt(r[iLat]),
-        lon: parsePt(r[iLon])
-      })).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
-    }
+    posts = rows.slice(1).map(r => ({
+      id: String(r[iId >= 0 ? iId : 0] || '').trim().toUpperCase(),
+      lat: parsePt(r[iLat >= 0 ? iLat : 1]),
+      lon: parsePt(r[iLon >= 0 ? iLon : 2])
+    })).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
 
     postsKm = posts.map(p=>{
       const k = kmAt(p.lat, p.lon);
@@ -620,23 +612,15 @@ async function loadKm(){
     if(!rows || rows.length < 2) return;
     
     const h = rows[0];
-    const iKm = h.findIndex(col => /^km$/i.test(col));
-    const iLat = h.findIndex(col => /lat|latitude/i.test(col));
-    const iLon = h.findIndex(col => /lon|long|longitude/i.test(col));
+    const iKm = findCol(h, ['km']);
+    const iLat = findCol(h, ['lat', 'latitude']);
+    const iLon = findCol(h, ['lon', 'long', 'longitude']);
 
-    if(iKm === -1 || iLat === -1 || iLon === -1) {
-      kmDB = rows.slice(1).map(r => ({
-        km: parsePt(r[0]),
-        lat: parsePt(r[1]),
-        lon: parsePt(r[2])
-      })).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
-    } else {
-      kmDB = rows.slice(1).map(r => ({
-        km: parsePt(r[iKm]),
-        lat: parsePt(r[iLat]),
-        lon: parsePt(r[iLon])
-      })).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
-    }
+    kmDB = rows.slice(1).map(r => ({
+      km: parsePt(r[iKm >= 0 ? iKm : 0]),
+      lat: parsePt(r[iLat >= 0 ? iLat : 1]),
+      lon: parsePt(r[iLon >= 0 ? iLon : 2])
+    })).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
 
     if(posts.length){
       postsKm = posts.map(p=>{
