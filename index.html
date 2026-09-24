@@ -499,7 +499,7 @@ canvas#c{display:none}
 <div class="toast" id="toast" aria-live="polite"></div>
 <script>
 /* ====================================================================
-   CPS OS v2 — Sistema de Apoio & Inspeção (Atualizado para API Apps Script)
+   CPS OS v2 — Sistema de Apoio & Inspeção (Alta Performance)
    ==================================================================== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbwApzUG_khQcS4fdEHkQCaEcgiJ0Qtik8D4ZXxCayeeOHSOITv6mpjnslFnAVDjN4Uc2A/exec';
 
@@ -539,7 +539,7 @@ function openMod(id){
 }
 
 /* ===== SPLASH ===== */
-setTimeout(()=>document.getElementById('splash').classList.add('done'),2200);
+setTimeout(()=>document.getElementById('splash').classList.add('done'),1500);
 
 /* ===== CLOCK ===== */
 function tickClock(){
@@ -561,19 +561,36 @@ function gpsBadge(el,p,err){
   el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>${txt}`;
 }
 
-/* ===== DADOS & SNV VIA APPS SCRIPT API ===== */
+/* ===== DADOS & SNV COM CACHE LOCAL OTIMIZADO ===== */
+function loadCachedData(){
+  try{
+    const cachedPosts = localStorage.getItem('cps_posts');
+    const cachedKm = localStorage.getItem('cps_km');
+    if(cachedPosts && cachedKm){
+      posts = JSON.parse(cachedPosts);
+      kmDB = JSON.parse(cachedKm);
+      buildPostsKm();
+      updateKm();
+    }
+  }catch(e){}
+}
+
 async function loadDataFromApi(){
+  loadCachedData(); // Carrega imediato se houver cache local
   try {
     const res = await fetch(`${API_URL}?action=getData`, { cache: 'no-store' });
-    if(!res.ok) throw new Error('Erro ao buscar dados do Apps Script');
+    if(!res.ok) throw new Error('Erro ao buscar dados');
     const json = await res.json();
     
+    let updated = false;
     if(json.dados && Array.isArray(json.dados)){
       posts = json.dados.map(row => ({
         id: String(row.id || row.ID_DO_NOX || row.IDNOX || '').trim().toUpperCase(),
         lat: parsePt(row.lat || row.latitude || row.LATITUDE),
         lon: parsePt(row.lon || row.longitude || row.LONGITUDE || row.LONG)
       })).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
+      localStorage.setItem('cps_posts', JSON.stringify(posts));
+      updated = true;
     }
 
     if(json.snv && Array.isArray(json.snv)){
@@ -582,25 +599,32 @@ async function loadDataFromApi(){
         lat: parsePt(row.lat || row.latitude || row.LAT),
         lon: parsePt(row.lon || row.longitude || row.LONGITUDE || row.LONG)
       })).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
+      localStorage.setItem('cps_km', JSON.stringify(kmDB));
+      updated = true;
     }
 
-    if(posts.length){
-      postsKm = posts.map(p=>{
-        const k = kmAt(p.lat, p.lon);
-        return { id: p.id, lat: p.lat, lon: p.lon, km: k ? k.km : null };
-      });
-      renderedKey = '';
-      renderApoio();
+    if(updated){
+      buildPostsKm();
+      updateKm();
+      showToast('Dados sincronizados');
     }
-    updateKm();
-    showToast('Dados atualizados com sucesso');
   } catch(e){
-    console.error(e);
-    showToast('Erro ao carregar dados da API', 'err');
+    if(!posts.length) showToast('Modo offline / Erro na API', 'err');
   }
 }
 
-/* ===== KM CÁLCULO ===== */
+function buildPostsKm(){
+  if(posts.length && kmDB.length){
+    postsKm = posts.map(p=>{
+      const k = kmAt(p.lat, p.lon);
+      return { id: p.id, lat: p.lat, lon: p.lon, km: k ? k.km : null };
+    });
+    renderedKey = '';
+    renderApoio();
+  }
+}
+
+/* ===== KM CÁLCULO OTIMIZADO ===== */
 function nearestKm(){
   if(!pos || !kmDB.length) return null;
   let best=null, bd=Infinity;
@@ -610,6 +634,7 @@ function nearestKm(){
   }
   return best;
 }
+
 function kmAt(lat, lon){
   if(!kmDB.length) return null;
   let best=null, bd=Infinity;
@@ -619,13 +644,14 @@ function kmAt(lat, lon){
   }
   return best;
 }
+
 function updateKm(){
   const b = nearestKm();
   if(b){
     const v = (Math.round(b.km*100)/100).toFixed(2).replace('.',',');
     document.getElementById('kmVal').textContent = v;
     const s = document.getElementById('kmSource');
-    if(s) s.textContent = `Referência: ${kmDB.length} pontos`;
+    if(s) s.textContent = `Pontos SNV: ${kmDB.length}`;
   }
 }
 
@@ -641,9 +667,10 @@ function initApoio(){
       renderApoio();
       updateKm();
       updateSearchDist();
-    }, null, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+    }, null, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
   }
 }
+
 function searchId(){
   const term = norm(document.getElementById('inputId').value),
         msg = document.getElementById('searchMsg'),
@@ -651,7 +678,7 @@ function searchId(){
   if(!term){ clearId(); return; }
   if(!posts.length){
     msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Carregando dados, tente novamente...';
+    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Aguardando dados...';
     return;
   }
   const found = posts.find(p => norm(p.id) === term || norm(p.id).includes(term));
@@ -665,6 +692,7 @@ function searchId(){
   renderSearch();
   showToast('Poste encontrado: '+found.id);
 }
+
 function clearId(){
   document.getElementById('inputId').value = '';
   document.getElementById('searchMsg').style.display = 'none';
@@ -672,6 +700,7 @@ function clearId(){
   searchItem = null;
   checkLock();
 }
+
 function updateSearchDist(){
   if(!searchItem || !pos) return;
   const el = document.getElementById('srch-dist');
@@ -684,6 +713,7 @@ function updateSearchDist(){
   }
   checkLock();
 }
+
 function renderSearch(){
   if(!searchItem) return;
   const res = document.getElementById('searchResult');
@@ -717,6 +747,7 @@ function renderSearch(){
     </div>
   </div>`;
 }
+
 function checkLock(){
   const b = document.getElementById('targetLock');
   if(!searchItem || !pos){ b.classList.remove('on'); return; }
@@ -728,16 +759,15 @@ function checkLock(){
     b.classList.remove('on');
   }
 }
+
 function renderApoio(){
   if(!pos || !postsKm.length) return;
   if(searchItem) updateSearchDist();
 
   const qty = Number(document.getElementById('qty').value || 10);
-
-  const items = postsKm.map(p=>{
-    const d = hav(pos.lat, pos.lon, p.lat, p.lon);
-    return { id: p.id, lat: p.lat, lon: p.lon, km: p.km, d };
-  }).sort((a,b)=>a.d-b.d).slice(0, qty);
+  const items = postsKm.map(p=>({
+    id: p.id, lat: p.lat, lon: p.lon, km: p.km, d: hav(pos.lat, pos.lon, p.lat, p.lon)
+  })).sort((a,b)=>a.d-b.d).slice(0, qty);
 
   const key = items.map(i=>i.id).join(',');
   const list = document.getElementById('postList');
@@ -849,6 +879,7 @@ function setSearchMode(mode){
     panKm.style.display = 'none';
   }
 }
+
 function parseKmInput(raw){
   const original = String(raw||'').trim();
   const clean = original.replace(',', '.');
@@ -857,14 +888,7 @@ function parseKmInput(raw){
   const isFullKm = /^\d+$/.test(original);
   return { original, value, isFullKm };
 }
-function ensurePostsKmReady(){
-  if(posts.length && kmDB.length && (!postsKm.length || postsKm.every(p=>p.km==null))){
-    postsKm = posts.map(p=>{
-      const k = kmAt(p.lat, p.lon);
-      return { id: p.id, lat: p.lat, lon: p.lon, km: k ? k.km : null };
-    });
-  }
-}
+
 function searchByKm(){
   const input = document.getElementById('inputKm');
   const msg = document.getElementById('kmSearchMsg');
@@ -878,10 +902,9 @@ function searchByKm(){
     res.style.display = 'none';
     return;
   }
-  ensurePostsKmReady();
-  if(!postsKm.length || postsKm.every(p=>p.km==null)){
+  if(!postsKm.length){
     msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>DADOS DE KM AINDA CARREGANDO. TENTE NOVAMENTE.';
+    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>DADOS AINDA CARREGANDO.';
     res.style.display = 'none';
     return;
   }
@@ -897,7 +920,7 @@ function searchByKm(){
     title = `Faixa KM ${parsed.value.toFixed(0)},00 até ${parsed.value.toFixed(0)},99`;
     if(!items.length){
       items = valid.map(p => ({ ...p, delta: Math.abs(p.km - parsed.value) })).sort((a,b)=>a.delta-b.delta).slice(0, qty);
-      title = `Nenhum poste na faixa. Mais próximos do KM ${parsed.value.toFixed(0)}`;
+      title = `Mais próximos do KM ${parsed.value.toFixed(0)}`;
     }
   } else {
     items = valid.map(p => ({ ...p, delta: Math.abs(p.km - parsed.value) })).sort((a,b)=>a.delta-b.delta).slice(0, qty);
@@ -906,7 +929,7 @@ function searchByKm(){
 
   if(!items.length){
     msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>NENHUM RESULTADO ENCONTRADO.';
+    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>NENHUM RESULTADO.';
     res.style.display = 'none';
     return;
   }
@@ -914,7 +937,7 @@ function searchByKm(){
   msg.style.display = 'none';
   res.style.display = 'block';
   res.innerHTML = `<p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:10px">${title}</p>`+
-    items.map((o,i)=>{
+    items.map((o)=>{
       const dTxt = pos ? ('Distância: '+range(hav(pos.lat, pos.lon, o.lat, o.lon), pos.acc)) : 'Distância: aguardando GPS...';
       const deltaM = Math.round(o.delta * 1000);
       return `<div class="post searched" style="margin-bottom:10px">
@@ -935,8 +958,9 @@ function searchByKm(){
         </div>
       </div>`;
     }).join('');
-  showToast(`${items.length} resultado(s) por KM`);
+  showToast(`${items.length} resultado(s)`);
 }
+
 function clearKm(){
   const i = document.getElementById('inputKm'), m = document.getElementById('kmSearchMsg'), r = document.getElementById('kmSearchResult');
   if(i) i.value = '';
@@ -946,7 +970,7 @@ function clearKm(){
 
 /* ===== KM RT ===== */
 function initRt(){
-  if(!kmDB.length) loadDataFromApi();
+  if(!kmDB.length) loadCachedData();
   if(rtInit) return;
   rtInit = true;
   if(!('geolocation' in navigator)){
@@ -966,28 +990,29 @@ function initRt(){
       }
       if(best) document.getElementById('rtKm').textContent = (Math.round(best.km*100)/100).toFixed(2).replace('.',',');
     }
-  }, ()=>gpsBadge(document.getElementById('rtGps'), null, 'Erro ao obter localização'), { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+  }, ()=>gpsBadge(document.getElementById('rtGps'), null, 'Erro de sinal'), { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
 }
 
 /* ===== INSPEÇÃO ===== */
 async function startApp(){
   const err = document.getElementById('gateErr');
   try{
-    if(!window.showDirectoryPicker) throw new Error('Este navegador não permite selecionar pasta. Use Chrome ou Edge.');
+    if(!window.showDirectoryPicker) throw new Error('Navegador não suportado. Use Chrome ou Edge.');
     hDir = await window.showDirectoryPicker({ mode: 'readwrite' });
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app-shell').style.visibility = 'visible';
     if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen').catch(()=>null);
     await listCams();
-    if(!kmDB.length) loadDataFromApi();
+    if(!kmDB.length) loadCachedData();
     initGpsInspecao();
     document.documentElement.requestFullscreen?.().catch(()=>null);
-    showToast('Sistema de inspeção ativado');
+    showToast('Inspeção ativa');
   }catch(e){
     err.style.display = 'block';
-    err.textContent = e.message || 'Permissão de câmera e pasta necessária.';
+    err.textContent = e.message || 'Permissão necessária.';
   }
 }
+
 async function listCams(){
   const devices = await navigator.mediaDevices.enumerateDevices();
   cameras = devices.filter(d => d.kind === 'videoinput');
@@ -995,12 +1020,14 @@ async function listCams(){
   sel.innerHTML = cameras.map((d,i)=>`<option value="${d.deviceId}">CÂMERA ${i+1}</option>`).join('');
   if(cameras.length) await switchCam(cameras[cameras.length-1].deviceId);
 }
+
 async function switchCam(id){
   if(stream) stream.getTracks().forEach(t=>t.stop());
   stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: id ? { exact: id } : undefined, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
   document.getElementById('vid').srcObject = stream;
   cam = id;
 }
+
 function initGpsInspecao(){
   navigator.geolocation.watchPosition(p=>{
     lat = p.coords.latitude.toFixed(6);
@@ -1008,12 +1035,13 @@ function initGpsInspecao(){
     if(!kmDB.length) return;
     let best = null, minD = Infinity;
     for(const pt of kmDB){
-      const d = Math.hypot(pt.lat - p.coords.latitude, pt.lon - p.coords.longitude);
+      const d = Math.abs(pt.lat - p.coords.latitude) + Math.abs(pt.lon - p.coords.longitude);
       if(d < minD){ minD = d; best = pt; }
     }
     if(best) document.getElementById('kmTxt').textContent = 'KM '+best.km;
-  }, null, { enableHighAccuracy: true });
+  }, null, { enableHighAccuracy: true, maximumAge: 0 });
 }
+
 function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
   ctx.drawImage(document.getElementById('vid'),0,0,w,h);
   const bh = h * .13;
@@ -1062,6 +1090,7 @@ function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
     ctx.fillText(text, rx+padX, ry+padY+fs*.82);
   }
 }
+
 async function manualPhoto(){
   if(!hDir) return;
   const vid = document.getElementById('vid'), c = document.getElementById('c'), ctx = c.getContext('2d');
@@ -1075,8 +1104,9 @@ async function manualPhoto(){
   await w.write(blob);
   await w.close();
   document.getElementById('ui-ctrl').classList.remove('hide');
-  showToast('Foto manual salva');
+  showToast('Foto salva');
 }
+
 function startCap(){
   capturing = true;
   buffer = [];
@@ -1087,6 +1117,7 @@ function startCap(){
   document.getElementById('ui-ctrl').classList.add('hide');
   capLoop();
 }
+
 async function stopCap(){
   capturing = false;
   if(buffer.length){
@@ -1099,15 +1130,16 @@ async function stopCap(){
   document.getElementById('rec-tag').classList.remove('on');
   document.getElementById('ui-ctrl').classList.remove('hide');
 }
+
 function capLoop(){
   if(!capturing) return;
   const vid = document.getElementById('vid'), c = document.getElementById('c'), ctx = c.getContext('2d');
-  if(!vid.videoWidth){ setTimeout(capLoop, 100); return; }
+  if(!vid.videoWidth){ setTimeout(capLoop, 50); return; }
   c.width = vid.videoWidth;
   c.height = vid.videoHeight;
   const km = document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx, c.width, c.height, km, new Date().toLocaleString('pt-BR').toUpperCase(), `${lat}, ${lon}`);
-  buffer.push(c.toDataURL('image/jpeg', .58));
+  buffer.push(c.toDataURL('image/jpeg', .55));
   const lote = parseInt(document.getElementById('cfgLote').value) || 50;
   if(buffer.length >= lote){
     const kmNow = km;
@@ -1117,6 +1149,7 @@ function capLoop(){
   }
   setTimeout(capLoop, parseInt(document.getElementById('cfgInt').value) || 200);
 }
+
 async function savePDF(data, kmI, kmF){
   if(!data.length) return;
   const vid = document.getElementById('vid');
@@ -1130,10 +1163,9 @@ async function savePDF(data, kmI, kmF){
   const w = await fh.createWritable();
   await w.write(doc.output('blob'));
   await w.close();
-  showToast(`PDF salvo: KM ${kmI} → ${kmF}`);
+  showToast(`PDF gerado: KM ${kmI} → ${kmF}`);
 }
 
-/* ===== ETIQUETA DAS FOTOS ===== */
 window._fotoLabel = '';
 function syncFotoLabel(v){
   window._fotoLabel = String(v||'');
@@ -1142,6 +1174,7 @@ function syncFotoLabel(v){
   if(a && a.value !== window._fotoLabel) a.value = window._fotoLabel;
   if(b && b.value !== window._fotoLabel) b.value = window._fotoLabel;
 }
+
 function safeFotoLabel(){
   return String(window._fotoLabel||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toUpperCase();
 }
