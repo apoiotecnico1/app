@@ -211,7 +211,7 @@ img,video{display:block;max-width:100%}
 /* ===== SKELETON ===== */
 .skel{height:100px;border-radius:var(--r-lg);background:linear-gradient(110deg,var(--surface) 30%,var(--surface2) 50%,var(--surface) 70%);background-size:200% 100%;animation:shimmer 2s infinite linear}
 @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
-/* ===== INSPEÇÃO ===== */
+/* ===== INSPECTION ===== */
 #mod-inspecao{position:fixed;inset:0;overflow:hidden;background:#000}
 #gate{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);overflow-y:auto}
 .gate-box{max-width:400px;width:100%;border-radius:var(--r-xl);border:1px solid var(--border);background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 100%);padding:36px 24px;text-align:center;box-shadow:var(--shadow-xl);position:relative;overflow:hidden}
@@ -499,10 +499,8 @@ canvas#c{display:none}
 <div class="toast" id="toast" aria-live="polite"></div>
 <script>
 /* ====================================================================
-   CPS OS v2 — Sistema de Apoio & Inspeção (Alta Performance)
+   CPS OS v2 — Sistema de Apoio & Inspeção (Otimizado)
    ==================================================================== */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxmbZPRLygt7QwxJzc2yZ1iwKFegSJg3PiRMjZKGA--f9atzUrVu-MwvUxMvj9iK8_6Ig/exec';
-
 /* ===== UTILITIES ===== */
 const ACC_G=15,ACC_Y=35;
 const norm=s=>String(s||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9_ ]+/g,' ').replace(/\s+/g,' ');
@@ -511,11 +509,10 @@ const hav=(a,b,c,d)=>{const p=Math.PI/180,x=.5-Math.cos((c-a)*p)/2+Math.cos(a*p)
 const range=(dist,acc=0)=>{const d=Math.round(dist),e=Number.isFinite(acc)?Math.round(acc):0;return`${Math.max(0,d-e)}M A ${d+e}M`};
 const fmtAcc=a=>!Number.isFinite(a)?'—':`±${Math.round(a)}M`;
 const nowBR=()=>new Date().toLocaleString('pt-BR').toUpperCase();
-
+function findCol(h,cs){const m=h.map(norm);for(const c of cs){const i=m.indexOf(norm(c));if(i>=0)return i}return-1}
 /* ===== STATE ===== */
 let posts=[],postsKm=[],kmDB=[],pos=null,searchItem=null,renderedKey='',apoioInit=false,rtInit=false;
 let cam='',stream=null,hDir=null,capturing=false,buffer=[],kmIniLote='',lat='0.000000',lon='0.000000',wakeLock=null,cameras=[];
-
 /* ===== TOAST ===== */
 let _tt=null;
 function showToast(msg,type='ok'){
@@ -526,7 +523,6 @@ function showToast(msg,type='ok'){
   clearTimeout(_tt);
   requestAnimationFrame(()=>{el.classList.add('show');_tt=setTimeout(()=>el.classList.remove('show'),3000)});
 }
-
 /* ===== NAVIGATION ===== */
 function openMod(id){
   const menu=document.getElementById('main-menu');
@@ -537,10 +533,8 @@ function openMod(id){
   if(id==='apoio')initApoio();
   if(id==='km')initRt();
 }
-
 /* ===== SPLASH ===== */
-setTimeout(()=>document.getElementById('splash').classList.add('done'),1500);
-
+setTimeout(()=>document.getElementById('splash').classList.add('done'),2200);
 /* ===== CLOCK ===== */
 function tickClock(){
   const now=new Date();
@@ -548,7 +542,6 @@ function tickClock(){
   document.getElementById('menuDate').textContent=now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
 }
 tickClock();setInterval(tickClock,1000);
-
 /* ===== GPS BADGE ===== */
 function gpsBadge(el,p,err){
   const a=p?.acc;let cls='bad',txt;
@@ -560,174 +553,163 @@ function gpsBadge(el,p,err){
   el.className='gps '+cls;
   el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>${txt}`;
 }
-
-/* ===== DADOS & SNV COM CACHE LOCAL OTIMIZADO ===== */
-function loadCachedData(){
+/* ===== CSV ===== */
+async function loadPosts(){
   try{
-    const cachedPosts = localStorage.getItem('cps_posts');
-    const cachedKm = localStorage.getItem('cps_km');
-    if(cachedPosts && cachedKm){
-      posts = JSON.parse(cachedPosts);
-      kmDB = JSON.parse(cachedKm);
-      buildPostsKm();
-      updateKm();
-    }
+    let r=await fetch('dados.csv?v='+Date.now(),{cache:'no-store'}).catch(()=>null);
+    if(!r?.ok)r=await fetch('Dados_Completos_Grupo_2_all.csv?v='+Date.now(),{cache:'no-store'});
+    if(!r?.ok)return;
+    let t=await r.text();
+    if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);
+    const lines=t.split(/\r?\n/).filter(l=>l.trim());
+    const h=lines.shift().split(';');
+    const iId=findCol(h,['id do nox','idnox','id']),iLat=findCol(h,['latitude','lat']),iLon=findCol(h,['longitude','lon','long']);
+    posts=lines.map(l=>{
+      const r=l.split(';');
+      return {
+        id:String(r[iId]||'').trim().toUpperCase(),
+        lat:parsePt(r[iLat]),
+        lon:parsePt(r[iLon])
+      };
+    }).filter(p=>p.id&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+
+    postsKm=posts.map(p=>{
+      const k=kmAt(p.lat,p.lon);
+      return {
+        id:p.id,
+        lat:p.lat,
+        lon:p.lon,
+        km:k?k.km:null
+      };
+    });
+
+    renderApoio();
   }catch(e){}
 }
-
-async function loadDataFromApi(){
-  loadCachedData(); // Carrega imediato se houver cache local
-  try {
-    const res = await fetch(`${API_URL}?action=getData`, { cache: 'no-store' });
-    if(!res.ok) throw new Error('Erro ao buscar dados');
-    const json = await res.json();
-    
-    let updated = false;
-    if(json.dados && Array.isArray(json.dados)){
-      posts = json.dados.map(row => ({
-        id: String(row.id || row.ID_DO_NOX || row.IDNOX || '').trim().toUpperCase(),
-        lat: parsePt(row.lat || row.latitude || row.LATITUDE),
-        lon: parsePt(row.lon || row.longitude || row.LONGITUDE || row.LONG)
-      })).filter(p => p.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
-      localStorage.setItem('cps_posts', JSON.stringify(posts));
-      updated = true;
+async function loadKm(){
+  try{
+    let r=await fetch('SNVBR116SPRJ.csv?v='+Date.now(),{cache:'no-store'});
+    if(!r?.ok)return;
+    let t=await r.text();
+    if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);
+    const lines=t.split(/\r?\n/).filter(l=>l.trim());
+    const h=lines.shift().split(';');
+    const iKm=findCol(h,['km']),iLat=findCol(h,['lat','latitude']),iLon=findCol(h,['lon','long','longitude']);
+    kmDB=lines.map(l=>{
+      const r=l.split(';');
+      return {
+        km:parsePt(r[iKm]),
+        lat:parsePt(r[iLat]),
+        lon:parsePt(r[iLon])
+      };
+    }).filter(p=>Number.isFinite(p.km)&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+    if(posts.length){
+      postsKm=posts.map(p=>{
+        const k=kmAt(p.lat,p.lon);
+        return {id:p.id,lat:p.lat,lon:p.lon,km:k?k.km:null};
+      });
+      renderedKey='';
+      renderApoio();
     }
-
-    if(json.snv && Array.isArray(json.snv)){
-      kmDB = json.snv.map(row => ({
-        km: parsePt(row.km || row.KM),
-        lat: parsePt(row.lat || row.latitude || row.LAT),
-        lon: parsePt(row.lon || row.longitude || row.LONGITUDE || row.LONG)
-      })).filter(p => Number.isFinite(p.km) && Number.isFinite(p.lat) && Number.isFinite(p.lon));
-      localStorage.setItem('cps_km', JSON.stringify(kmDB));
-      updated = true;
-    }
-
-    if(updated){
-      buildPostsKm();
-      updateKm();
-      showToast('Dados sincronizados');
-    }
-  } catch(e){
-    if(!posts.length) showToast('Modo offline / Erro na API', 'err');
-  }
+    updateKm();
+  }catch(e){}
 }
-
-function buildPostsKm(){
-  if(posts.length && kmDB.length){
-    postsKm = posts.map(p=>{
-      const k = kmAt(p.lat, p.lon);
-      return { id: p.id, lat: p.lat, lon: p.lon, km: k ? k.km : null };
-    });
-    renderedKey = '';
-    renderApoio();
-  }
-}
-
-/* ===== KM CÁLCULO OTIMIZADO ===== */
+/* ===== KM CÁLCULO ===== */
 function nearestKm(){
-  if(!pos || !kmDB.length) return null;
-  let best=null, bd=Infinity;
+  if(!pos||!kmDB.length)return null;
+  let best=null,bd=Infinity;
   for(const p of kmDB){
-    const d = hav(pos.lat, pos.lon, p.lat, p.lon);
-    if(d < bd){ bd = d; best = p; }
+    const d=hav(pos.lat,pos.lon,p.lat,p.lon);
+    if(d<bd){bd=d;best=p}
   }
   return best;
 }
-
-function kmAt(lat, lon){
-  if(!kmDB.length) return null;
-  let best=null, bd=Infinity;
+function kmAt(lat,lon){
+  if(!kmDB.length)return null;
+  let best=null,bd=Infinity;
   for(const p of kmDB){
-    const d = hav(lat, lon, p.lat, p.lon);
-    if(d < bd){ bd = d; best = p; }
+    const d=hav(lat,lon,p.lat,p.lon);
+    if(d<bd){bd=d;best=p}
   }
   return best;
 }
-
 function updateKm(){
-  const b = nearestKm();
+  const b=nearestKm();
   if(b){
-    const v = (Math.round(b.km*100)/100).toFixed(2).replace('.',',');
-    document.getElementById('kmVal').textContent = v;
-    const s = document.getElementById('kmSource');
-    if(s) s.textContent = `Pontos SNV: ${kmDB.length}`;
+    const v=(Math.round(b.km*100)/100).toFixed(2).replace('.',',');
+    document.getElementById('kmVal').textContent=v;
+    const s=document.getElementById('kmSource');
+    if(s)s.textContent=`Referência: ${kmDB.length} pontos`;
   }
 }
-
 /* ===== APOIO ===== */
 function initApoio(){
-  if(apoioInit) return;
-  apoioInit = true;
-  loadDataFromApi();
-  if('geolocation' in navigator) {
-    navigator.geolocation.watchPosition(p=>{
-      pos = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy };
-      gpsBadge(document.getElementById('gpsStatus'), pos);
-      renderApoio();
-      updateKm();
-      updateSearchDist();
-    }, null, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
-  }
+  if(apoioInit)return;
+  apoioInit=true;
+  loadPosts();
+  loadKm();
+  if('geolocation'in navigator)navigator.geolocation.watchPosition(p=>{
+    pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};
+    gpsBadge(document.getElementById('gpsStatus'),pos);
+    renderApoio();
+    updateKm();
+    updateSearchDist();
+  },null,{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
-
 function searchId(){
-  const term = norm(document.getElementById('inputId').value),
-        msg = document.getElementById('searchMsg'),
-        res = document.getElementById('searchResult');
-  if(!term){ clearId(); return; }
+  const term=norm(document.getElementById('inputId').value),
+        msg=document.getElementById('searchMsg'),
+        res=document.getElementById('searchResult');
+  if(!term){clearId();return}
   if(!posts.length){
-    msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Aguardando dados...';
+    msg.style.display='flex';
+    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Carregando dados, tente novamente...';
     return;
   }
-  const found = posts.find(p => norm(p.id) === term || norm(p.id).includes(term));
+  const found=posts.find(p=>norm(p.id)===term||norm(p.id).includes(term));
   if(!found){
-    msg.style.display = 'flex';
-    msg.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>ID "${term}" NÃO ENCONTRADO.`;
-    searchItem = null; res.style.display = 'none'; checkLock(); return;
+    msg.style.display='flex';
+    msg.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>ID "${term}" NÃO ENCONTRADO.`;
+    searchItem=null;res.style.display='none';checkLock();return;
   }
-  searchItem = found;
-  msg.style.display = 'none';
+  searchItem=found;
+  msg.style.display='none';
   renderSearch();
   showToast('Poste encontrado: '+found.id);
 }
-
 function clearId(){
-  document.getElementById('inputId').value = '';
-  document.getElementById('searchMsg').style.display = 'none';
-  document.getElementById('searchResult').style.display = 'none';
-  searchItem = null;
+  document.getElementById('inputId').value='';
+  document.getElementById('searchMsg').style.display='none';
+  document.getElementById('searchResult').style.display='none';
+  searchItem=null;
   checkLock();
 }
-
 function updateSearchDist(){
-  if(!searchItem || !pos) return;
-  const el = document.getElementById('srch-dist');
-  const kmEl = document.getElementById('srch-km');
-  const dist = hav(pos.lat, pos.lon, searchItem.lat, searchItem.lon);
-  if(el) el.textContent = 'Distância: '+range(dist, pos.acc);
+  if(!searchItem||!pos)return;
+  const el=document.getElementById('srch-dist');
+  const kmEl=document.getElementById('srch-km');
+  const dist=hav(pos.lat,pos.lon,searchItem.lat,searchItem.lon);
+  if(el)el.textContent='Distância: '+range(dist,pos.acc);
   if(kmEl){
-    const k = kmAt(searchItem.lat, searchItem.lon);
-    kmEl.textContent = k ? ('KM aprox: '+(Math.round(k.km*100)/100).toFixed(2).replace('.',',')) : 'KM aprox: —';
+    const k=kmAt(searchItem.lat,searchItem.lon);
+    kmEl.textContent=k?('KM aprox: '+(Math.round(k.km*100)/100).toFixed(2).replace('.',',')):'KM aprox: —';
   }
   checkLock();
 }
-
 function renderSearch(){
-  if(!searchItem) return;
-  const res = document.getElementById('searchResult');
-  let dt = 'Aguardando GPS...';
-  let kmTxt = 'KM aprox: —';
+  if(!searchItem)return;
+  const res=document.getElementById('searchResult');
+  let dt='Aguardando GPS...';
+  let kmTxt='KM aprox: —';
   if(pos){
-    const dist = hav(pos.lat, pos.lon, searchItem.lat, searchItem.lon);
-    dt = 'Distância: '+range(dist, pos.acc);
-    const k = kmAt(searchItem.lat, searchItem.lon);
-    if(k) kmTxt = 'KM aprox: '+(Math.round(k.km*100)/100).toFixed(2).replace('.',',');
+    const dist=hav(pos.lat,pos.lon,searchItem.lat,searchItem.lon);
+    dt='Distância: '+range(dist,pos.acc);
+    const k=kmAt(searchItem.lat,searchItem.lon);
+    if(k)kmTxt='KM aprox: '+(Math.round(k.km*100)/100).toFixed(2).replace('.',',');
     checkLock();
   }
-  res.style.display = 'block';
-  res.innerHTML = `<div class="post searched">
+  res.style.display='block';
+  res.innerHTML=`<div class="post searched">
     <div class="post-top">
       <div class="post-info">
         <p class="post-id">OS / ID: <span>${searchItem.id}</span></p>
@@ -747,54 +729,54 @@ function renderSearch(){
     </div>
   </div>`;
 }
-
 function checkLock(){
-  const b = document.getElementById('targetLock');
-  if(!searchItem || !pos){ b.classList.remove('on'); return; }
-  const d = hav(pos.lat, pos.lon, searchItem.lat, searchItem.lon);
-  if(d <= (5 + (pos.acc || 10))){
+  const b=document.getElementById('targetLock');
+  if(!searchItem||!pos){b.classList.remove('on');return}
+  const d=hav(pos.lat,pos.lon,searchItem.lat,searchItem.lon);
+  if(d<=(5+(pos.acc||10))){
     b.classList.add('on');
-    document.getElementById('targetLockSub').textContent = `ID ALVO: ${searchItem.id} · DISTÂNCIA EST. ~${Math.round(d)}M`;
-  } else {
+    document.getElementById('targetLockSub').textContent=`ID ALVO: ${searchItem.id} · DISTÂNCIA EST. ~${Math.round(d)}M`;
+  }else{
     b.classList.remove('on');
   }
 }
-
 function renderApoio(){
-  if(!pos || !postsKm.length) return;
-  if(searchItem) updateSearchDist();
+  if(!pos||!postsKm.length)return;
+  if(searchItem)updateSearchDist();
 
-  const qty = Number(document.getElementById('qty').value || 10);
-  const items = postsKm.map(p=>({
-    id: p.id, lat: p.lat, lon: p.lon, km: p.km, d: hav(pos.lat, pos.lon, p.lat, p.lon)
-  })).sort((a,b)=>a.d-b.d).slice(0, qty);
+  const qty=Number(document.getElementById('qty').value||10);
 
-  const key = items.map(i=>i.id).join(',');
-  const list = document.getElementById('postList');
+  const items=postsKm.map(p=>{
+    const d=hav(pos.lat,pos.lon,p.lat,p.lon);
+    return {id:p.id,lat:p.lat,lon:p.lon,km:p.km,d};
+  }).sort((a,b)=>a.d-b.d).slice(0,qty);
 
-  if(key === renderedKey){
+  const key=items.map(i=>i.id).join(',');
+  const list=document.getElementById('postList');
+
+  if(key===renderedKey){
     items.forEach((o,i)=>{
-      const el = document.getElementById('dist-'+i);
-      const kmEl = document.getElementById('km-'+i);
-      if(el) el.textContent = 'Distância: '+range(o.d, pos.acc);
-      if(kmEl) kmEl.textContent = o.km != null ? ('KM aprox: '+o.km.toFixed(2).replace('.',',')) : 'KM aprox: —';
+      const el=document.getElementById('dist-'+i);
+      const kmEl=document.getElementById('km-'+i);
+      if(el)el.textContent='Distância: '+range(o.d,pos.acc);
+      if(kmEl)kmEl.textContent=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
     });
-    document.getElementById('btnSend').disabled = false;
+    document.getElementById('btnSend').disabled=false;
     return;
   }
 
-  renderedKey = key;
-  list.innerHTML = '';
+  renderedKey=key;
+  list.innerHTML='';
 
   items.forEach((o,i)=>{
-    const kmLabel = o.km != null ? ('KM aprox: '+o.km.toFixed(2).replace('.',',')) : 'KM aprox: —';
-    const div = document.createElement('div');
-    div.className = 'post'+(i===0?' near':'');
-    div.innerHTML = `<div class="post-top">
+    const kmLabel=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
+    const div=document.createElement('div');
+    div.className='post'+(i===0?' near':'');
+    div.innerHTML=`<div class="post-top">
       <input type="checkbox" class="post-chk" value="${o.id}" data-lat="${o.lat}" data-lon="${o.lon}" checked>
       <div class="post-info">
         <p class="post-id">Poste: <span>${o.id}</span></p>
-        <p class="post-dist" id="dist-${i}">Distância: ${range(o.d, pos.acc)}</p>
+        <p class="post-dist" id="dist-${i}">Distância: ${range(o.d,pos.acc)}</p>
         <p class="post-km" id="km-${i}">${kmLabel}</p>
       </div>
       <span class="post-pin">
@@ -810,10 +792,10 @@ function renderApoio(){
     list.appendChild(div);
   });
 
-  document.getElementById('btnSend').disabled = false;
+  document.getElementById('btnSend').disabled=false;
 }
 
-/* ===== TOGGLE MAP ===== */
+/* ===== TOGGLE MAP LATENCY OPTIMIZATION ===== */
 function toggleMap(btn, lat, lon){
   const container = btn.parentElement;
   const existingMap = container.querySelector('iframe');
@@ -830,116 +812,123 @@ function toggleMap(btn, lat, lon){
   }
 }
 
-document.getElementById('btnSend').onclick = ()=>{
-  if(!pos) return;
-  const chks = document.querySelectorAll('.post-chk:checked');
-  let items = [];
+document.getElementById('btnSend').onclick=()=>{
+  if(!pos)return;
+  const chks=document.querySelectorAll('.post-chk:checked');
+  let items=[];
   if(chks.length){
-    chks.forEach(c => items.push({ id: c.value, lat: parseFloat(c.dataset.lat), lon: parseFloat(c.dataset.lon) }));
-  } else {
-    const qty = Number(document.getElementById('qty').value || 10);
-    items = posts.map(p => ({ ...p, d: hav(pos.lat, pos.lon, p.lat, p.lon) })).sort((a,b)=>a.d-b.d).slice(0, qty).map(o => ({ id: o.id, lat: o.lat, lon: o.lon }));
+    chks.forEach(c=>items.push({id:c.value,lat:parseFloat(c.dataset.lat),lon:parseFloat(c.dataset.lon)}));
+  }else{
+    const qty=Number(document.getElementById('qty').value||10);
+    items=posts.map(p=>({...p,d:hav(pos.lat,pos.lon,p.lat,p.lon)})).sort((a,b)=>a.d-b.d).slice(0,qty).map(o=>({id:o.id,lat:o.lat,lon:o.lon}));
   }
-  let tx = `📍 *LISTA DE LOCALIZAÇÃO DE POSTES*\nData/Hora: ${nowBR()}\nGPS Atual: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (${fmtAcc(pos.acc)})\n\n`;
+  let tx=`📍 *LISTA DE LOCALIZAÇÃO DE POSTES*\nData/Hora: ${nowBR()}\nGPS Atual: ${pos.lat.toFixed(6)}, ${pos.lon.toFixed(6)} (${fmtAcc(pos.acc)})\n\n`;
   items.forEach((o,i)=>{
-    tx += `${i+1}. *ID:* ${o.id}\n`;
-    const k = kmAt(o.lat, o.lon);
-    if(k) tx += `   KM aprox: ${(Math.round(k.km*100)/100).toFixed(2).replace('.',',')}\n`;
-    if(document.getElementById('chkMaps').checked) tx += `   🗺️ https://maps.google.com/?q=${o.lat.toFixed(6)},${o.lon.toFixed(6)}\n`;
+    tx+=`${i+1}. *ID:* ${o.id}\n`;
+    const k=kmAt(o.lat,o.lon);
+    if(k)tx+=`   KM aprox: ${(Math.round(k.km*100)/100).toFixed(2).replace('.',',')}\n`;
+    if(document.getElementById('chkMaps').checked)tx+=`   🗺️ https://maps.google.com/?q=${o.lat.toFixed(6)},${o.lon.toFixed(6)}\n`;
   });
   window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank','noopener');
   showToast(`${items.length} postes enviados`);
 };
-document.getElementById('qty').onchange = ()=>{ renderedKey=''; renderApoio(); };
+document.getElementById('qty').onchange=()=>{renderedKey='';renderApoio()};
 
 /* ===== BUSCA POR KM NO LOCALIZADOR ===== */
 function setSearchMode(mode){
-  const tabId = document.getElementById('tab-id'), tabKm = document.getElementById('tab-km');
-  const panId = document.getElementById('panel-id'), panKm = document.getElementById('panel-km');
-  if(!tabId || !tabKm || !panId || !panKm) return;
+  const tabId=document.getElementById('tab-id'),tabKm=document.getElementById('tab-km');
+  const panId=document.getElementById('panel-id'),panKm=document.getElementById('panel-km');
+  if(!tabId||!tabKm||!panId||!panKm)return;
   if(mode==='km'){
-    tabKm.style.border = '1px solid rgba(255,214,0,.45)';
-    tabKm.style.background = 'linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06))';
-    tabKm.style.color = 'var(--accent)';
-    tabId.style.border = '1px solid var(--border)';
-    tabId.style.background = 'var(--glass)';
-    tabId.style.color = 'var(--muted)';
-    panKm.style.display = 'block';
-    panId.style.display = 'none';
-    searchItem = null;
+    tabKm.style.border='1px solid rgba(255,214,0,.45)';
+    tabKm.style.background='linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06))';
+    tabKm.style.color='var(--accent)';
+    tabId.style.border='1px solid var(--border)';
+    tabId.style.background='var(--glass)';
+    tabId.style.color='var(--muted)';
+    panKm.style.display='block';
+    panId.style.display='none';
+    searchItem=null;
     document.getElementById('targetLock')?.classList.remove('on');
-  } else {
-    tabId.style.border = '1px solid rgba(255,214,0,.45)';
-    tabId.style.background = 'linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06))';
-    tabId.style.color = 'var(--accent)';
-    tabKm.style.border = '1px solid var(--border)';
-    tabKm.style.background = 'var(--glass)';
-    tabKm.style.color = 'var(--muted)';
-    panId.style.display = 'block';
-    panKm.style.display = 'none';
+  }else{
+    tabId.style.border='1px solid rgba(255,214,0,.45)';
+    tabId.style.background='linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.06))';
+    tabId.style.color='var(--accent)';
+    tabKm.style.border='1px solid var(--border)';
+    tabKm.style.background='var(--glass)';
+    tabKm.style.color='var(--muted)';
+    panId.style.display='block';
+    panKm.style.display='none';
   }
 }
-
 function parseKmInput(raw){
-  const original = String(raw||'').trim();
-  const clean = original.replace(',', '.');
-  const value = Number(clean);
-  if(!original || !Number.isFinite(value)) return null;
-  const isFullKm = /^\d+$/.test(original);
-  return { original, value, isFullKm };
+  const original=String(raw||'').trim();
+  const clean=original.replace(',', '.');
+  const value=Number(clean);
+  if(!original||!Number.isFinite(value))return null;
+  const isFullKm=/^\d+$/.test(original);
+  return {original,value,isFullKm};
 }
-
+function ensurePostsKmReady(){
+  if(posts.length && kmDB.length && (!postsKm.length || postsKm.every(p=>p.km==null))){
+    postsKm=posts.map(p=>{
+      const k=kmAt(p.lat,p.lon);
+      return {id:p.id,lat:p.lat,lon:p.lon,km:k?k.km:null};
+    });
+  }
+}
 function searchByKm(){
-  const input = document.getElementById('inputKm');
-  const msg = document.getElementById('kmSearchMsg');
-  const res = document.getElementById('kmSearchResult');
-  const qty = Number(document.getElementById('kmQty')?.value || 3);
-  const parsed = parseKmInput(input?.value);
+  const input=document.getElementById('inputKm');
+  const msg=document.getElementById('kmSearchMsg');
+  const res=document.getElementById('kmSearchResult');
+  const qty=Number(document.getElementById('kmQty')?.value||3);
+  const parsed=parseKmInput(input?.value);
 
   if(!parsed){
-    msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>INFORME UM KM VÁLIDO. EX: 89 OU 89,450';
-    res.style.display = 'none';
+    msg.style.display='flex';
+    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>INFORME UM KM VÁLIDO. EX: 89 OU 89,450';
+    res.style.display='none';
     return;
   }
-  if(!postsKm.length){
-    msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>DADOS AINDA CARREGANDO.';
-    res.style.display = 'none';
+  ensurePostsKmReady();
+  if(!postsKm.length || postsKm.every(p=>p.km==null)){
+    msg.style.display='flex';
+    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>DADOS DE KM AINDA CARREGANDO. TENTE NOVAMENTE.';
+    res.style.display='none';
     return;
   }
 
-  const valid = postsKm.filter(p => p.km != null);
-  let items = [], title = '';
+  const valid=postsKm.filter(p=>p.km!=null);
+  let items=[], title='';
   if(parsed.isFullKm){
-    const kmMin = parsed.value, kmMax = parsed.value + 0.999999;
-    items = valid.filter(p => p.km >= kmMin && p.km <= kmMax)
-      .map(p => ({ ...p, delta: Math.abs(p.km - parsed.value) }))
+    const kmMin=parsed.value, kmMax=parsed.value+0.999999;
+    items=valid.filter(p=>p.km>=kmMin && p.km<=kmMax)
+      .map(p=>({...p,delta:Math.abs(p.km-parsed.value)}))
       .sort((a,b)=>a.km-b.km)
-      .slice(0, qty);
-    title = `Faixa KM ${parsed.value.toFixed(0)},00 até ${parsed.value.toFixed(0)},99`;
+      .slice(0,qty);
+    title=`Faixa KM ${parsed.value.toFixed(0)},00 até ${parsed.value.toFixed(0)},99`;
     if(!items.length){
-      items = valid.map(p => ({ ...p, delta: Math.abs(p.km - parsed.value) })).sort((a,b)=>a.delta-b.delta).slice(0, qty);
-      title = `Mais próximos do KM ${parsed.value.toFixed(0)}`;
+      items=valid.map(p=>({...p,delta:Math.abs(p.km-parsed.value)})).sort((a,b)=>a.delta-b.delta).slice(0,qty);
+      title=`Nenhum poste na faixa. Mais próximos do KM ${parsed.value.toFixed(0)}`;
     }
-  } else {
-    items = valid.map(p => ({ ...p, delta: Math.abs(p.km - parsed.value) })).sort((a,b)=>a.delta-b.delta).slice(0, qty);
-    title = `Mais próximos do KM ${parsed.value.toFixed(3).replace('.',',')}`;
+  }else{
+    items=valid.map(p=>({...p,delta:Math.abs(p.km-parsed.value)})).sort((a,b)=>a.delta-b.delta).slice(0,qty);
+    title=`Mais próximos do KM ${parsed.value.toFixed(3).replace('.',',')}`;
   }
 
   if(!items.length){
-    msg.style.display = 'flex';
-    msg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>NENHUM RESULTADO.';
-    res.style.display = 'none';
+    msg.style.display='flex';
+    msg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>NENHUM RESULTADO ENCONTRADO.';
+    res.style.display='none';
     return;
   }
 
-  msg.style.display = 'none';
-  res.style.display = 'block';
-  res.innerHTML = `<p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:10px">${title}</p>`+
-    items.map((o)=>{
-      const dTxt = pos ? ('Distância: '+range(hav(pos.lat, pos.lon, o.lat, o.lon), pos.acc)) : 'Distância: aguardando GPS...';
-      const deltaM = Math.round(o.delta * 1000);
+  msg.style.display='none';
+  res.style.display='block';
+  res.innerHTML=`<p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:10px">${title}</p>`+
+    items.map((o,i)=>{
+      const dTxt=pos?('Distância: '+range(hav(pos.lat,pos.lon,o.lat,o.lon),pos.acc)):'Distância: aguardando GPS...';
+      const deltaM=Math.round(o.delta*1000);
       return `<div class="post searched" style="margin-bottom:10px">
         <div class="post-top">
           <div class="post-info">
@@ -958,223 +947,212 @@ function searchByKm(){
         </div>
       </div>`;
     }).join('');
-  showToast(`${items.length} resultado(s)`);
+  showToast(`${items.length} resultado(s) por KM`);
 }
-
 function clearKm(){
-  const i = document.getElementById('inputKm'), m = document.getElementById('kmSearchMsg'), r = document.getElementById('kmSearchResult');
-  if(i) i.value = '';
-  if(m) m.style.display = 'none';
-  if(r){ r.style.display = 'none'; r.innerHTML = ''; }
+  const i=document.getElementById('inputKm'),m=document.getElementById('kmSearchMsg'),r=document.getElementById('kmSearchResult');
+  if(i)i.value='';
+  if(m)m.style.display='none';
+  if(r){r.style.display='none';r.innerHTML='';}
 }
 
 /* ===== KM RT ===== */
 function initRt(){
-  if(!kmDB.length) loadCachedData();
-  if(rtInit) return;
-  rtInit = true;
-  if(!('geolocation' in navigator)){
-    gpsBadge(document.getElementById('rtGps'), null, 'GPS não suportado');
+  if(!kmDB.length)loadKm();
+  if(rtInit)return;
+  rtInit=true;
+  if(!('geolocation'in navigator)){
+    gpsBadge(document.getElementById('rtGps'),null,'GPS não suportado');
     return;
   }
   navigator.geolocation.watchPosition(p=>{
-    pos = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy };
-    gpsBadge(document.getElementById('rtGps'), pos);
-    const co = document.getElementById('rtCoords');
-    if(co) co.textContent = `${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`;
+    pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};
+    gpsBadge(document.getElementById('rtGps'),pos);
+    const co=document.getElementById('rtCoords');
+    if(co)co.textContent=`${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`;
     if(kmDB.length){
-      let best = null, bd = Infinity;
+      let best=null,bd=Infinity;
       for(const pt of kmDB){
-        const d = hav(pos.lat, pos.lon, pt.lat, pt.lon);
-        if(d < bd){ bd = d; best = pt; }
+        const d=hav(pos.lat,pos.lon,pt.lat,pt.lon);
+        if(d<bd){bd=d;best=pt}
       }
-      if(best) document.getElementById('rtKm').textContent = (Math.round(best.km*100)/100).toFixed(2).replace('.',',');
+      if(best)document.getElementById('rtKm').textContent=(Math.round(best.km*100)/100).toFixed(2).replace('.',',');
     }
-  }, ()=>gpsBadge(document.getElementById('rtGps'), null, 'Erro de sinal'), { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
+  },()=>gpsBadge(document.getElementById('rtGps'),null,'Erro ao obter localização'),{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
-
 /* ===== INSPEÇÃO ===== */
 async function startApp(){
-  const err = document.getElementById('gateErr');
+  const err=document.getElementById('gateErr');
   try{
-    if(!window.showDirectoryPicker) throw new Error('Navegador não suportado. Use Chrome ou Edge.');
-    hDir = await window.showDirectoryPicker({ mode: 'readwrite' });
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app-shell').style.visibility = 'visible';
-    if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen').catch(()=>null);
+    if(!window.showDirectoryPicker)throw new Error('Este navegador não permite selecionar pasta. Use Chrome ou Edge.');
+    hDir=await window.showDirectoryPicker({mode:'readwrite'});
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app-shell').style.visibility='visible';
+    if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen').catch(()=>null);
     await listCams();
-    if(!kmDB.length) loadCachedData();
+    loadKm();
     initGpsInspecao();
     document.documentElement.requestFullscreen?.().catch(()=>null);
-    showToast('Inspeção ativa');
+    showToast('Sistema de inspeção ativado');
   }catch(e){
-    err.style.display = 'block';
-    err.textContent = e.message || 'Permissão necessária.';
+    err.style.display='block';
+    err.textContent=e.message||'Permissão de câmera e pasta necessária.';
   }
 }
-
 async function listCams(){
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  cameras = devices.filter(d => d.kind === 'videoinput');
-  const sel = document.getElementById('camSel');
-  sel.innerHTML = cameras.map((d,i)=>`<option value="${d.deviceId}">CÂMERA ${i+1}</option>`).join('');
-  if(cameras.length) await switchCam(cameras[cameras.length-1].deviceId);
+  const devices=await navigator.mediaDevices.enumerateDevices();
+  cameras=devices.filter(d=>d.kind==='videoinput');
+  const sel=document.getElementById('camSel');
+  sel.innerHTML=cameras.map((d,i)=>`<option value="${d.deviceId}">CÂMERA ${i+1}</option>`).join('');
+  if(cameras.length)await switchCam(cameras[cameras.length-1].deviceId);
 }
-
 async function switchCam(id){
-  if(stream) stream.getTracks().forEach(t=>t.stop());
-  stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: id ? { exact: id } : undefined, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
-  document.getElementById('vid').srcObject = stream;
-  cam = id;
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:id?{exact:id}:undefined,width:{ideal:1920},height:{ideal:1080}},audio:false});
+  document.getElementById('vid').srcObject=stream;
+  cam=id;
 }
-
 function initGpsInspecao(){
   navigator.geolocation.watchPosition(p=>{
-    lat = p.coords.latitude.toFixed(6);
-    lon = p.coords.longitude.toFixed(6);
-    if(!kmDB.length) return;
-    let best = null, minD = Infinity;
+    lat=p.coords.latitude.toFixed(6);
+    lon=p.coords.longitude.toFixed(6);
+    if(!kmDB.length)return;
+    let best=null,minD=Infinity;
     for(const pt of kmDB){
-      const d = Math.abs(pt.lat - p.coords.latitude) + Math.abs(pt.lon - p.coords.longitude);
-      if(d < minD){ minD = d; best = pt; }
+      const d=Math.hypot(pt.lat-p.coords.latitude,pt.lon-p.coords.longitude);
+      if(d<minD){minD=d;best=pt}
     }
-    if(best) document.getElementById('kmTxt').textContent = 'KM '+best.km;
-  }, null, { enableHighAccuracy: true, maximumAge: 0 });
+    if(best)document.getElementById('kmTxt').textContent='KM '+best.km;
+  },null,{enableHighAccuracy:true});
 }
-
 function drawOverlay(ctx,w,h,kmVal,ts,gpsStr){
   ctx.drawImage(document.getElementById('vid'),0,0,w,h);
-  const bh = h * .13;
-  const grad = ctx.createLinearGradient(0,h-bh,0,h);
+  const bh=h*.13;
+  const grad=ctx.createLinearGradient(0,h-bh,0,h);
   grad.addColorStop(0,'rgba(0,0,0,0)');
   grad.addColorStop(.25,'rgba(0,0,0,.55)');
   grad.addColorStop(1,'rgba(0,0,0,.9)');
-  ctx.fillStyle = grad;
+  ctx.fillStyle=grad;
   ctx.fillRect(0,h-bh,w,bh);
 
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold '+Math.round(bh*.30)+'px Arial,sans-serif';
-  ctx.fillText('KM '+kmVal, 20, h-bh*.55);
-  ctx.font = Math.round(bh*.18)+'px Arial,sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,.7)';
-  ctx.fillText(ts+' | GPS: '+gpsStr, 20, h-bh*.22);
+  ctx.fillStyle='#fff';
+  ctx.font='bold '+Math.round(bh*.30)+'px Arial,sans-serif';
+  ctx.fillText('KM '+kmVal,20,h-bh*.55);
+  ctx.font=Math.round(bh*.18)+'px Arial,sans-serif';
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  ctx.fillText(ts+' | GPS: '+gpsStr,20,h-bh*.22);
 
-  const lbl = (window._fotoLabel||'').trim();
+  const lbl=(window._fotoLabel||'').trim();
   if(lbl){
-    const fs = Math.max(18, Math.round(h*.028));
-    ctx.font = 'bold '+fs+'px Arial,sans-serif';
-    const text = lbl.length > 34 ? lbl.slice(0,34)+'…' : lbl;
-    const tw = ctx.measureText(text).width;
-    const padX = 18, padY = 10, rr = 10;
-    const rw = tw + padX * 2, rh = fs + padY * 2;
-    const rx = w - rw - 22, ry = 22;
+    const fs=Math.max(18,Math.round(h*.028));
+    ctx.font='bold '+fs+'px Arial,sans-serif';
+    const text=lbl.length>34?lbl.slice(0,34)+'…':lbl;
+    const tw=ctx.measureText(text).width;
+    const padX=18,padY=10,rr=10;
+    const rw=tw+padX*2,rh=fs+padY*2;
+    const rx=w-rw-22,ry=22;
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.55)';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = 'rgba(255,214,0,.94)';
+    ctx.shadowColor='rgba(0,0,0,.55)';
+    ctx.shadowBlur=10;
+    ctx.fillStyle='rgba(255,214,0,.94)';
     ctx.beginPath();
-    ctx.moveTo(rx+rr, ry);
-    ctx.lineTo(rx+rw-rr, ry);
-    ctx.arcTo(rx+rw, ry, rx+rw, ry+rr, rr);
-    ctx.lineTo(rx+rw, ry+rh-rr);
-    ctx.arcTo(rx+rw, ry+rh, rx+rw-rr, ry+rh, rr);
-    ctx.lineTo(rx+rr, ry+rh);
-    ctx.arcTo(rx, ry+rh, rx, ry+rh-rr, rr);
-    ctx.lineTo(rx, ry+rr);
-    ctx.arcTo(rx, ry, rx+rr, ry, rr);
+    ctx.moveTo(rx+rr,ry);
+    ctx.lineTo(rx+rw-rr,ry);
+    ctx.arcTo(rx+rw,ry,rx+rw,ry+rr,rr);
+    ctx.lineTo(rx+rw,ry+rh-rr);
+    ctx.arcTo(rx+rw,ry+rh,rx+rw-rr,ry+rh,rr);
+    ctx.lineTo(rx+rr,ry+rh);
+    ctx.arcTo(rx,ry+rh,rx,ry+rh-rr,rr);
+    ctx.lineTo(rx,ry+rr);
+    ctx.arcTo(rx,ry,rx+rr,ry,rr);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
-    ctx.fillStyle = '#111';
-    ctx.font = 'bold '+fs+'px Arial,sans-serif';
-    ctx.fillText(text, rx+padX, ry+padY+fs*.82);
+    ctx.fillStyle='#111';
+    ctx.font='bold '+fs+'px Arial,sans-serif';
+    ctx.fillText(text,rx+padX,ry+padY+fs*.82);
   }
 }
-
 async function manualPhoto(){
-  if(!hDir) return;
-  const vid = document.getElementById('vid'), c = document.getElementById('c'), ctx = c.getContext('2d');
-  c.width = vid.videoWidth;
-  c.height = vid.videoHeight;
-  const km = document.getElementById('kmTxt').innerText.replace('KM ','');
-  drawOverlay(ctx, c.width, c.height, km, new Date().toLocaleString('pt-BR').toUpperCase(), `${lat}, ${lon}`);
-  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .95));
-  const fh = await hDir.getFileHandle(`MANUAL_${safeFotoLabel()||'KM'}_${km}_${Date.now()}.jpg`, { create: true });
-  const w = await fh.createWritable();
+  if(!hDir)return;
+  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d');
+  c.width=vid.videoWidth;
+  c.height=vid.videoHeight;
+  const km=document.getElementById('kmTxt').innerText.replace('KM ','');
+  drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));
+  const fh=await hDir.getFileHandle(`MANUAL_${safeFotoLabel()||'KM'}_${km}_${Date.now()}.jpg`,{create:true});
+  const w=await fh.createWritable();
   await w.write(blob);
   await w.close();
   document.getElementById('ui-ctrl').classList.remove('hide');
-  showToast('Foto salva');
+  showToast('Foto manual salva');
 }
-
 function startCap(){
-  capturing = true;
-  buffer = [];
-  kmIniLote = document.getElementById('kmTxt').innerText.replace('KM ','');
-  document.getElementById('btn-start').style.display = 'none';
-  document.getElementById('btn-stop').style.display = 'flex';
+  capturing=true;
+  buffer=[];
+  kmIniLote=document.getElementById('kmTxt').innerText.replace('KM ','');
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('btn-stop').style.display='flex';
   document.getElementById('rec-tag').classList.add('on');
   document.getElementById('ui-ctrl').classList.add('hide');
   capLoop();
 }
-
 async function stopCap(){
-  capturing = false;
+  capturing=false;
   if(buffer.length){
-    const kmF = document.getElementById('kmTxt').innerText.replace('KM ','');
-    await savePDF([...buffer], kmIniLote, kmF);
+    const kmF=document.getElementById('kmTxt').innerText.replace('KM ','');
+    await savePDF([...buffer],kmIniLote,kmF);
   }
-  buffer = [];
-  document.getElementById('btn-start').style.display = 'flex';
-  document.getElementById('btn-stop').style.display = 'none';
+  buffer=[];
+  document.getElementById('btn-start').style.display='flex';
+  document.getElementById('btn-stop').style.display='none';
   document.getElementById('rec-tag').classList.remove('on');
   document.getElementById('ui-ctrl').classList.remove('hide');
 }
-
 function capLoop(){
-  if(!capturing) return;
-  const vid = document.getElementById('vid'), c = document.getElementById('c'), ctx = c.getContext('2d');
-  if(!vid.videoWidth){ setTimeout(capLoop, 50); return; }
-  c.width = vid.videoWidth;
-  c.height = vid.videoHeight;
-  const km = document.getElementById('kmTxt').innerText.replace('KM ','');
-  drawOverlay(ctx, c.width, c.height, km, new Date().toLocaleString('pt-BR').toUpperCase(), `${lat}, ${lon}`);
-  buffer.push(c.toDataURL('image/jpeg', .55));
-  const lote = parseInt(document.getElementById('cfgLote').value) || 50;
-  if(buffer.length >= lote){
-    const kmNow = km;
-    savePDF([...buffer], kmIniLote, kmNow);
-    buffer = [];
-    kmIniLote = kmNow;
+  if(!capturing)return;
+  const vid=document.getElementById('vid'),c=document.getElementById('c'),ctx=c.getContext('2d');
+  if(!vid.videoWidth){setTimeout(capLoop,100);return}
+  c.width=vid.videoWidth;
+  c.height=vid.videoHeight;
+  const km=document.getElementById('kmTxt').innerText.replace('KM ','');
+  drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
+  buffer.push(c.toDataURL('image/jpeg',.58));
+  const lote=parseInt(document.getElementById('cfgLote').value)||50;
+  if(buffer.length>=lote){
+    const kmNow=km;
+    savePDF([...buffer],kmIniLote,kmNow);
+    buffer=[];
+    kmIniLote=kmNow;
   }
-  setTimeout(capLoop, parseInt(document.getElementById('cfgInt').value) || 200);
+  setTimeout(capLoop,parseInt(document.getElementById('cfgInt').value)||200);
 }
-
-async function savePDF(data, kmI, kmF){
-  if(!data.length) return;
-  const vid = document.getElementById('vid');
-  const doc = new jspdf.jsPDF(vid.videoWidth >= vid.videoHeight ? 'l' : 'p', 'mm', 'a4');
-  const pw = doc.internal.pageSize.getWidth(), ph = doc.internal.pageSize.getHeight();
-  for(let i=0; i<data.length; i++){
-    if(i) doc.addPage();
-    doc.addImage(data[i], 'JPEG', 0, 0, pw, ph);
+async function savePDF(data,kmI,kmF){
+  if(!data.length)return;
+  const vid=document.getElementById('vid');
+  const doc=new jspdf.jsPDF(vid.videoWidth>=vid.videoHeight?'l':'p','mm','a4');
+  const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+  for(let i=0;i<data.length;i++){
+    if(i)doc.addPage();
+    doc.addImage(data[i],'JPEG',0,0,pw,ph);
   }
-  const fh = await hDir.getFileHandle(`RELATORIO_${safeFotoLabel()||'KM'}_${kmI}_AO_${kmF}_${Date.now()}.pdf`, { create: true });
-  const w = await fh.createWritable();
+  const fh=await hDir.getFileHandle(`RELATORIO_${safeFotoLabel()||'KM'}_${kmI}_AO_${kmF}_${Date.now()}.pdf`,{create:true});
+  const w=await fh.createWritable();
   await w.write(doc.output('blob'));
   await w.close();
-  showToast(`PDF gerado: KM ${kmI} → ${kmF}`);
+  showToast(`PDF salvo: KM ${kmI} → ${kmF}`);
 }
 
-window._fotoLabel = '';
+/* ===== ETIQUETA DAS FOTOS ===== */
+window._fotoLabel='';
 function syncFotoLabel(v){
-  window._fotoLabel = String(v||'');
-  const a = document.getElementById('fotoLabel');
-  const b = document.getElementById('fotoLabelLive');
-  if(a && a.value !== window._fotoLabel) a.value = window._fotoLabel;
-  if(b && b.value !== window._fotoLabel) b.value = window._fotoLabel;
+  window._fotoLabel=String(v||'');
+  const a=document.getElementById('fotoLabel');
+  const b=document.getElementById('fotoLabelLive');
+  if(a && a.value!==window._fotoLabel)a.value=window._fotoLabel;
+  if(b && b.value!==window._fotoLabel)b.value=window._fotoLabel;
 }
-
 function safeFotoLabel(){
   return String(window._fotoLabel||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toUpperCase();
 }
