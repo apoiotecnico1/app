@@ -9,7 +9,6 @@
 > <meta name="theme-color" content="#0b1020"
 
 > <meta name="apple-mobile-web-app-capable" content="yes"
-> <meta name="mobile-web-app-capable" content="yes"
 
 > <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"
 
@@ -728,7 +727,18 @@ img,video{display:block;max-width:100%}
 }
 
 /* HUD etiqueta + REC */
-#label-hud{display:none !important}
+#label-hud{
+  display:none !important; /* etiqueta só nas fotos e PDF, nunca na tela */
+}
+#label-hud p{
+  font-size:8px;font-weight:900;text-transform:uppercase;
+  letter-spacing:.18em;color:rgba(255,214,0,.85);margin-bottom:5px;
+}
+#label-hud input{
+  background:transparent;border:none;outline:none;
+  color:#fff;font-size:11px;font-weight:700;width:100%;
+  caret-color:var(--accent);font-family:var(--font);
+}
 #rec-tag{
   position:absolute;top:calc(22px + var(--safe-t));right:14px;
   display:flex;align-items:center;gap:7px;
@@ -793,14 +803,13 @@ img,video{display:block;max-width:100%}
 
 /* SETTINGS PANEL */
 #settings{
-  position:fixed;inset:0 0 0 auto;width:min(92vw,380px);
-  z-index:300;border-left:1px solid rgba(92,33,255,.35);
-  background:linear-gradient(180deg,rgba(9,10,30,.98) 0%,rgba(5,8,20,.99) 100%);
-  backdrop-filter:blur(40px) saturate(1.6);-webkit-backdrop-filter:blur(40px) saturate(1.6);
-  padding:calc(24px + var(--safe-t)) 24px 48px;
-  transform:translateX(100%);transition:transform .3s var(--ease);
-  overflow-y:auto;
-  box-shadow:-2px 0 0 0 rgba(92,33,255,.4),-16px 0 60px rgba(0,0,0,.85);
+  position:fixed;inset:0 0 0 auto;width:min(88vw,350px);
+  z-index:50;border-left:1px solid var(--border2);
+  background:rgba(5,10,24,.96);
+  backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4);
+  padding:calc(18px + var(--safe-t)) 24px 40px;
+  transform:translateX(100%);transition:transform .25s var(--ease);
+  overflow-y:auto;box-shadow:-10px 0 50px rgba(0,0,0,.75);
 }
 #settings.open{transform:translateX(0)}
 #settings-close{
@@ -857,6 +866,27 @@ canvas#c{display:none}
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
 :focus-visible{outline:2px solid var(--violet2);outline-offset:2px}
+
+/* ── botões sempre responsivos, nunca travados ── */
+button,.mc,.gate-btn,.ctrl-send,.ui-btn,.btn-icon,.btn-toggle-map{
+  -webkit-user-select:none;user-select:none;
+  touch-action:manipulation;
+  will-change:transform;
+}
+/* ── settings panel: borda roxa elegante ── */
+#settings{
+  border-left:2px solid rgba(92,33,255,.45);
+  box-shadow:-12px 0 60px rgba(0,0,0,.85),inset 1px 0 0 rgba(92,33,255,.12);
+}
+/* ── animação de entrada do settings ── */
+#settings.open{transition:transform .22s cubic-bezier(.4,0,.2,1)}
+/* ── input range estilizado ── */
+input[type=range]{-webkit-appearance:none;height:6px;border-radius:4px;background:var(--surface3);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--violet2);cursor:pointer;box-shadow:0 2px 8px rgba(92,33,255,.5);}
+/* ── loading overlay progressivo ── */
+#splash{transition:opacity .4s ease,visibility .4s ease}
+#splash.done{opacity:0;visibility:hidden;pointer-events:none}
+
 </style>
 </head>
 <body>
@@ -1257,17 +1287,9 @@ canvas#c{display:none}
       Fechar
     </button>
     <h2>Configurações</h2>
+    <div class="s-group"
 
-    <div class="s-group">
-      <label class="s-lbl">Etiqueta / Tipo de serviço</label>
-      <input type="text" class="s-inp" id="labelSettings" placeholder="Ex: Manutenção viária, Vistoria..." autocomplete="off" spellcheck="false"
-        oninput="syncFotoLabel(this.value)"
-        style="background-image:none;padding-right:13px">
-      <p style="font-size:10px;color:var(--muted);margin-top:6px;font-weight:600;line-height:1.5">Aparece somente nas fotos e relatórios PDF.</p>
-    </div>
-
-    <div class="s-group">
-      <label class="s-lbl">Câmera ativa</label>
+>       <label class="s-lbl">Câmera ativa</label>
       <select class="s-inp" id="camSel" onchange="switchCam(this.value)"></select>
     </div>
     <div class="s-group"
@@ -1424,26 +1446,30 @@ function showToast(msg,type='ok'){
 
 /* ===== NAVIGATION ===== */
 function openMod(id){
-  const menu=document.getElementById('main-menu');
-  document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
-  /* ── Fullscreen em qualquer navegação ── */
+  /* fullscreen em toda navegação */
   if(!document.fullscreenElement){
-    (document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);
+    (document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement).catch(function(){});
   }
-  if(id==='menu'){menu.style.display='flex';return}
+  const menu=document.getElementById('main-menu');
+  document.querySelectorAll('.module').forEach(function(m){m.classList.remove('active');});
+  if(id==='menu'){menu.style.display='flex';return;}
   menu.style.display='none';
-  document.getElementById('mod-'+id).classList.add('active');
-  if(id==='apoio')initApoio();
-  if(id==='km')initRt();
+  var mod=document.getElementById('mod-'+id);
+  if(mod)mod.classList.add('active');
+  /* inicia módulos em microtask — não trava o clique */
+  if(id==='apoio')setTimeout(function(){initApoio();},0);
+  if(id==='km')setTimeout(function(){initRt();},0);
 }
 
 /* ===== SPLASH ===== */
-setTimeout(()=>{
-  document.getElementById('splash').classList.add('done');
-  if(!document.fullscreenElement){
-    (document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement).catch(()=>{});
-  }
-},2200);
+/* ── SPLASH rápido: UI pronta em 800ms, fullscreen imediato ── */
+(function(){
+  var _fs=function(){if(!document.fullscreenElement){(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement).catch(function(){});}};
+  _fs();
+  setTimeout(function(){
+    document.getElementById('splash').classList.add('done');
+  },800);
+})();
 
 /* ===== CLOCK ===== */
 function tickClock(){
@@ -2052,7 +2078,7 @@ function capLoop(){
   c.height=vid.videoHeight;
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  buffer.push(c.toDataURL('image/jpeg',.58));
+  buffer.push(c.toDataURL('image/jpeg',(parseInt(document.getElementById('cfgQuality')?.value||72)/100)));
   const lote=parseInt(document.getElementById('cfgLote').value)||50;
   if(buffer.length>=lote){
     const kmNow=km;
@@ -2065,11 +2091,30 @@ function capLoop(){
 async function savePDF(data,kmI,kmF){
   if(!data.length)return;
   const vid=document.getElementById('vid');
-  const doc=new jspdf.jsPDF(vid.videoWidth>=vid.videoHeight?'l':'p','mm','a4');
+  const isL=vid.videoWidth>=vid.videoHeight;
+  const doc=new jspdf.jsPDF(isL?'l':'p','mm','a4');
   const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+  const header=(document.getElementById('cfgHeader')?.value||'').trim();
+  const footer=(document.getElementById('cfgFooter')?.value||'').trim();
+  const lbl=window._fotoLabel||'';
+  const marginTop=header?14:0;
+  const marginBot=footer?8:0;
+
   for(let i=0;i<data.length;i++){
     if(i)doc.addPage();
-    doc.addImage(data[i],'JPEG',0,0,pw,ph);
+    if(header){
+      doc.setFillColor(15,18,36);doc.rect(0,0,pw,14,'F');
+      doc.setTextColor(255,214,0);doc.setFontSize(9);doc.setFont(undefined,'bold');
+      doc.text(header,pw/2,9,{align:'center'});
+      if(lbl){doc.setTextColor(180,180,180);doc.setFontSize(7);doc.text(lbl,pw-6,9,{align:'right'});}
+    }
+    doc.addImage(data[i],'JPEG',0,marginTop,pw,ph-marginTop-marginBot);
+    if(footer){
+      doc.setFillColor(15,18,36);doc.rect(0,ph-8,pw,8,'F');
+      doc.setTextColor(150,150,150);doc.setFontSize(7);
+      doc.text(footer,6,ph-2.5);
+      doc.text('KM '+kmI+' → '+kmF+' | Pág.'+(i+1)+'/'+data.length,pw-6,ph-2.5,{align:'right'});
+    }
   }
   const fh=await hDir.getFileHandle(`RELATORIO_${safeFotoLabel()||'KM'}_${kmI}_AO_${kmF}_${Date.now()}.pdf`,{create:true});
   const w=await fh.createWritable();
@@ -2082,26 +2127,126 @@ async function savePDF(data,kmI,kmF){
 window._fotoLabel='';
 function syncFotoLabel(v){
   window._fotoLabel=String(v||'');
-  const a=document.getElementById('fotoLabel');      /* gate input */
-  const b=document.getElementById('fotoLabelLive');  /* hud (oculto) */
-  const c=document.getElementById('labelSettings'); /* settings panel */
+  const a=document.getElementById('fotoLabel');
+  const b=document.getElementById('fotoLabelLive');
   if(a && a.value!==window._fotoLabel)a.value=window._fotoLabel;
   if(b && b.value!==window._fotoLabel)b.value=window._fotoLabel;
-  if(c && c.value!==window._fotoLabel)c.value=window._fotoLabel;
 }
 function safeFotoLabel(){
   return String(window._fotoLabel||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toUpperCase();
 }
 
-/* SETTINGS TOGGLE */
+/* ===== SETTINGS ===== */
 function toggleSet(){
-  const panel = document.getElementById('settings');
-  panel.classList.toggle('open');
-  /* Sincroniza o campo de etiqueta no painel sempre que abrir */
-  if(panel.classList.contains('open')){
-    const lf = document.getElementById('labelSettings');
-    if(lf) lf.value = window._fotoLabel || '';
+  var s=document.getElementById('settings');
+  s.classList.toggle('open');
+  if(s.classList.contains('open')){
+    /* sincroniza label ao abrir */
+    var sl=document.getElementById('settingsLabel');
+    if(sl && sl.value!==window._fotoLabel) sl.value=window._fotoLabel;
   }
+}
+
+/* Quality slider live */
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    var sl=document.getElementById('cfgQuality');
+    var lb=document.getElementById('cfgQualityLbl');
+    if(sl&&lb) sl.addEventListener('input',function(){lb.textContent=sl.value+'%';});
+  });
+})();
+
+/* Reaplicar câmera com resolução/facing escolhidos */
+async function reapplyCam(){
+  var res=parseInt(document.getElementById('camRes')?.value||'1080');
+  var facing=document.getElementById('camFacing')?.value||'environment';
+  var id=document.getElementById('camSel')?.value||'';
+  if(stream) stream.getTracks().forEach(function(t){t.stop();});
+  try{
+    var constraints={
+      video:{
+        width:{ideal:res==='2160'?3840:res==='720'?1280:1920},
+        height:{ideal:res==='2160'?2160:res==='720'?720:1080}
+      },
+      audio:false
+    };
+    if(id) constraints.video.deviceId={exact:id};
+    else if(facing!=='any') constraints.video.facingMode=facing;
+    stream=await navigator.mediaDevices.getUserMedia(constraints);
+    document.getElementById('vid').srcObject=stream;
+    showToast('Câmera aplicada');
+    toggleSet();
+  }catch(e){
+    showToast('Erro ao trocar câmera: '+e.message,'err');
+  }
+}
+
+/* Geração de PDF a partir de fotos enviadas */
+async function handleUpload(files){
+  if(!files||!files.length)return;
+  var st=document.getElementById('uploadStatus');
+  if(st){st.style.display='block';st.textContent='Processando '+files.length+' foto(s)...';}
+
+  var header=(document.getElementById('cfgHeader')?.value||'').trim();
+  var footer=(document.getElementById('cfgFooter')?.value||'').trim();
+  var label=window._fotoLabel||'';
+  var quality=(parseInt(document.getElementById('cfgQuality')?.value||72))/100;
+
+  var imgs=[];
+  for(var i=0;i<files.length;i++){
+    await new Promise(function(res2){
+      var reader=new FileReader();
+      reader.onload=function(ev){imgs.push(ev.target.result);res2();};
+      reader.readAsDataURL(files[i]);
+    });
+  }
+
+  var firstImg=new Image();
+  firstImg.src=imgs[0];
+  await new Promise(function(r){firstImg.onload=r;});
+  var isLandscape=firstImg.naturalWidth>=firstImg.naturalHeight;
+  var doc=new jspdf.jsPDF(isLandscape?'l':'p','mm','a4');
+  var pw=doc.internal.pageSize.getWidth();
+  var ph=doc.internal.pageSize.getHeight();
+  var marginTop=header?18:0;
+  var marginBot=footer?10:0;
+
+  for(var j=0;j<imgs.length;j++){
+    if(j>0) doc.addPage();
+    /* cabeçalho */
+    if(header){
+      doc.setFillColor(15,18,36);
+      doc.rect(0,0,pw,14,'F');
+      doc.setTextColor(255,214,0);
+      doc.setFontSize(9);
+      doc.setFont(undefined,'bold');
+      doc.text(header,pw/2,9,{align:'center'});
+      if(label){
+        doc.setTextColor(180,180,180);
+        doc.setFontSize(7);
+        doc.text(label,pw-6,9,{align:'right'});
+      }
+    }
+    /* foto */
+    doc.addImage(imgs[j],'JPEG',0,marginTop,pw,ph-marginTop-marginBot);
+    /* rodapé */
+    if(footer){
+      doc.setFillColor(15,18,36);
+      doc.rect(0,ph-8,pw,8,'F');
+      doc.setTextColor(150,150,150);
+      doc.setFontSize(7);
+      doc.text(footer,6,ph-2.5);
+      doc.text('Pág. '+(j+1)+' / '+imgs.length,pw-6,ph-2.5,{align:'right'});
+    }
+  }
+
+  /* download direto (sem depender de pasta) */
+  var ts=new Date().toLocaleString('pt-BR').replace(/[/:, ]/g,'_');
+  var fname='RELATORIO_UPLOAD_'+ts+'.pdf';
+  doc.save(fname);
+
+  if(st) st.textContent='✅ PDF gerado: '+fname+' ('+imgs.length+' fotos)';
+  showToast('PDF com '+imgs.length+' foto(s) gerado!');
 }
 </script>
 </body>
