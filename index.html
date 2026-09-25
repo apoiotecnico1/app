@@ -93,21 +93,23 @@
 html{-webkit-text-size-adjust:100%}
 body{
   background:radial-gradient(circle at top,rgba(92,33,255,.18),transparent 55%),var(--bg);
-  color:var(--text);font-family:var(--font);overflow-x:hidden;
-  min-height:100vh;min-height:100dvh;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  color:var(--text);
+  font-family:var(--font);
+  overflow-x:hidden;
+  min-height:100vh;
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   overscroll-behavior:none;
-  /* GPU layer para todo o app */
-  transform:translateZ(0);-webkit-transform:translateZ(0);
-  /* Evita flash branco no iOS */
-  -webkit-overflow-scrolling:touch;
 }
-button{font-family:var(--font);cursor:pointer;border:0;background:none;color:inherit;
+button{
+  font-family:var(--font);cursor:pointer;border:0;background:none;color:inherit;
   -webkit-user-select:none;user-select:none;
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
-  will-change:transform;}
-button:active{opacity:.82;transform:scale(.96)}
+  will-change:transform;
+}
+button:active{opacity:.80;transform:scale(.96);transition:transform 60ms,opacity 60ms}
 input,select{font-family:var(--font);outline:none}
 img,video{display:block;max-width:100%}
 ::-webkit-scrollbar{width:3px}
@@ -195,7 +197,7 @@ img,video{display:block;max-width:100%}
 .sp-bar-fill{
   height:100%;border-radius:99px;
   background:linear-gradient(90deg,var(--green),var(--accent));
-  animation:barLoad .5s .2s ease-in-out both;transform-origin:left;
+  animation:barLoad .5s .1s ease-in-out both;transform-origin:left;
 }
 @keyframes barLoad{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes txtUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -290,7 +292,7 @@ img,video{display:block;max-width:100%}
   padding:16px 18px;border-radius:var(--r-lg);
   border:1px solid var(--border);
   background:linear-gradient(135deg,rgba(15,23,42,.85),rgba(17,24,39,.95));
-  transition:opacity .1s,transform .1s,border-color .15s;
+  transition:all .2s var(--ease);
   position:relative;overflow:hidden;text-align:left;width:100%;
 }
 .mc::after{
@@ -324,7 +326,7 @@ img,video{display:block;max-width:100%}
 .mc-a{
   width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
   background:var(--glass);color:var(--dim);flex-shrink:0;
-  transition:opacity .1s,transform .1s,border-color .15s;
+  transition:all .2s var(--ease);
 }
 .mc.pri .mc-a{background:rgba(0,0,0,.55);color:rgba(209,213,219,.8)}
 .menu-footer{
@@ -335,7 +337,7 @@ img,video{display:block;max-width:100%}
 /* ===== MODULE WRAPPER ===== */
 .module{display:none;min-height:100vh;min-height:100dvh;background:var(--bg)}
 .module.active{display:block;animation:modFade .15s var(--ease)}
-@keyframes modFade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes modFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== HEADER ===== */
 .hdr{
@@ -422,7 +424,7 @@ img,video{display:block;max-width:100%}
   min-height:46px;border-radius:var(--r-sm);
   border:1px solid;padding:0 14px;
   font-size:11px;font-weight:800;letter-spacing:.06em;
-  text-align:center;transition:opacity .1s,transform .1s,border-color .15s;
+  text-align:center;transition:all .2s var(--ease);
 }
 .gps svg{width:14px;height:14px;flex-shrink:0}
 .gps.bad{border-color:rgba(148,163,184,.35);background:rgba(15,23,42,.9);color:#e5e7eb}
@@ -468,7 +470,7 @@ img,video{display:block;max-width:100%}
   background:rgba(15,23,42,.9);
   padding:13px 14px 13px 38px;
   font-size:13px;font-weight:800;text-transform:uppercase;color:#fff;
-  transition:opacity .1s,transform .1s,border-color .15s;
+  transition:all .2s var(--ease);
 }
 .search-input::placeholder{color:var(--dim);font-weight:700}
 .search-input:focus{
@@ -533,7 +535,7 @@ img,video{display:block;max-width:100%}
   border-radius:var(--r-lg);overflow:hidden;
   border:1px solid var(--border2);
   background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(17,24,39,.95));
-  transition:opacity .1s,transform .1s,border-color .15s;
+  transition:all .2s var(--ease);
 }
 .post.near{
   border-color:rgba(92,33,255,.48);
@@ -733,7 +735,14 @@ img,video{display:block;max-width:100%}
 
 /* HUD etiqueta + REC */
 #label-hud{
-  display:none !important; /* aparece SOMENTE nas fotos/PDF via canvas */
+  position:absolute;top:calc(82px + var(--safe-t));right:14px;
+  max-width:220px;border-radius:var(--r-sm);
+  border:1px solid rgba(255,214,0,.35);
+  background:rgba(15,23,42,.80);
+  padding:8px 12px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:100;
+  display:none !important; /* etiqueta só no canvas/fotos, nunca na tela */
 }
 #label-hud p{
   font-size:8px;font-weight:900;text-transform:uppercase;
@@ -777,11 +786,9 @@ img,video{display:block;max-width:100%}
   height:52px;border-radius:var(--r-sm);
   font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;
   display:flex;align-items:center;justify-content:center;gap:7px;
-  transition:opacity .1s,transform .1s;box-shadow:var(--shadow-md);
-  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  will-change:transform;-webkit-user-select:none;user-select:none;
+  transition:all .15s var(--ease);box-shadow:var(--shadow-md);
 }
-.ui-btn:active{transform:scale(.93);opacity:.8}
+.ui-btn:active{transform:scale(.94)}
 .ui-btn svg{width:18px;height:18px}
 #btn-gear{
   width:52px;flex-shrink:0;
@@ -810,18 +817,13 @@ img,video{display:block;max-width:100%}
 
 /* SETTINGS PANEL */
 #settings{
-  position:fixed;inset:0 0 0 auto;width:min(92vw,360px);
-  z-index:9999;
-  border-left:1px solid rgba(92,33,255,.35);
-  background:linear-gradient(180deg,rgba(9,12,28,.97),rgba(5,8,22,.99));
-  backdrop-filter:blur(40px) saturate(1.6);-webkit-backdrop-filter:blur(40px) saturate(1.6);
-  padding:calc(20px + var(--safe-t)) 22px calc(40px + var(--safe-b));
-  transform:translateX(100%);
-  transition:transform .22s cubic-bezier(.4,0,.2,1);
-  overflow-y:auto;overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  box-shadow:-12px 0 60px rgba(92,33,255,.25),-4px 0 20px rgba(0,0,0,.9);
-  will-change:transform;
+  position:fixed;inset:0 0 0 auto;width:min(88vw,350px);
+  z-index:50;border-left:1px solid var(--border2);
+  background:rgba(5,10,24,.96);
+  backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4);
+  padding:calc(18px + var(--safe-t)) 24px 40px;
+  transform:translateX(100%);transition:transform .25s var(--ease);
+  overflow-y:auto;box-shadow:-10px 0 50px rgba(0,0,0,.75);
 }
 #settings.open{transform:translateX(0)}
 #settings-close{
@@ -1056,7 +1058,7 @@ canvas#c{display:none}
 
 >     <div class="hdr-in"
 
->       <button class="hdr-back" onclick="openMod('menu')" aria-label="Voltar"
+>       <button class="hdr-back" onclick="openMod('menu')" ontouchstart="openMod('menu')" aria-label="Voltar" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent"
 
 >         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
 
@@ -1277,70 +1279,24 @@ canvas#c{display:none}
       </svg>
       Fechar
     </button>
-    <h2 style="font-size:17px;font-weight:900;letter-spacing:-.01em;margin-bottom:4px">⚙️ Configurações</h2>
-    <p style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px">Etiqueta aparece somente nas fotos e relatórios.</p>
+    <h2>Configurações</h2>
+    <div class="s-group"
 
-    <div class="s-group">
-      <label class="s-lbl">✏️ Etiqueta / Tipo de serviço</label>
-      <input type="text" class="s-inp" id="cfgLabel" placeholder="Ex: Vistoria, Capina, Manutenção..." autocomplete="off" spellcheck="false"
-        oninput="syncFotoLabel(this.value)" style="background-image:none;padding:13px">
-      <p style="font-size:9px;color:var(--dim);margin-top:5px;font-weight:600">Aparece somente nas fotos capturadas e nos PDFs gerados.</p>
-    </div>
-
-    <div class="s-group">
-      <label class="s-lbl">📷 Câmera ativa</label>
+>       <label class="s-lbl">Câmera ativa</label>
       <select class="s-inp" id="camSel" onchange="switchCam(this.value)"></select>
     </div>
+    <div class="s-group"
 
-    <div class="s-group">
-      <label class="s-lbl">🔄 Virar câmera</label>
-      <div style="display:flex;gap:8px">
-        <button onclick="flipCam('environment')" style="flex:1;min-height:40px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;border:1px solid var(--border2);background:var(--surface);color:#fff;touch-action:manipulation">⬅️ Traseira</button>
-        <button onclick="flipCam('user')" style="flex:1;min-height:40px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;border:1px solid var(--border2);background:var(--surface);color:#fff;touch-action:manipulation">🤳 Frontal</button>
-      </div>
-    </div>
+>       <label class="s-lbl">Intervalo (ms)</label>
+      <input type="number" class="s-inp" id="cfgInt" value="200"
 
-    <div class="s-group">
-      <label class="s-lbl">⏱ Intervalo entre fotos (ms)</label>
-      <input type="number" class="s-inp" id="cfgInt" value="200" min="100" max="5000" style="background-image:none;padding:13px">
-    </div>
+>     </div>
+    <div class="s-group"
 
-    <div class="s-group">
-      <label class="s-lbl">📦 Fotos por lote (PDF)</label>
-      <input type="number" class="s-inp" id="cfgLote" value="50" min="5" max="200" style="background-image:none;padding:13px">
-    </div>
+>       <label class="s-lbl">Fotos por lote</label>
+      <input type="number" class="s-inp" id="cfgLote" value="50"
 
-    <div class="s-group">
-      <label class="s-lbl">🖼 Qualidade da imagem</label>
-      <input type="range" id="cfgQual" min="30" max="98" value="72" step="2" style="width:100%;accent-color:var(--violet2);margin-top:6px">
-      <p style="font-size:10px;color:var(--muted);font-weight:700;margin-top:4px">Qualidade: <span id="cfgQualVal">72</span>%</p>
-    </div>
-
-    <div class="s-group">
-      <label class="s-lbl">📄 Cabeçalho do PDF</label>
-      <input type="text" class="s-inp" id="cfgHead" placeholder="Ex: Motiva – BR-116 SP/RJ" autocomplete="off" style="background-image:none;padding:13px">
-    </div>
-
-    <div class="s-group">
-      <label class="s-lbl">📝 Observações / Rodapé</label>
-      <input type="text" class="s-inp" id="cfgFoot" placeholder="Ex: Equipe Norte – Turno A" autocomplete="off" style="background-image:none;padding:13px">
-    </div>
-
-    <div class="s-group">
-      <label class="s-lbl">📁 Gerar relatório por fotos armazenadas</label>
-      <input type="file" id="upFotos" multiple accept="image/*" style="display:none" onchange="handleUpload(this)">
-      <button onclick="document.getElementById('upFotos').click()"
-        style="width:100%;min-height:44px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;border:1px solid rgba(16,185,129,.4);background:var(--green-dim);color:var(--green2);touch-action:manipulation">
-        📂 Selecionar fotos e gerar PDF
-      </button>
-    </div>
-
-    <div class="s-group" style="margin-top:28px">
-      <button onclick="toggleSet()"
-        style="width:100%;min-height:46px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;background:linear-gradient(135deg,var(--violet),var(--violet2));color:#fff;touch-action:manipulation;box-shadow:0 4px 18px rgba(79,70,229,.5)">
-        ✅ Salvar e fechar
-      </button>
-    </div>
+>     </div>
   </div>
   <div id="app-shell"
 
@@ -1483,51 +1439,34 @@ function showToast(msg,type='ok'){
 
 /* ===== NAVIGATION ===== */
 function openMod(id){
-  /* fullscreen sempre ativo na navegação */
-  if(!document.fullscreenElement){
-    try{(document.documentElement.requestFullscreen||
-         document.documentElement.webkitRequestFullscreen||
-         function(){}).call(document.documentElement);}catch(e){}
-  }
-  const menu=document.getElementById('main-menu');
-  /* remove active ANTES de mudar visibilidade = zero repaint bloqueante */
+  /* Toque → RAF → execução: NUNCA trava a UI */
   requestAnimationFrame(function(){
-    document.querySelectorAll('.module').forEach(function(m){m.classList.remove('active');});
-    if(id==='menu'){menu.style.display='flex';return;}
-    menu.style.display='none';
-    var mod=document.getElementById('mod-'+id);
-    if(mod) mod.classList.add('active');
-    /* init pesado em microtask para não bloquear o toque */
     setTimeout(function(){
-      if(id==='apoio')initApoio();
-      if(id==='km')initRt();
+      var menu=document.getElementById('main-menu');
+      document.querySelectorAll('.module').forEach(function(m){m.classList.remove('active');});
+      if(!document.fullscreenElement){
+        (document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement).catch(function(){});
+      }
+      if(id==='menu'){
+        menu.style.display='flex';
+        /* Para a câmera ao voltar ao menu para não travar */
+        if(stream){stream.getTracks().forEach(function(t){t.stop();});stream=null;}
+        return;
+      }
+      menu.style.display='none';
+      var mod=document.getElementById('mod-'+id);
+      if(mod) mod.classList.add('active');
+      if(id==='apoio') setTimeout(initApoio,0);
+      if(id==='km')    setTimeout(initRt,0);
     },0);
   });
 }
 
 /* ===== SPLASH ===== */
-/* ── SPLASH: sumiu em 600ms, UI disponível desde o frame 1 ── */
 (function(){
-  /* fullscreen imediato na abertura */
-  var _fs=function(){
-    try{
-      (document.documentElement.requestFullscreen||
-       document.documentElement.webkitRequestFullscreen||
-       document.documentElement.mozRequestFullScreen||
-       function(){}).call(document.documentElement);
-    }catch(e){}
-  };
-  _fs();
-  /* jsPDF carrega em background — não bloqueia UI */
-  var splashEl=document.getElementById('splash');
-  /* splash desaparece em 600ms mas UI já responde antes */
-  setTimeout(function(){splashEl.classList.add('done');},600);
-  /* permissão de câmera em background para não travar gate */
-  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-    navigator.mediaDevices.getUserMedia({video:true,audio:false})
-      .then(function(s){s.getTracks().forEach(function(t){t.stop();});})
-      .catch(function(){});
-  }
+  var fs=function(){if(!document.fullscreenElement){(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement).catch(function(){});}};
+  fs();
+  setTimeout(function(){document.getElementById('splash').classList.add('done');},700);
 })();
 
 /* ===== CLOCK ===== */
@@ -1768,9 +1707,8 @@ function renderApoio(){
   }
 
   renderedKey=key;
-  /* RAF: dom update não bloqueia scroll/touch */
-  requestAnimationFrame(function(){
   list.innerHTML='';
+
   items.forEach((o,i)=>{
     const kmLabel=o.km!=null?('KM aprox: '+o.km.toFixed(2).replace('.',',')):'KM aprox: —';
     const div=document.createElement('div');
@@ -1805,8 +1743,10 @@ function renderApoio(){
     </div>`;
     list.appendChild(div);
   });
-  document.getElementById('btnSend').disabled=false;
-  }); /* fim RAF */
+
+  requestAnimationFrame(function(){
+    document.getElementById('btnSend').disabled=false;
+  });
 }
 
 /* TOGGLE MAP */
@@ -2120,7 +2060,6 @@ function startCap(){
 }
 async function stopCap(){
   capturing=false;
-  clearTimeout(window._capTimer);
   if(buffer.length){
     const kmF=document.getElementById('kmTxt').innerText.replace('KM ','');
     await savePDF([...buffer],kmIniLote,kmF);
@@ -2139,8 +2078,7 @@ function capLoop(){
   c.height=vid.videoHeight;
   const km=document.getElementById('kmTxt').innerText.replace('KM ','');
   drawOverlay(ctx,c.width,c.height,km,new Date().toLocaleString('pt-BR').toUpperCase(),`${lat}, ${lon}`);
-  var _q=(parseInt(document.getElementById('cfgQual')?.value)||72)/100;
-  buffer.push(c.toDataURL('image/jpeg',_q));
+  buffer.push(c.toDataURL('image/jpeg',.58));
   const lote=parseInt(document.getElementById('cfgLote').value)||50;
   if(buffer.length>=lote){
     const kmNow=km;
@@ -2148,10 +2086,7 @@ function capLoop(){
     buffer=[];
     kmIniLote=kmNow;
   }
-  /* rAF garante que o frame da câmera esteja pronto + não trava UI */
-  var interval=Math.max(100,parseInt(document.getElementById('cfgInt').value)||200);
-  var _capT=setTimeout(capLoop,interval);
-  window._capTimer=_capT;
+  setTimeout(capLoop,parseInt(document.getElementById('cfgInt').value)||200);
 }
 async function savePDF(data,kmI,kmF){
   if(!data.length)return;
@@ -2173,76 +2108,10 @@ async function savePDF(data,kmI,kmF){
 window._fotoLabel='';
 function syncFotoLabel(v){
   window._fotoLabel=String(v||'');
-  ['fotoLabel','cfgLabel'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el && el.value!==window._fotoLabel) el.value=window._fotoLabel;
-  });
-}
-
-/* Qualidade slider */
-document.addEventListener('DOMContentLoaded',function(){
-  var qs=document.getElementById('cfgQual');
-  var qv=document.getElementById('cfgQualVal');
-  if(qs && qv){
-    qs.oninput=function(){qv.textContent=qs.value;};
-  }
-});
-
-/* Flip câmera por facing mode */
-async function flipCam(facing){
-  if(stream)stream.getTracks().forEach(function(t){t.stop();});
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},
-      audio:false
-    });
-    document.getElementById('vid').srcObject=stream;
-    showToast('Câmera: '+(facing==='user'?'Frontal':'Traseira'));
-  }catch(e){showToast('Erro ao trocar câmera','err');}
-}
-
-/* Relatório por upload */
-async function handleUpload(inp){
-  const files=Array.from(inp.files||[]);
-  if(!files.length)return;
-  showToast('Gerando PDF com '+files.length+' fotos...');
-  const qual=(parseInt(document.getElementById('cfgQual')?.value)||72)/100;
-  const head=(document.getElementById('cfgHead')?.value||'').trim();
-  const foot=(document.getElementById('cfgFoot')?.value||'').trim();
-  const lbl=safeFotoLabel()||'UPLOAD';
-
-  const doc=new jspdf.jsPDF('l','mm','a4');
-  const pw=doc.internal.pageSize.getWidth();
-  const ph=doc.internal.pageSize.getHeight();
-
-  for(let i=0;i<files.length;i++){
-    if(i)doc.addPage();
-    const dataUrl=await new Promise(function(res){
-      const reader=new FileReader();
-      reader.onload=function(e){res(e.target.result);};
-      reader.readAsDataURL(files[i]);
-    });
-    doc.addImage(dataUrl,'JPEG',0,0,pw,ph);
-    /* cabeçalho e rodapé */
-    if(head){
-      doc.setFontSize(10);doc.setTextColor(255,255,255);
-      doc.text(head,6,7);
-    }
-    if(foot){
-      doc.setFontSize(8);doc.setTextColor(200,200,200);
-      doc.text(foot+' | '+(i+1)+'/'+files.length,6,ph-3);
-    }
-  }
-
-  const blob=doc.output('blob');
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='RELATORIO_'+lbl+'_'+Date.now()+'.pdf';
-  a.click();
-  setTimeout(function(){URL.revokeObjectURL(url);},5000);
-  showToast('PDF gerado: '+files.length+' fotos');
-  inp.value='';
+  const a=document.getElementById('fotoLabel');
+  const b=document.getElementById('fotoLabelLive');
+  if(a && a.value!==window._fotoLabel)a.value=window._fotoLabel;
+  if(b && b.value!==window._fotoLabel)b.value=window._fotoLabel;
 }
 function safeFotoLabel(){
   return String(window._fotoLabel||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toUpperCase();
@@ -2250,13 +2119,7 @@ function safeFotoLabel(){
 
 /* SETTINGS TOGGLE */
 function toggleSet(){
-  var s=document.getElementById('settings');
-  s.classList.toggle('open');
-  if(s.classList.contains('open')){
-    /* sincroniza label ao abrir */
-    var cfgL=document.getElementById('cfgLabel');
-    if(cfgL) cfgL.value=window._fotoLabel||'';
-  }
+  document.getElementById('settings').classList.toggle('open');
 }
 </script>
 </body>
