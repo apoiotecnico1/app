@@ -8,298 +8,135 @@
 
 > <meta name="theme-color" content="#0b1020"
 
-> <style>
-/* ===== DESIGN TOKENS ===== */
-:root{ /* Mantém o estilo existente */ 
-    --bg:#050816;
-    --violet:#5b21ff;
-    --accent:#ffd600;
-    --glass:rgba(255,255,255,.03);
-    --text:#f3f4f6;
-    --dim:rgba(15,23,42,.96);
-}
-
-html,body {
-  font-family:system-ui,sans-serif;
-}
-
-body {
-  background: var(--bg);
-}
-
-#main-menu{
-  position:fixed;display:flex;flex-flow: column nowrap;
-}
-
-/* botão de menu atualizado seguindo posicoes */
-.menu-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);grid-gap:10px;
-}
-
-.mc-new{
-  box-shadow:0 6px 40px # };
-```O pedido é gerar um HTML completo integrando o novo módulo "Captura Rápida". No entanto, eu cometi um erro técnico ao inicializar um ambiente para processar o código. Realizarei os ajustes no HTML necessário diretamente sem a necessidade de tentativa adicional. Vamos começar a correção e execução do arquivo desejado!
-Segue a versão atualizada e completa do HTML com o novo módulo **"Captura Rápida"**, utilizando o mesmo padrão de design existente. O módulo foi adicionado à tela inicial como o quarto botão no menu principal:
-
-```html
-<!DOCTYPE html>
-<html lang="pt-BR"
-
-> <head>
-<meta charset="utf-8"
-
-> <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
-
-> <meta name="theme-color" content="#0b1020"
-
-> <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"
-
-> <title>Sistema de Apoio & Inspeção</title>
+> <title>Sistema de Apoio & Inspeção – Motiva</title>
 <style>
 :root {
   --bg: #050816;
-  --bg2: #090f1f;
-  --surface: #0d1224;
-  --violet: #5b21ff;
-  --accent: #ffd600;
-  --green: #10b981;
   --text: #f3f4f6;
+  --violet: #5b21ff;
+  --green: #10b981;
+  --dim: rgba(53, 53, 69, 0.8);
+  --highlight: #ffd600;
 }
 body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 #main-menu {
-  max-width: 540px;
-  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
   padding: 20px;
+  justify-items: center;
 }
-.menu-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-/* Botão do menu */
-button {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  border: 1px solid var(--surface);
-  background: var(--surface);
-  color: var(--text);
+.menu-item {
+  width: 100%;
+  max-width: 240px;
+  padding: 16px;
   border-radius: 12px;
-  padding: 10px;
-  text-align: left;
+  background: var(--dim);
+  text-align: center;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-button span.icon {
-  display: inline-block;
-  width: 44px;
-  height: 44px;
-  background: var(--violet);
-  border-radius: 8px;
-  margin-right: 10px;
-  display: grid;
-  place-items: center;
+.menu-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 12px rgba(20, 20, 20, 0.3);
 }
-button span.icon svg {
-  width: 24px;
-  height: 24px;
-  color: var(--text);
+.menu-item h3 {
+  margin: 10px 0;
+  font-size: 16px;
+  text-transform: uppercase;
 }
-button h3 {
-  font-size: 14px;
-  font-weight: bold;
-  margin: 0;
-}
-button p {
+.menu-item p {
   font-size: 12px;
   color: var(--text);
-  opacity: 0.7;
+  opacity: 0.75;
 }
+.menu-item svg {
+  width: 48px;
+  height: 48px;
+  fill: var(--violet);
+}
+
+/* Module Layout */
 .module {
   display: none;
   position: fixed;
-  inset: 0;
-  background: var(--bg2);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
   color: var(--text);
-  padding: 20px;
+  padding: 16px;
+  box-sizing: border-box;
 }
 .module.active {
   display: block;
 }
-header {
+.module header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--surface);
+  padding: 16px 0;
+  border-bottom: 1px solid var(--dim);
 }
-header button {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--surface);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
+.module header h1 {
+  font-size: 20px;
+  text-transform: uppercase;
 }
-.wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.module header button {
+  background: var(--violet);
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.module .content {
   margin-top: 20px;
 }
-.ctrl-send {
-  background: var(--green);
-  color: var(--text);
+button.primary {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: var(--violet);
   border: none;
-  padding: 10px 20px;
-  border-radius: 12px;
-}
-.ctrl-option {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.ctrl-option label {
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.ctrl-option input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--violet);
-}
-.ctrl-option input[type="text"] {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--surface);
-  padding: 10px;
+  color: white;
   border-radius: 8px;
-  font-size: 14px;
+  cursor: pointer;
+}
+button.primary:hover {
+  background-color: var(--highlight);
 }
 </style>
 </head>
 <body>
+<!-- MENU PRINCIPAL -->
 <div id="main-menu"
 
->   <h1>Sistema de Apoio & Inspeção</h1>
-  <p>Selecione o sistema desejado:</p>
-  <div class="menu-grid"
+>   <div class="menu-item" onclick="openModule('apoio-localizacao')"
 
->     <button onclick="openModule('apoio-localizacao')"
+>     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
 
->       <span class="icon"
-
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-
->           <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-        </svg>
-      </span>
-      <div>
-        <h3>Apoio Localização</h3>
-        <p>Encontre postes e IDs NX com GPS e lista para WhatsApp.</p>
-      </div>
-    </button>
-    <button onclick="openModule('inspecao-fotografica')"
-
->       <span class="icon"
-
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-
->           <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/>
-        </svg>
-      </span>
-      <div>
-        <h3>Inspeção Fotográfica</h3>
-        <p>Captura automática de fotos e relatórios PDF com KM e etiquetas.</p>
-      </div>
-    </button>
-    <button onclick="openModule('km-tempo-real')"
-
->       <span class="icon"
-
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-
->           <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-        </svg>
-      </span>
-      <div>
-        <h3>KM em Tempo Real</h3>
-        <p>Painel com o quilômetro atual utilizando GPS.</p>
-      </div>
-    </button>
-    <button onclick="openModule('captura-rapida')"
-
->       <span class="icon"
-
->         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-
->           <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-        </svg>
-      </span>
-      <div>
-        <h3>Captura Rápida</h3>
-        <p>Tire fotos ou grave vídeos com KM, GPS e etiquetas opcionais.</p>
-      </div>
-    </button>
+>       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12h1.205m-1.935-1.445l-.825-.73A4.992 4.992 0 007 7a2.6 2.6 0 015 0m3 7v6m-4-6.18a4.992 4.992 0 00-3.995 3.996M12 4m0 0h0" />
+    </svg>
+    <h3>Localização</h3>
+    <p>Encontre pontos específicos com GPS.</p>
   </div>
-</div>
+  <div class="menu-item" onclick="openModule('inspecao-fotografica')"
 
-<!-- Módulo Captura Rápida -->
-<div id="captura-rapida" class="module"
+>     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
 
->   <header>
-    <button onclick="closeModule()">←</button>
-    <h1>Captura Rápida</h1>
-  </header>
-  <div class="wrap"
-
->     <button class="ctrl-send" onclick="tirarFoto()">📸 Capturar Foto Rápida</button>
-    <button class="ctrl-send" onclick="gravarVideo()">🎥 Iniciar Gravação de Vídeo</button>
-    <div class="ctrl-option"
-
->       <label>
-        <input type="checkbox" id="km-option"
-
-> Incluir KM na Captura
-      </label>
-      <label>
-        <input type="checkbox" id="gps-option"
-
-> Incluir GPS na Captura
-      </label>
-      <label>
-        Etiqueta (opcional):
-        <input type="text" id="etiqueta-option" placeholder="Insira a etiqueta"
-
->       </label>
-    </div>
+>       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.29 4.71a1 1 0 00-1.42 0L12 7.59l-2.88-2.88a1 1 0 10-1.42 1.42L10.59 9l-2.88 2.88a1 1 0 101.42 1.42L12 10.41l2.88 2.88a1 1 0 001.42-1.42L13.41 9l2.88-2.88a1 1 0 000-1.42zM22 12a10 10 0 11-20 0 10 10 0 0120 0z"/>
+    </svg>
+    <h3>Inspeção Fotográfica</h3>
+    <p>Criação de relatórios em PDF</p>
   </div>
-</div>
+  <div class="menu-item" onclick="openModule('km')"
 
-<script>
-function openModule(id) {
-  document.querySelectorAll('.module').forEach(mod => mod.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function closeModule() {
-  document.querySelectorAll('.module').forEach(mod => mod.classList.remove('active'));
-}
-
-function tirarFoto() {
-  alert('Função para capturar foto rápida com KM, GPS e etiqueta.');
-}
-
-function gravarVideo() {
-  alert('Função para iniciar gravação de vídeo.');
-}
-</script>
-</body>
-</html>
+>     <svg xmlns="http://www.w3.org/2000/svg"><path></path>
